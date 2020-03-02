@@ -20,13 +20,11 @@
   "peerDependencies": {
     "@jymfony/autoloader": "^0.1.0-alpha.22"
   },
-  "dependencies": {
-    "@jymfony/datastructure": "^0.1.0-alpha.22",
-    "@jymfony/util": "^0.1.0-alpha.22"
-  },
   "devDependencies": {
     "@jymfony/autoloader": "^0.1.0-alpha.22",
+    "@jymfony/datastructure": "^0.1.0-alpha.22",
     "@jymfony/decorators": "^0.1.0-alpha.22",
+    "@jymfony/util": "^0.1.0-alpha.22",
     "@types/node": "^12",
     "chai": "^4.2",
     "mocha": "^6.0",
