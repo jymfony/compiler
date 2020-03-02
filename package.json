@@ -1,0 +1,35 @@
+{
+  "name": "@jymfony/compiler",
+  "version": "0.1.0-dev",
+  "description": "Jymfony Compiler",
+  "main": "index.js",
+  "typings": "types/index.d.ts",
+  "scripts": {
+    "test": "node ./tests.js test/**"
+  },
+  "keywords": [
+    "jymfony",
+    "class loader",
+    "compiler"
+  ],
+  "author": "Alessandro Chitolina <alekitto@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.10.0"
+  },
+  "peerDependencies": {
+    "@jymfony/autoloader": "^0.1.0-alpha.22"
+  },
+  "dependencies": {
+    "@jymfony/datastructure": "^0.1.0-alpha.22",
+    "@jymfony/util": "^0.1.0-alpha.22"
+  },
+  "devDependencies": {
+    "@jymfony/autoloader": "^0.1.0-alpha.22",
+    "@jymfony/decorators": "^0.1.0-alpha.22",
+    "@types/node": "^12",
+    "chai": "^4.2",
+    "mocha": "^6.0",
+    "test262-parser-tests": "git+https://github.com/tc39/test262-parser-tests.git"
+  }
+}
