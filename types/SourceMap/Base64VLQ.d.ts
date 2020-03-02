@@ -9,3 +9,5 @@ declare class Base64VLQ {
      */
     static decode(str: string, index: number): [number, number];
 }
+
+export = Base64VLQ;

@@ -1,2 +1,6 @@
-declare class Docblock extends Comment {
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class Docblock extends Comment {
+        }
+    }
 }

@@ -1,17 +1,22 @@
-declare class BinaryExpression extends implementationOf(ExpressionInterface) {
-    public location: SourceLocation;
-    private _operator: string;
-    private _left: ExpressionInterface;
-    private _right: ExpressionInterface;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class BinaryExpression extends implementationOf(ExpressionInterface) {
+            public location: SourceLocation;
+            private _operator: string;
+            private _left: ExpressionInterface;
+            private _right: ExpressionInterface;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, operator: string, left: ExpressionInterface, right: ExpressionInterface): void;
-    constructor(location: SourceLocation, operator: string, left: ExpressionInterface, right: ExpressionInterface);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, operator: string, left: ExpressionInterface, right: ExpressionInterface): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            constructor(location: SourceLocation, operator: string, left: ExpressionInterface, right: ExpressionInterface);
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

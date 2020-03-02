@@ -1,17 +1,22 @@
-declare class IfStatement extends implementationOf(StatementInterface) {
-    public location: SourceLocation;
-    private _test: ExpressionInterface;
-    private _consequent: StatementInterface;
-    private _alternate: null | StatementInterface;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class IfStatement extends implementationOf(StatementInterface) {
+            public location: SourceLocation;
+            private _test: ExpressionInterface;
+            private _consequent: StatementInterface;
+            private _alternate: null | StatementInterface;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, test: ExpressionInterface, consequent: StatementInterface, alternate?: null | StatementInterface): void;
-    constructor(location: SourceLocation, test: ExpressionInterface, consequent: StatementInterface, alternate?: null | StatementInterface);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, test: ExpressionInterface, consequent: StatementInterface, alternate?: null | StatementInterface): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            constructor(location: SourceLocation, test: ExpressionInterface, consequent: StatementInterface, alternate?: null | StatementInterface);
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

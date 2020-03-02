@@ -1,20 +1,25 @@
-declare class RestElement extends implementationOf(PatternInterface) {
-    public location: SourceLocation;
-    private _argument: PatternInterface;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class RestElement extends implementationOf(PatternInterface) {
+            public location: SourceLocation;
+            private _argument: PatternInterface;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, argument: PatternInterface): void;
-    constructor(location: SourceLocation, argument: PatternInterface);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, argument: PatternInterface): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            constructor(location: SourceLocation, argument: PatternInterface);
 
-    /**
-     * The rest argument.
-     */
-    public readonly argument: PatternInterface;
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+
+            /**
+             * The rest argument.
+             */
+            public readonly argument: PatternInterface;
+        }
+    }
 }

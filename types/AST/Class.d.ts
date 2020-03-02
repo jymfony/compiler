@@ -1,63 +1,67 @@
-declare abstract class Class extends implementationOf(NodeInterface) {
-    public location: SourceLocation;
-    public docblock: null | string;
-    public decorators: null | AppliedDecorator[];
+declare module "@jymfony/compiler" {
+    namespace AST {
+        abstract class Class extends implementationOf(NodeInterface) {
+            public location: SourceLocation;
+            public docblock: null | string;
+            public decorators: null | AppliedDecorator[];
 
-    private _body: ClassBody;
-    private _id: Identifier;
-    private _superClass: ExpressionInterface | null;
+            private _body: ClassBody;
+            private _id: Identifier;
+            private _superClass: ExpressionInterface | null;
 
-    /**
-     * Gets the class name.
-     */
-    public readonly name: string;
+            /**
+             * Gets the class name.
+             */
+            public readonly name: string;
 
-    /**
-     * Gets the class identifier.
-     */
-    public readonly id: Identifier;
+            /**
+             * Gets the class identifier.
+             */
+            public readonly id: Identifier;
 
-    /**
-     * Gets the class body.
-     */
-    public readonly body: ClassBody;
+            /**
+             * Gets the class body.
+             */
+            public readonly body: ClassBody;
 
-    /**
-     * Gets/sets the superclass.
-     */
-    public superClass: null | ExpressionInterface;
+            /**
+             * Gets/sets the superclass.
+             */
+            public superClass: null | ExpressionInterface;
 
-    /**
-     * Class has constructor.
-     */
-    public readonly hasConstructor: boolean;
+            /**
+             * Class has constructor.
+             */
+            public readonly hasConstructor: boolean;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, body: ClassBody, id?: Identifier | null, superClass?: ExpressionInterface | null): void;
-    constructor(location: SourceLocation, body: ClassBody, id?: Identifier | null, superClass?: ExpressionInterface | null);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, body: ClassBody, id?: Identifier | null, superClass?: ExpressionInterface | null): void;
 
-    /**
-     * Class has constructor.
-     */
-    getConstructor(): null | ClassMethod;
+            constructor(location: SourceLocation, body: ClassBody, id?: Identifier | null, superClass?: ExpressionInterface | null);
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler);
+            /**
+             * Class has constructor.
+             */
+            getConstructor(): null | ClassMethod;
 
-    /**
-     * Compiles the docblock registration code.
-     */
-    compileDocblock(compiler: Compiler, id: Identifier): void;
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler);
 
-    /**
-     * Compiles the decorators upon this class.
-     */
-    compileDecorators(compiler: Compiler): StatementInterface[];
+            /**
+             * Compiles the docblock registration code.
+             */
+            compileDocblock(compiler: Compiler, id: Identifier): void;
 
-    private _prepare(): void;
+            /**
+             * Compiles the decorators upon this class.
+             */
+            compileDecorators(compiler: Compiler): StatementInterface[];
+
+            private _prepare(): void;
+        }
+    }
 }
-

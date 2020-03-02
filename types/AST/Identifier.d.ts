@@ -1,31 +1,36 @@
-declare class Identifier extends implementationOf(NodeInterface, ExpressionInterface, PatternInterface) {
-    public location: SourceLocation;
-    public docblock: string | null;
-    private _name: string;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class Identifier extends implementationOf(NodeInterface, ExpressionInterface, PatternInterface) {
+            public location: SourceLocation;
+            public docblock: string | null;
+            private _name: string;
 
-    /**
-     * Gets the identifier name.
-     */
-    public readonly name: string;
+            /**
+             * Gets the identifier name.
+             */
+            public readonly name: string;
 
-    /**
-     * @inheritdoc
-     */
-    public readonly names: (Identifier|ObjectMember)[];
+            /**
+             * @inheritdoc
+             */
+            public readonly names: (Identifier | ObjectMember)[];
 
-    /**
-     * Whether this identifier is a decorator name.
-     */
-    public readonly isDecoratorIdentifier: boolean;
+            /**
+             * Whether this identifier is a decorator name.
+             */
+            public readonly isDecoratorIdentifier: boolean;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, name: string): void;
-    constructor(location: SourceLocation, name: string);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, name: string): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            constructor(location: SourceLocation, name: string);
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

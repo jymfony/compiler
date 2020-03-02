@@ -1,3 +1,5 @@
+import MappingList = require("./MappingList");
+
 interface SourceMapVersion3 {
     version: 3;
     sources: string[];
@@ -70,3 +72,5 @@ declare class Generator {
      */
     private _serializeMappings(): string;
 }
+
+export = Generator;

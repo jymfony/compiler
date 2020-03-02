@@ -1,45 +1,50 @@
-declare class ClassMethod extends mix(Function, ClassMemberInterface) {
-    public location: SourceLocation;
-    public docblock: null | string;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class ClassMethod extends mix(Function, ClassMemberInterface) {
+            public location: SourceLocation;
+            public docblock: null | string;
 
-    private _kind: 'constructor' | 'method' | 'get' | 'set';
-    private _static: boolean;
-    private _private: boolean;
+            private _kind: 'constructor' | 'method' | 'get' | 'set';
+            private _static: boolean;
+            private _private: boolean;
 
-    /**
-     * Constructor.
-     */
-    // @ts-ignore
-    __construct(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'constructor' | 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async, Private,  Static }?: { generator?: boolean, async?: boolean, Private?: boolean, Static?: boolean }): void;
-    constructor(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'constructor' | 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async, Private, Static }?: { generator?: boolean, async?: boolean, Private?: boolean, Static?: boolean });
+            /**
+             * Constructor.
+             */
+            // @ts-ignore
+            __construct(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'constructor' | 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async, Private, Static }?: { generator?: boolean, async?: boolean, Private?: boolean, Static?: boolean }): void;
 
-    /**
-     * Gets the identifier.
-     */
-    public readonly id: any;
+            constructor(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'constructor' | 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async, Private, Static }?: { generator?: boolean, async?: boolean, Private?: boolean, Static?: boolean });
 
-    /**
-     * Gets the identifier.
-     */
-    public readonly kind: string;
+            /**
+             * Gets the identifier.
+             */
+            public readonly id: any;
 
-    /**
-     * Whether this method is static.
-     */
-    public readonly static: boolean;
+            /**
+             * Gets the identifier.
+             */
+            public readonly kind: string;
 
-    /**
-     * Whether this method is private.
-     */
-    public readonly private: boolean;
+            /**
+             * Whether this method is static.
+             */
+            public readonly static: boolean;
 
-    /**
-     * @inheritdoc
-     */
-    compileDecorators(compiler: Compiler, target: Class): StatementInterface[];
+            /**
+             * Whether this method is private.
+             */
+            public readonly private: boolean;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            /**
+             * @inheritdoc
+             */
+            compileDecorators(compiler: Compiler, target: Class): StatementInterface[];
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

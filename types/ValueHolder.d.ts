@@ -10,3 +10,5 @@ declare class ValueHolder {
      */
     constructor(value: any);
 }
+
+export = ValueHolder;

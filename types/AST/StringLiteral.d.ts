@@ -1,20 +1,25 @@
-declare class StringLiteral extends Literal {
-    private _value: string;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class StringLiteral extends Literal {
+            private _value: string;
 
-    /**
-     * Gets the string literal value.
-     */
-    public readonly value: string;
+            /**
+             * Gets the string literal value.
+             */
+            public readonly value: string;
 
-    /**
-     * Constructor.
-     */
-    // @ts-ignore
-    __construct(location: SourceLocation, value: string): void;
-    constructor(location: SourceLocation, value: string);
+            /**
+             * Constructor.
+             */
+            // @ts-ignore
+            __construct(location: SourceLocation, value: string): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            constructor(location: SourceLocation, value: string);
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

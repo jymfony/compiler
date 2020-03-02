@@ -23,3 +23,5 @@ declare class Mapping {
      */
     static compareByGeneratedPositionsDeflated(this_: Mapping, other: Mapping): number;
 }
+
+export = Mapping;

@@ -1,33 +1,38 @@
-declare class Program extends implementationOf(NodeInterface) {
-    public location: SourceLocation;
-    public esModule: boolean;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class Program extends implementationOf(NodeInterface) {
+            public location: SourceLocation;
+            public esModule: boolean;
 
-    /**
-     * Gets the nodes array.
-     */
-    public readonly body: NodeInterface[];
+            /**
+             * Gets the nodes array.
+             */
+            public readonly body: NodeInterface[];
 
-    private _body: NodeInterface[];
-    private _prepared: boolean;
+            private _body: NodeInterface[];
+            private _prepared: boolean;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation): void;
-    constructor(location: SourceLocation);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation): void;
 
-    /**
-     * Adds a node.
-     */
-    add(node: NodeInterface): void;
+            constructor(location: SourceLocation);
 
-    /**
-     * Prepares the program body.
-     */
-    prepare(): void;
+            /**
+             * Adds a node.
+             */
+            add(node: NodeInterface): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            /**
+             * Prepares the program body.
+             */
+            prepare(): void;
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

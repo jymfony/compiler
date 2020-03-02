@@ -1,140 +1,146 @@
-type State = {};
-type ParserPosition = [ Position, number ];
+import ExpressionParserTrait = require("./ExpressionParserTrait");
+import Lexer = require("./Lexer");
+import { Token } from "./Token";
 
-declare class Parser extends implementationOf(ExpressionParserTrait) {
-    private _lexer: Lexer;
-    private _input: string;
-    private _lastToken: Token;
-    private _lastNonBlankToken: Token;
-    private _line: number;
-    private _column: number;
-    private _level: number;
-    private _pendingDocblock: string;
-    private _pendingDecorators: AppliedDecorator[];
-    private _descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage;
-    private _decorators: Record<string, (location: SourceLocation, ...args: any[]) => AppliedDecorator>;
-    private _esModule: boolean;
+declare module "@jymfony/compiler" {
+    type State = {};
+    type ParserPosition = [Position, number];
 
-    /**
-     * Constructor.
-     */
-    __construct(descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage): void;
-    constructor(descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage);
+    export class Parser extends implementationOf(ExpressionParserTrait) {
+        private _lexer: Lexer;
+        private _input: string;
+        private _lastToken: Token;
+        private _lastNonBlankToken: Token;
+        private _line: number;
+        private _column: number;
+        private _level: number;
+        private _pendingDocblock: string;
+        private _pendingDecorators: AST.AppliedDecorator[];
+        private _descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage;
+        private _decorators: Record<string, (location: AST.SourceLocation, ...args: any[]) => AST.AppliedDecorator>;
+        private _esModule: boolean;
 
-    /**
-     * Gets/sets the current parser state.
-     */
-    public state: State;
+        /**
+         * Constructor.
+         */
+        __construct(descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage): void;
+        constructor(descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage);
 
-    /**
-     * Parses a js script.
-     */
-    parse(code: string): Program;
+        /**
+         * Gets/sets the current parser state.
+         */
+        public state: State;
 
-    /**
-     * Parse a token.
-     */
-    private _doParse(): NodeInterface;
+        /**
+         * Parses a js script.
+         */
+        parse(code: string): AST.Program;
 
-    /**
-     * Advances the internal position counters.
-     */
-    private _advance(value?: string): void;
+        /**
+         * Parse a token.
+         */
+        private _doParse(): AST.NodeInterface;
 
-    /**
-     * Gets the current position.
-     */
-    private _getCurrentPosition(): ParserPosition;
+        /**
+         * Advances the internal position counters.
+         */
+        private _advance(value?: string): void;
 
-    /**
-     * Makes a location.
-     */
-    private _makeLocation([startPosition, inputStart]: ParserPosition): SourceLocation;
+        /**
+         * Gets the current position.
+         */
+        private _getCurrentPosition(): ParserPosition;
 
-    private static _includesLineTerminator(value: string): boolean;
+        /**
+         * Makes a location.
+         */
+        private _makeLocation([startPosition, inputStart]: ParserPosition): AST.SourceLocation;
 
-    /**
-     * Assert there's a statement termination (newline or semicolon).
-     */
-    private _expectStatementTermination(): void;
+        private static _includesLineTerminator(value: string): boolean;
 
-    private _syntaxError(message?: string): never;
-    private _expect(type): void;
+        /**
+         * Assert there's a statement termination (newline or semicolon).
+         */
+        private _expectStatementTermination(): void;
 
-    /**
-     * Skip spaces and advances the internal position.
-     */
-    private _skipSpaces(processDecorators?: boolean): void;
+        private _syntaxError(message?: string): never;
+        private _expect(type): void;
 
-    /**
-     * Advance to next token.
-     */
-    private _next(skipSpaces?: boolean, processDecorators?: boolean): void;
+        /**
+         * Skip spaces and advances the internal position.
+         */
+        private _skipSpaces(processDecorators?: boolean): void;
 
-    /**
-     * Skips eventual semicolon.
-     */
-    private _skipSemicolon(): void;
+        /**
+         * Advance to next token.
+         */
+        private _next(skipSpaces?: boolean, processDecorators?: boolean): void;
 
-    private _isPlainFor(): boolean;
-    private _parseDecorator(): AppliedDecorator;
+        /**
+         * Skips eventual semicolon.
+         */
+        private _skipSemicolon(): void;
 
-    /**
-     * Initiate a keyword parsing.
-     */
-    private _parseKeyword(): StatementInterface;
+        private _isPlainFor(): boolean;
+        private _parseDecorator(): AST.AppliedDecorator;
 
-    /**
-     * Parse a pattern node.
-     */
-    private _parsePattern(): PatternInterface;
+        /**
+         * Initiate a keyword parsing.
+         */
+        private _parseKeyword(): AST.StatementInterface;
 
-    /**
-     * Returns an initializer if any.
-     */
-    private _maybeInitializer(): null | ExpressionInterface;
+        /**
+         * Parse a pattern node.
+         */
+        private _parsePattern(): AST.PatternInterface;
 
-    /**
-     * Parse and returns an identifier, if any.
-     */
-    private _maybeIdentifier(): null | Identifier;
+        /**
+         * Returns an initializer if any.
+         */
+        private _maybeInitializer(): null | AST.ExpressionInterface;
 
-    /**
-     * Parse an identifier.
-     */
-    private _parseIdentifier(): Identifier;
+        /**
+         * Parse and returns an identifier, if any.
+         */
+        private _maybeIdentifier(): null | AST.Identifier;
 
-    /**
-     * Parses a class declaration.
-     */
-    private _parseClassDeclaration(): ClassDeclaration;
+        /**
+         * Parse an identifier.
+         */
+        private _parseIdentifier(): AST.Identifier;
 
-    /**
-     * Parses a class.
-     */
-    private _parseClass(): [SourceLocation, ClassBody, null | Identifier, null | ExpressionInterface];
+        /**
+         * Parses a class declaration.
+         */
+        private _parseClassDeclaration(): AST.ClassDeclaration;
 
-    private _parseObjectMemberSignature(acceptsPrivateMembers?: boolean): { Generator: boolean, Static: boolean, Get: boolean, Set: boolean, Async: boolean, Private: boolean, property: boolean, MethodName: ExpressionInterface };
+        /**
+         * Parses a class.
+         */
+        private _parseClass(): [AST.SourceLocation, AST.ClassBody, null | AST.Identifier, null | AST.ExpressionInterface];
 
-    /**
-     * Parses a class body.
-     */
-    private _parseClassBody(): ClassBody;
+        private _parseObjectMemberSignature(acceptsPrivateMembers?: boolean): { Generator: boolean, Static: boolean, Get: boolean, Set: boolean, Async: boolean, Private: boolean, property: boolean, MethodName: AST.ExpressionInterface };
 
-    /**
-     * Parses a class method.
-     */
-    private _parseClassMethod(start: ParserPosition, id: null | ExpressionInterface, kind: string, opts: { Private: boolean, Static: boolean, async: boolean, generator: boolean }): ClassMethod;
+        /**
+         * Parses a class body.
+         */
+        private _parseClassBody(): AST.ClassBody;
 
-    /**
-     * Parses a block statement.
-     */
-    private _parseBlockStatement(): BlockStatement;
+        /**
+         * Parses a class method.
+         */
+        private _parseClassMethod(start: ParserPosition, id: null | AST.ExpressionInterface, kind: string, opts: { Private: boolean, Static: boolean, async: boolean, generator: boolean }): AST.ClassMethod;
 
-    private _parseStatement(skipStatementTermination?: boolean): StatementInterface;
-    private _doParseStatement(skipStatementTermination: boolean): StatementInterface;
-    private _parseFormalParametersList(): Argument[];
-    private _parseThrowStatement(): ThrowStatement;
-    private _parseIfStatement(): IfStatement;
-    private _parseReturnStatement(): ReturnStatement;
+        /**
+         * Parses a block statement.
+         */
+        private _parseBlockStatement(): AST.BlockStatement;
+
+        private _parseStatement(skipStatementTermination?: boolean): AST.StatementInterface;
+        private _doParseStatement(skipStatementTermination: boolean): AST.StatementInterface;
+        private _parseFormalParametersList(): AST.Argument[];
+        private _parseThrowStatement(): AST.ThrowStatement;
+        private _parseIfStatement(): AST.IfStatement;
+        private _parseReturnStatement(): AST.ReturnStatement;
+    }
 }

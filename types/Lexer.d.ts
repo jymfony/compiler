@@ -1,9 +1,5 @@
-type Token = {
-    value: string,
-    type: number,
-    position: number,
-    index: number,
-};
+import { Token } from "./Token";
+import ValueHolder = require("./ValueHolder");
 
 /**
  * Lexer for js code.
@@ -117,7 +113,7 @@ declare class Lexer {
     /**
      * Checks whether a given token matches the current lookahead.
      */
-    isNextToken(token: number|string): boolean;
+    isNextToken(token: number | string): boolean;
 
     /**
      * Checks whether any of the given tokens matches the current lookahead.
@@ -151,14 +147,14 @@ declare class Lexer {
      *
      * @returns The next token or undefined if there are no more tokens ahead.
      */
-    peek(): Token|undefined;
+    peek(): Token | undefined;
 
     /**
      * Peeks at the next token, returns it and immediately resets the peek.
      *
      * @returns The next token or undefined if there are no more tokens ahead.
      */
-    glimpse(): Token|undefined;
+    glimpse(): Token | undefined;
 
     /**
      * Gets the literal for a given token.
@@ -178,3 +174,5 @@ declare class Lexer {
     getPatterns(): string[];
     getType(holder: ValueHolder): number;
 }
+
+export = Lexer;

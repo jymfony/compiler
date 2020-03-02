@@ -9,3 +9,5 @@ declare class StackHandler {
      */
     static registerSourceMap(filename: string, mappings: string): void;
 }
+
+export = StackHandler;

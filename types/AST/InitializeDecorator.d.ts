@@ -1,33 +1,38 @@
-declare class InitializeDecorator extends AppliedDecorator {
-    /**
-     * Gets the mangled name of the callback.
-     */
-    public readonly mangledName: string;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class InitializeDecorator extends AppliedDecorator {
+            /**
+             * Gets the mangled name of the callback.
+             */
+            public readonly mangledName: string;
 
-    /**
-     * Gets the callback expression.
-     */
-    public readonly callback: Function;
+            /**
+             * Gets the callback expression.
+             */
+            public readonly callback: Function;
 
-    /**
-     * Constructor.
-     */
-    // @ts-ignore
-    __construct(location: SourceLocation, callback: Function): void;
-    constructor(location: SourceLocation, callback: Function);
+            /**
+             * Constructor.
+             */
+            // @ts-ignore
+            __construct(location: SourceLocation, callback: Function): void;
 
-    /**
-     * @inheritdoc
-     */
-    apply(compiler: Compiler, class_: Class, target: Class|ClassMemberInterface, variable: string): StatementInterface[];
+            constructor(location: SourceLocation, callback: Function);
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler, class_?: Class, target?: Class|ClassMemberInterface): StatementInterface[];
+            /**
+             * @inheritdoc
+             */
+            apply(compiler: Compiler, class_: Class, target: Class | ClassMemberInterface, variable: string): StatementInterface[];
 
-    /**
-     * Applies the decorator adding function call to constructor.
-     */
-    _addToConstructor(class_: Class, target: Class|ClassMemberInterface, callee: Identifier): void;
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler, class_?: Class, target?: Class | ClassMemberInterface): StatementInterface[];
+
+            /**
+             * Applies the decorator adding function call to constructor.
+             */
+            _addToConstructor(class_: Class, target: Class | ClassMemberInterface, callee: Identifier): void;
+        }
+    }
 }

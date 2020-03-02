@@ -1,33 +1,38 @@
-declare class DecoratorDescriptor extends implementationOf(NodeInterface) {
-    public location: SourceLocation;
-    private _name: Identifier;
-    private _args: PatternInterface[];
-    private _decorators: AppliedDecorator[];
-    private _mangled: string;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class DecoratorDescriptor extends implementationOf(NodeInterface) {
+            public location: SourceLocation;
+            private _name: Identifier;
+            private _args: PatternInterface[];
+            private _decorators: AppliedDecorator[];
+            private _mangled: string;
 
-    /**
-     * Gets the decorator name.
-     */
-    public readonly name: Identifier;
+            /**
+             * Gets the decorator name.
+             */
+            public readonly name: Identifier;
 
-    /**
-     * Gets the mangled name of the callback.
-     */
-    public readonly mangledName: string;
+            /**
+             * Gets the mangled name of the callback.
+             */
+            public readonly mangledName: string;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, name: Identifier, args: PatternInterface[], decorators: AppliedDecorator[]): void;
-    constructor(location: SourceLocation, name: Identifier, args: PatternInterface[], decorators: AppliedDecorator[]);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, name: Identifier, args: PatternInterface[], decorators: AppliedDecorator[]): void;
 
-    /**
-     * Generates code for decorator application.
-     */
-    apply(compiler: Compiler, class_: Class, target: Class|ClassMemberInterface, variable: string): StatementInterface[];
+            constructor(location: SourceLocation, name: Identifier, args: PatternInterface[], decorators: AppliedDecorator[]);
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            /**
+             * Generates code for decorator application.
+             */
+            apply(compiler: Compiler, class_: Class, target: Class | ClassMemberInterface, variable: string): StatementInterface[];
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

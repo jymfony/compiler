@@ -1,26 +1,31 @@
-declare class ClassBody extends implementationOf(NodeInterface) {
-    public location: SourceLocation;
-    private _body: ClassMemberInterface[];
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class ClassBody extends implementationOf(NodeInterface) {
+            public location: SourceLocation;
+            private _body: ClassMemberInterface[];
 
-    /**
-     * Gets class member array.
-     * Not a shallow copy.
-     */
-    public readonly members: ClassMemberInterface[];
+            /**
+             * Gets class member array.
+             * Not a shallow copy.
+             */
+            public readonly members: ClassMemberInterface[];
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, body: ClassMemberInterface[]): void;
-    constructor(location: SourceLocation, body: ClassMemberInterface[]);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, body: ClassMemberInterface[]): void;
 
-    /**
-     * Adds a class member.
-     */
-    addMember(member: ClassMemberInterface): void;
+            constructor(location: SourceLocation, body: ClassMemberInterface[]);
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            /**
+             * Adds a class member.
+             */
+            addMember(member: ClassMemberInterface): void;
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

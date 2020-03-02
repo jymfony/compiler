@@ -1,17 +1,22 @@
-declare class YieldExpression extends implementationOf(ExpressionInterface) {
-    public location: SourceLocation;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class YieldExpression extends implementationOf(ExpressionInterface) {
+            public location: SourceLocation;
 
-    private _argument: ExpressionInterface;
-    private _delegate: boolean;
+            private _argument: ExpressionInterface;
+            private _delegate: boolean;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, argument: ExpressionInterface, delegate: boolean): void;
-    constructor(location: SourceLocation, argument: ExpressionInterface, delegate: boolean);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, argument: ExpressionInterface, delegate: boolean): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            constructor(location: SourceLocation, argument: ExpressionInterface, delegate: boolean);
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

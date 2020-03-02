@@ -1,20 +1,25 @@
-declare class SequenceExpression extends implementationOf(ExpressionInterface) {
-    public location: SourceLocation;
-    private _expressions: ExpressionInterface[];
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class SequenceExpression extends implementationOf(ExpressionInterface) {
+            public location: SourceLocation;
+            private _expressions: ExpressionInterface[];
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, expressions: ExpressionInterface[]): void;
-    constructor(location: SourceLocation, expressions: ExpressionInterface[]);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, expressions: ExpressionInterface[]): void;
 
-    /**
-     * Gets the expressions.
-     */
-    public readonly expressions: ExpressionInterface[];
+            constructor(location: SourceLocation, expressions: ExpressionInterface[]);
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            /**
+             * Gets the expressions.
+             */
+            public readonly expressions: ExpressionInterface[];
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }

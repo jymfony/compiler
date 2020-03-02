@@ -1,3 +1,5 @@
+import Mapping = require("./Mapping");
+
 /**
  * A data structure to provide a sorted view of accumulated mappings in a
  * performance conscious manner. It trades a negligible overhead in general
@@ -26,3 +28,5 @@ declare class MappingList {
      */
     toArray(): Mapping[];
 }
+
+export = MappingList;

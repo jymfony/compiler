@@ -1,17 +1,22 @@
-declare class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
-    public location: SourceLocation;
+declare module "@jymfony/compiler" {
+    namespace AST {
+        class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
+            public location: SourceLocation;
 
-    private _specifiers: ImportSpecifierInterface[];
-    private _source: Literal;
+            private _specifiers: ImportSpecifierInterface[];
+            private _source: Literal;
 
-    /**
-     * Constructor.
-     */
-    __construct(location: SourceLocation, specifiers: ImportSpecifierInterface[], source: Literal): void;
-    constructor(location: SourceLocation, specifiers: ImportSpecifierInterface[], source: Literal);
+            /**
+             * Constructor.
+             */
+            __construct(location: SourceLocation, specifiers: ImportSpecifierInterface[], source: Literal): void;
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler: Compiler): void;
+            constructor(location: SourceLocation, specifiers: ImportSpecifierInterface[], source: Literal);
+
+            /**
+             * @inheritdoc
+             */
+            compile(compiler: Compiler): void;
+        }
+    }
 }
