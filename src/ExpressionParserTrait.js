@@ -609,7 +609,7 @@ class ExpressionParserTrait {
             const operator = this._lexer.token.value;
 
             this._next();
-            const right = this._parseExpression({ maxLevel: 3 });
+            const right = this._parseExpression({ maxLevel: 2 });
             expression = new AST.AssignmentExpression(this._makeLocation(start), operator, expression, right);
         }
 

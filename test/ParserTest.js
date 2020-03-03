@@ -369,4 +369,29 @@ return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
 }
 ;`);
     });
+
+    it ('should correctly split keyword and string operator', () => {
+        const program = parser.parse(`
+switch(c){case'\\t':read();return;}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`switch (c) {
+case '\\t':
+read();
+return;
+
+};`);
+    });
+
+    it ('should correctly parse yield expression assignment', () => {
+        const program = parser.parse(`
+result = yield transform(source, options);
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`result = yield transform(source,options);`);
+    });
 });

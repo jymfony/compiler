@@ -28,4 +28,16 @@ describe('[Compiler] Lexer', function () {
             { value: 'end-of-file', type: Lexer.T_EOF, position: 3, index: 3 },
         ]);
     });
+
+    it ('can parse variable name with dollar sign', () => {
+        const lexer = new Lexer();
+
+        lexer.input = 'var this$1';
+        expect(lexer._tokens).to.be.deep.eq([
+            { value: 'var', type: Lexer.T_KEYWORD, position: 0, index: 0 },
+            { value: ' ', type: Lexer.T_SPACE, position: 3, index: 1 },
+            { value: 'this$1', type: Lexer.T_IDENTIFIER, position: 4, index: 2 },
+            { value: 'end-of-file', type: Lexer.T_EOF, position: 10, index: 3 },
+        ]);
+    });
 });
