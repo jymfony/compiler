@@ -282,4 +282,19 @@ return x ^ y;
 }
 ;`);
     });
+
+    it ('should parse ', () => {
+        const program = parser.parse(`
+var async = require('./lib/async');
+async.core = core;
+async.isCore = function isCore(x) { return core[x]; };
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`var async = require('./lib/async');async.core = core;async.isCore = function isCore(x){
+return core[x];
+}
+;`);
+    });
 });

@@ -285,6 +285,10 @@ class ExpressionParserTrait {
             return undefined;
         }
 
+        return this._parseExpressionStage2(start, maxLevel, expression);
+    }
+
+    _parseExpressionStage2(start, maxLevel, expression) {
         cycle: while (true) {
             const state = this.state;
             this._skipSpaces();
@@ -427,18 +431,19 @@ class ExpressionParserTrait {
      *
      * @param {int} maxLevel
      * @param {boolean} pattern
+     * @param {boolean} identifier
      *
      * @returns {AST.ExpressionInterface}
      *
      * @private
      */
-    _parseExpression({ maxLevel = -1, pattern = false } = {}) {
+    _parseExpression({ maxLevel = -1, pattern = false, identifier = false } = {}) {
         const start = this._getCurrentPosition();
         let expression;
 
         const state = this.state;
         try {
-            expression = this._parseExpressionStage1(start, maxLevel);
+            expression = identifier ? this._parseExpressionStage2(start, maxLevel) : this._parseExpressionStage1(start, maxLevel);
         } catch (e) {
             if (pattern) {
                 throw e;
@@ -451,6 +456,7 @@ class ExpressionParserTrait {
                 throw e;
             }
         }
+
         if (17 < maxLevel) {
             return expression;
         }

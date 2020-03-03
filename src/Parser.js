@@ -1024,14 +1024,17 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             case Lexer.T_OPEN_PARENTHESIS:
             case Lexer.T_NEW:
             case Lexer.T_THIS:
-            case Lexer.T_SUPER:
+            case Lexer.T_SUPER: {
+                pattern = this._parseExpression({ maxLevel: 18, pattern: true });
+            } break;
+
             case Lexer.T_SET:
             case Lexer.T_GET:
             case Lexer.T_ASYNC:
             case Lexer.T_DECORATOR:
             case Lexer.T_ARGUMENTS:
             case Lexer.T_IDENTIFIER: {
-                pattern = this._parseExpression({ maxLevel: 18, pattern: true });
+                pattern = this._parseExpression({ maxLevel: 18, pattern: true, identifier: true });
             } break;
 
             default:
@@ -1367,6 +1370,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
     _doParseStatement(skipStatementTermination) {
         const start = this._getCurrentPosition();
         const level = this._level++;
+        let async = false;
 
         try {
             if (this._lexer.isToken(Lexer.T_CURLY_BRACKET_OPEN)) {
@@ -1467,13 +1471,20 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                     return statement;
                 }
 
-                case Lexer.T_ASYNC:
-                case Lexer.T_FUNCTION: {
-                    const async = Lexer.T_ASYNC === this._lexer.token.type;
-                    if (async) {
-                        this._next();
-                    }
+                case Lexer.T_ASYNC: {
+                    async = true;
+                    const state = this.state;
+                    this._next();
 
+                    if (Lexer.T_DOT === this._lexer.token.type) {
+                        this.state = state;
+                        const expression = this._parseExpression();
+
+                        return new AST.ExpressionStatement(this._makeLocation(start), expression);
+                    }
+                } // No break
+
+                case Lexer.T_FUNCTION: {
                     this._next(); // Function keyword. async arrow functions are already handled.
 
                     const generator = '*' === this._lexer.token.value;
