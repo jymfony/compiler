@@ -326,6 +326,21 @@ const foo = cond ? Number(bar) / 100 : undefined; // return a comment
         expect(compiled).to.be.equal(`const foo = cond ? Number(bar) / 100 : undefined;`);
     });
 
+    it ('should correctly rethrow a rescan through the call chain', () => {
+        const program = parser.parse(`
+[rgbR, rgbG, rgbB].map(function xmap(v) {
+    return v > 4.045 ? Math.pow((v + 5.5) / 105.5, 2.4) * 100 : v / 12.92;
+});
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB,  ].map(function xmap(v){
+return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
+}
+);`);
+    });
+
     it ('should correctly rescan multiple times', () => {
         const program = parser.parse(`
 convert.apple.rgb = function rgb(apple) {

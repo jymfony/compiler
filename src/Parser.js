@@ -1413,6 +1413,10 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
                         return new AST.ExpressionStatement(this._makeLocation(start), expression);
                     } catch (e) {
+                        if (e instanceof RescanException) {
+                            throw e;
+                        }
+
                         this.state = state;
                         return this._parsePattern();
                     }

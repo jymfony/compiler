@@ -1,6 +1,7 @@
-const Lexer = require('./Lexer');
 const AST = require('./AST');
+const Lexer = require('./Lexer');
 const NotARegExpException = require('./Exception/NotARegExpException');
+const RescanException = require('./Exception/RescanException');
 
 class ExpressionParserTrait {
     _isArrowFunctionExpression() {
@@ -445,7 +446,7 @@ class ExpressionParserTrait {
         try {
             expression = identifier ? this._parseExpressionStage2(start, maxLevel) : this._parseExpressionStage1(start, maxLevel);
         } catch (e) {
-            if (pattern) {
+            if (pattern || (e instanceof RescanException)) {
                 throw e;
             }
 
