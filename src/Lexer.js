@@ -295,6 +295,9 @@ class Lexer {
         });
 
         this._tokens = tokens;
+        for (const [ index, tok ] of __jymfony.getEntries(this._tokens)) {
+            tok.index = index;
+        }
     }
 
     /**

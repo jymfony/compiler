@@ -325,4 +325,33 @@ const foo = cond ? Number(bar) / 100 : undefined; // return a comment
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const foo = cond ? Number(bar) / 100 : undefined;`);
     });
+
+    it ('should correctly rescan multiple times', () => {
+        const program = parser.parse(`
+convert.apple.rgb = function rgb(apple) {
+    return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
+};
+
+convert.rgb.apple = function apple(rgb) {
+    return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
+};
+
+convert.gray.rgb = function gray(args) {
+    return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
+};
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple){
+return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255,  ];
+}
+;convert.rgb.apple = function apple(rgb){
+return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535,  ];
+}
+;convert.gray.rgb = function gray(args){
+return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
+}
+;`);
+    });
 });
