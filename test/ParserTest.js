@@ -283,7 +283,7 @@ return x ^ y;
 ;`);
     });
 
-    it ('should parse ', () => {
+    it ('should parse async as variable identifier', () => {
         const program = parser.parse(`
 var async = require('./lib/async');
 async.core = core;
@@ -296,5 +296,33 @@ async.isCore = function isCore(x) { return core[x]; };
 return core[x];
 }
 ;`);
+    });
+
+    it ('should parse break with newline and identifier next', () => {
+        const program = parser.parse(`
+  for (var i = released.length - 1; i >= 0; i--) {
+    if (minimum > getMajor(released[i])) break
+    selected.unshift(released[i])
+  }
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`for (var i = released.length - 1;i >= 0;i--){
+if (minimum > getMajor(released[i])) break
+;
+selected.unshift(released[i]);
+}
+;`);
+    });
+
+    it ('should correctly rescan the rest of the file if a wrong regex has been matched', () => {
+        const program = parser.parse(`
+const foo = cond ? Number(bar) / 100 : undefined; // return a comment
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`const foo = cond ? Number(bar) / 100 : undefined;`);
     });
 });

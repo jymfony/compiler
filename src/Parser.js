@@ -612,11 +612,20 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             }
 
             case 'break': {
-                this._next();
-
+                this._next(false);
                 let label = null;
-                if (this._lexer.isToken(Lexer.T_IDENTIFIER)) {
-                    label = this._parseIdentifier();
+
+                if (
+                    this._lexer.isToken(Lexer.T_SPACE) &&
+                    ! this.constructor._includesLineTerminator(this._lexer.token.value)
+                ) {
+                    this._next();
+
+                    if (this._lexer.isToken(Lexer.T_IDENTIFIER)) {
+                        label = this._parseIdentifier();
+                    }
+                } else {
+                    this._next();
                 }
 
                 return new AST.BreakStatement(this._makeLocation(start), label);

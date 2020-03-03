@@ -259,7 +259,7 @@ class Lexer {
         this._last = undefined;
         const regex = new RegExp('((?:' + this.getPatterns().join(')|(?:') + '))', 'g');
 
-        const tokens = [];
+        const tokens = this._tokens.slice(0, token.index);
         let match, value = token.value, offset = token.position;
 
         if (err instanceof NotARegExpException || err instanceof WrongAssignmentException) {
@@ -270,8 +270,7 @@ class Lexer {
                 index: 0,
             });
 
-            value = value.substr(1);
-            offset++;
+            value = this._input.substr(++offset);
         } else {
             throw new Exception('Unknown rescan reason');
         }
@@ -288,10 +287,14 @@ class Lexer {
             });
         }
 
-        this._tokens.splice(token.index, 1, ...tokens);
-        for (const [ index, tok ] of __jymfony.getEntries(this._tokens)) {
-            tok.index = index;
-        }
+        tokens.push({
+            value: 'end-of-file',
+            type: Lexer.T_EOF,
+            position: this._input.length,
+            index: tokens.length,
+        });
+
+        this._tokens = tokens;
     }
 
     /**
