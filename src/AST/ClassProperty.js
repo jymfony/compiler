@@ -146,6 +146,8 @@ class ClassProperty extends implementationOf(ClassMemberInterface) {
             compiler._emit(' = ');
             compiler.compileNode(this._value);
         }
+
+        compiler._emit(';');
     }
 }
 
