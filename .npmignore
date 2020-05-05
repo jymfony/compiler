@@ -1,3 +1,4 @@
+.eslint*
 .idea
 .travis.yml
 .scrutinizer.yml
