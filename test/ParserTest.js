@@ -323,7 +323,7 @@ const foo = cond ? Number(bar) / 100 : undefined; // return a comment
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const foo = cond ? Number(bar) / 100 : undefined;`);
+        expect(compiled).to.be.equal('const foo = cond ? Number(bar) / 100 : undefined;');
     });
 
     it ('should correctly rethrow a rescan through the call chain', () => {
@@ -392,7 +392,7 @@ result = yield transform(source, options);
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`result = yield transform(source,options);`);
+        expect(compiled).to.be.equal('result = yield transform(source,options);');
     });
 
     it ('should correctly parse computed class member id', () => {
