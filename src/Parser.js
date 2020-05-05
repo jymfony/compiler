@@ -1193,8 +1193,14 @@ class Parser extends implementationOf(ExpressionParserTrait) {
         }
 
         if (this._lexer.isToken(Lexer.T_OPEN_SQUARE_BRACKET)) {
+            const start = this._getCurrentPosition();
+
             this._next();
             apply(this._parseExpression({ maxLevel: 2 }), true);
+
+            if (MethodName instanceof AST.Identifier) {
+                MethodName = new AST.StringLiteral(this._makeLocation(start), MethodName.name);
+            }
         } else if (! [ Lexer.T_COLON, Lexer.T_OPEN_PARENTHESIS ].includes(this._lexer.token.type)) {
             apply(this._lexer.token.value);
         }

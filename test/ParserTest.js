@@ -394,4 +394,19 @@ result = yield transform(source, options);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`result = yield transform(source,options);`);
     });
+
+    it ('should correctly parse computed class member id', () => {
+        const program = parser.parse(`
+class x {
+  [computed](param) {}
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.have.string(`class x extends __jymfony.JObject {
+[computed](param) {
+}
+`);
+    });
 });
