@@ -14,13 +14,19 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, body: ClassMemberInterface[]): void;
-
             constructor(location: SourceLocation, body: ClassMemberInterface[]);
 
             /**
              * Adds a class member.
              */
             addMember(member: ClassMemberInterface): void;
+
+            /**
+             * Removes a class member.
+             *
+             * @throws {InvalidArgumentException} If passed argument is not part of this class body.
+             */
+            removeMember(member: ClassMemberInterface): void;
 
             /**
              * @inheritdoc

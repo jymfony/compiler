@@ -174,6 +174,10 @@ class Class extends implementationOf(NodeInterface) {
         const members = this._body.members;
         const fields = [];
         const staticFields = [];
+
+        /** @type {ClassProperty[]} */
+        const initializableFields = [];
+
         for (const member of members) {
             if (member instanceof ClassMethod && ('constructor' === member.name || '__construct' === member.name)) {
                 for (const statement of member.body.statements) {
@@ -223,6 +227,9 @@ class Class extends implementationOf(NodeInterface) {
                     staticFields.push(prop);
                 } else {
                     fields.push(prop);
+                    if (! member.private) {
+                        initializableFields.push(member);
+                    }
                 }
             }
         }
@@ -242,6 +249,34 @@ class Class extends implementationOf(NodeInterface) {
             [],
             { Static: true }
         ));
+
+        const fieldsInitializators = initializableFields.map(p => {
+            this._body.removeMember(p);
+
+            return new CallExpression(
+                p.location,
+                new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty'), false),
+                [
+                    new Identifier(null, 'this'),
+                    p.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(p.key.name)) : p.key,
+                    new ObjectExpression(null, [
+                        new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'true')),
+                        new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'true')),
+                        new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
+                        new ObjectProperty(null, new Identifier(null, 'value'), null !== p.value ? p.value : new Identifier(null, 'undefined')),
+                    ]),
+                ]
+            );
+        });
+
+        if (fieldsInitializators.length) {
+            members.push(new ClassMethod(
+                null,
+                new BlockStatement(null, fieldsInitializators),
+                new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false),
+                'method'
+            ));
+        }
     }
 
     /**

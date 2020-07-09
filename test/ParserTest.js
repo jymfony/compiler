@@ -410,12 +410,41 @@ class x {
 `);
     });
 
+    it ('should correctly initialize public instance fields on construct', () => {
+        const program = parser.parse(`
+class x {
+  field = 'foo';
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.have.string(`class x extends __jymfony.JObject {
+static get [Symbol.reflection]() {
+return {
+fields: {
+field: {
+get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},},staticFields: {
+},};
+}
+
+[Symbol.__jymfony_field_initialization]() {
+Object.defineProperty(this,"field",{
+writable: true,enumerable: true,configurable: true,value: 'foo',});
+}
+
+
+}
+x[Symbol.docblock] = null;
+;`);
+    });
+
     it ('should correctly invoke decorators on class declarations', () => {
         const program = parser.parse(`
 class x {
   @register((target, prop, parameterIndex = null) => {})
   @initialize((instance, key, value) => {})
-  field = 'foo'; 
+  field = 'foo';
 }
 `);
 
@@ -425,7 +454,6 @@ class x {
 }
 ;
 class x extends __jymfony.JObject {
-field;
 constructor() {
 super();
 ((instance,key,value) => {
@@ -440,6 +468,11 @@ fields: {
 field: {
 get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},},staticFields: {
 },};
+}
+
+[Symbol.__jymfony_field_initialization]() {
+Object.defineProperty(this,"field",{
+writable: true,enumerable: true,configurable: true,value: undefined,});
 }
 
 
