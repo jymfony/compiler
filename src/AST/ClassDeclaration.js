@@ -3,9 +3,14 @@ const DeclarationInterface = require('./DeclarationInterface');
 
 class ClassDeclaration extends mix(Class, DeclarationInterface) {
     compile(compiler) {
-        this.compileDecorators(compiler);
+        const tail = this.compileDecorators(compiler);
         super.compile(compiler);
         this.compileDocblock(compiler, this.id);
+
+        for (const statement of tail) {
+            compiler.compileNode(statement);
+            compiler._emit(';\n');
+        }
     }
 }
 

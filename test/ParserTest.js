@@ -409,4 +409,43 @@ class x {
 }
 `);
     });
+
+    it ('should correctly invoke decorators on class declarations', () => {
+        const program = parser.parse(`
+class x {
+  @register((target, prop, parameterIndex = null) => {})
+  @initialize((instance, key, value) => {})
+  field = 'foo'; 
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.have.string(`const αa = (target,prop,parameterIndex = null) => {
+}
+;
+class x extends __jymfony.JObject {
+field;
+constructor() {
+super();
+((instance,key,value) => {
+}
+)(this,"field",'foo');
+;
+}
+
+static get [Symbol.reflection]() {
+return {
+fields: {
+field: {
+get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},},staticFields: {
+},};
+}
+
+
+}
+x[Symbol.docblock] = null;
+αa(x,"field");
+;`);
+    });
 });
