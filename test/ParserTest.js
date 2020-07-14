@@ -326,6 +326,17 @@ const foo = cond ? Number(bar) / 100 : undefined; // return a comment
         expect(compiled).to.be.equal('const foo = cond ? Number(bar) / 100 : undefined;');
     });
 
+    it ('should parse composed key in literal object', () => {
+        const program = parser.parse(`
+const a = {[k]: env = defaultEnv};
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`const a = {
+[k]: env = defaultEnv,};`);
+    });
+
     it ('should correctly rethrow a rescan through the call chain', () => {
         const program = parser.parse(`
 [rgbR, rgbG, rgbB].map(function xmap(v) {
