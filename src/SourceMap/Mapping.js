@@ -5,15 +5,15 @@ class Mapping {
      * Constructor.
      *
      * @param {Position} generated
-     * @param {.Position} [original]
+     * @param {Position} [original]
      * @param {null|string} [source]
      * @param {null|string} [name]
      */
     constructor(generated, original = null, source = null, name = null) {
         this.generatedLine = generated.line;
         this.generatedColumn = generated.column;
-        this.originalLine = null !== original && original.line;
-        this.originalColumn = null !== original && original.column;
+        this.originalLine = null !== original ? original.line : null;
+        this.originalColumn = null !== original ? original.column : null;
         this.source = source;
         this.name = name;
     }
@@ -68,7 +68,10 @@ class Mapping {
             return cmp;
         }
 
-        if (undefined === other.originalLine || undefined === other.originalColumn) {
+        if (
+            undefined === this_.originalLine || undefined === this_.originalColumn ||
+            undefined === other.originalLine || undefined === other.originalColumn
+        ) {
             return cmp;
         }
 

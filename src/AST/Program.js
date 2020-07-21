@@ -38,6 +38,13 @@ class Program extends implementationOf(NodeInterface) {
          * @type {boolean}
          */
         this.esModule = false;
+
+        /**
+         * @type {(Object|string)[]}
+         *
+         * @private
+         */
+        this._sourceMappings = [];
     }
 
     /**
@@ -47,6 +54,24 @@ class Program extends implementationOf(NodeInterface) {
      */
     add(node) {
         this._body.push(node);
+    }
+
+    /**
+     * Add source mappings from previous compilation step to current program.
+     *
+     * @param {...(Object|string)} mappings
+     */
+    addSourceMappings(...mappings) {
+        this._sourceMappings.push(...mappings);
+    }
+
+    /**
+     * Gets the previous source mappings.
+     *
+     * @returns {(Object|string)[]}
+     */
+    get sourceMappings() {
+        return [ ...this._sourceMappings ];
     }
 
     /**

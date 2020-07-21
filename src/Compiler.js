@@ -98,10 +98,19 @@ class Compiler {
         this._variableCount = 1;
 
         this.compileNode(program);
+        this._sourceMapGenerator.sourceContent = program.location.source;
+
+        for (const mapping of program.sourceMappings) {
+            if (isString(mapping)) {
+                continue;
+            }
+
+            this._sourceMapGenerator.applyMapping(mapping.mappings, mapping.sources, mapping.sourcesContent || []);
+        }
 
         const sourceMapJson = this._sourceMapGenerator.toJSON() || {};
         if (0 < Object.keys(sourceMapJson).length) {
-            this._code += '\n\n//@ sourceMappingURL=data:application/json;charset=utf-8;base64,' +
+            this._code += '\n\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' +
                 Buffer.from(JSON.stringify(sourceMapJson)).toString('base64');
         }
 

@@ -1,6 +1,7 @@
 const Base64VLQ = require('./Base64VLQ');
 const Mapping = require('./Mapping');
 const MappingList = require('./MappingList');
+const Parser = require('./Parser');
 
 /**
  * An instance of the SourceMapGenerator represents a source map which is
@@ -22,6 +23,13 @@ class Generator {
         this._file = file;
 
         /**
+         * @type {string[]}
+         *
+         * @private
+         */
+        this._sources = [ file ];
+
+        /**
          * @type {boolean}
          *
          * @private
@@ -36,11 +44,11 @@ class Generator {
         this._mappings = new MappingList();
 
         /**
-         * @type {null|string}
+         * @type {string[]}
          *
          * @private
          */
-        this._sourceContent = null;
+        this._sourcesContent = [ null ];
     }
 
     /**
@@ -56,9 +64,60 @@ class Generator {
         }
 
         if (null === original) {
-            this._mappings.add(new Mapping(generated));
+            // This._mappings.add(new Mapping(generated));
         } else {
             this._mappings.add(new Mapping(generated, original, this._file));
+        }
+    }
+
+    applyMapping(original, sources, sourcesContent) {
+        const originalMappings = Parser.parseMappings(original);
+        const newSources = [];
+
+        // Find mappings for the "sourceFile"
+        this._mappings.map(mapping => {
+            if (null === mapping.originalLine) {
+                return false;
+            }
+
+            // Check if it can be mapped by the source map, then update the mapping.
+            const [ original, result ] = originalMappings.search({
+                generatedLine: mapping.originalLine,
+                generatedColumn: mapping.originalColumn,
+            }) || [ null, false ];
+
+            if (! result) {
+                return false;
+            }
+
+            // Copy mapping
+            mapping.source = isNumber(original.source) ? sources[original.source] : original.source;
+            mapping.originalLine = original.originalLine;
+            mapping.originalColumn = original.originalColumn;
+
+            if (null != original.name) {
+                mapping.name = original.name;
+            }
+
+            const source = mapping.source;
+            if (!! source && ! newSources.includes(source)) {
+                newSources.push(source);
+            }
+
+            return true;
+        });
+
+        this._sources = newSources;
+        this._sourcesContent = [];
+
+        for (const source of this._sources) {
+            const idx = sources.indexOf(source);
+            if (-1 === idx) {
+                this._sourcesContent.push(null);
+                continue;
+            }
+
+            this._sourcesContent.push(sourcesContent[idx]);
         }
     }
 
@@ -66,7 +125,7 @@ class Generator {
      * Set the source content for a source file.
      */
     set sourceContent(content) {
-        this._sourceContent = !! content ? String(content) : null;
+        this._sourcesContent[0] = content;
     }
 
     /**
@@ -75,7 +134,7 @@ class Generator {
     toJSON() {
         const map = {
             version: 3,
-            sources: [ this._file ],
+            sources: this._sources,
             mappings: this._serializeMappings(),
         };
 
@@ -83,8 +142,8 @@ class Generator {
             map.file = this._file;
         }
 
-        if (this._sourceContent) {
-            map.sourcesContent = [ this._sourceContent ];
+        if (this._sourcesContent.length) {
+            map.sourcesContent = this._sourcesContent;
         }
 
         return map;

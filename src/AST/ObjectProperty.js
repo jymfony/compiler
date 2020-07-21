@@ -36,7 +36,7 @@ class ObjectProperty extends implementationOf(ObjectMember) {
      */
     compile(compiler) {
         if (this._key instanceof Identifier ||
-            (this._key instanceof StringLiteral && (this._key.value.startsWith("'") || this._key.value.startsWith('"')))) {
+            (this._key instanceof StringLiteral && (this._key.value.startsWith('\'') || this._key.value.startsWith('"')))) {
             compiler.compileNode(this._key);
         } else {
             compiler._emit('[');

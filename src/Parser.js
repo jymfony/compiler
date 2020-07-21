@@ -108,6 +108,13 @@ class Parser extends implementationOf(ExpressionParserTrait) {
          * @private
          */
         this._esModule = false;
+
+        /**
+         * @type {(Object|string)[]}
+         *
+         * @private
+         */
+        this._mappings = [];
     }
 
     /**
@@ -191,6 +198,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             }
 
             program.esModule = this._esModule;
+            program.addSourceMappings(...this._mappings);
 
             return program;
         }
@@ -348,6 +356,30 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             }
 
             if (this._lexer.isToken(Lexer.T_COMMENT)) {
+                if (this._lexer.token.value.startsWith('//# sourceMappingURL')) {
+                    let mapping;
+                    const value = this._lexer.token.value.replace(/^\/\/# sourceMappingURL=/, '');
+                    const matchDataURI = value.match(/^data:([a-z0-9][a-z0-9!#$&\-^_+.]{0,126}\/[a-z0-9][a-z0-9!#$&\-^_+.]{0,126})((?:;[a-z0-9\-]+=[^\/\\?*:|"<>;=]+)*?)?(;base64)?,([a-z0-9!$&\\',()*+;=\-._~:@\/?%\s]*\s*)$/i);
+
+                    if (matchDataURI) {
+                        const [ , mime, , base64, data ] = matchDataURI;
+
+                        if (base64) {
+                            mapping = new Buffer(data, 'base64').toString('utf-8');
+                        } else {
+                            mapping = decodeURIComponent(data);
+                        }
+
+                        if ('application/json' === mime) {
+                            mapping = JSON.parse(mapping);
+                        }
+
+                        this._mappings.push(mapping);
+                    } else {
+                        this._mappings.push(value);
+                    }
+                }
+
                 continue;
             }
 

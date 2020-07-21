@@ -59,6 +59,16 @@ class MappingList {
 
         return this._array;
     }
+
+    /**
+     * Execute forEach on unsorted mappings.
+     *
+     * @param {Function} predicate
+     */
+    map(predicate) {
+        this._array = this._array.map(v => predicate(v) ? v : null).filter(v => null !== v);
+        this._sorted = false;
+    }
 }
 
 module.exports = MappingList;

@@ -37,6 +37,15 @@ class SourceLocation {
     get start() {
         return this._start;
     }
+
+    /**
+     * Gets the source code of the program.
+     *
+     * @returns {string}
+     */
+    get source() {
+        return this._source;
+    }
 }
 
 module.exports = SourceLocation;
