@@ -47,7 +47,7 @@ describe('[Compiler] Compiler', function () {
         }
     });
 
-    it ('should handle error stack correctly',  () => {
+    it ('should handle error stack correctly', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
         const program = parser.parse(`
 class x {
     constructor(shouldThrow = false) {
@@ -82,7 +82,7 @@ Has to be thrown
         }
     });
 
-    it ('should read and adapt multiple source map',  () => {
+    it ('should read and adapt multiple source map', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
         const program = parser.parse(`class x {
     constructor(shouldThrow = false) {
         if (shouldThrow) {
