@@ -8,9 +8,8 @@ declare module "@jymfony/compiler" {
             /**
              * Constructor.
              */
-            constructor(location: SourceLocation, pattern: PatternInterface | RestElement);
-
             __construct(location: SourceLocation, pattern: PatternInterface | RestElement): void;
+            constructor(location: SourceLocation, pattern: PatternInterface | RestElement);
 
             /**
              * Gets the argument pattern.
@@ -20,7 +19,7 @@ declare module "@jymfony/compiler" {
             /**
              * @inheritdoc
              */
-            compile(compiler: Compiler);
+            compile(compiler: Compiler): void;
         }
     }
 }

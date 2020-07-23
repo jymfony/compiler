@@ -38,7 +38,6 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, body: ClassBody, id?: Identifier | null, superClass?: ExpressionInterface | null): void;
-
             constructor(location: SourceLocation, body: ClassBody, id?: Identifier | null, superClass?: ExpressionInterface | null);
 
             /**
@@ -49,7 +48,7 @@ declare module "@jymfony/compiler" {
             /**
              * @inheritdoc
              */
-            compile(compiler: Compiler);
+            compile(compiler: Compiler): void;
 
             /**
              * Compiles the docblock registration code.

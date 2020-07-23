@@ -34,7 +34,7 @@ declare module "@jymfony/compiler" {
         /**
          * Emits a code string.
          */
-        _emit(code: string);
+        _emit(code: string): void;
 
         /**
          * @internal
