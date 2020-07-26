@@ -440,6 +440,8 @@ get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},}
 }
 
 [Symbol.__jymfony_field_initialization]() {
+if (undefined !== super[Symbol.__jymfony_field_initialization]) super[Symbol.__jymfony_field_initialization]()
+;
 Object.defineProperty(this,"field",{
 writable: true,enumerable: true,configurable: true,value: 'foo',});
 }
@@ -482,6 +484,8 @@ get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},}
 }
 
 [Symbol.__jymfony_field_initialization]() {
+if (undefined !== super[Symbol.__jymfony_field_initialization]) super[Symbol.__jymfony_field_initialization]()
+;
 Object.defineProperty(this,"field",{
 writable: true,enumerable: true,configurable: true,value: undefined,});
 }

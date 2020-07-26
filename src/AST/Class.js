@@ -1,11 +1,13 @@
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
+const BinaryExpression = require('./BinaryExpression');
 const BlockStatement = require('./BlockStatement');
 const CallExpression = require('./CallExpression');
 const ClassMethod = require('./ClassMethod');
 const ClassProperty = require('./ClassProperty');
 const ExpressionStatement = require('./ExpressionStatement');
 const Identifier = require('./Identifier');
+const IfStatement = require('./IfStatement');
 const MemberExpression = require('./MemberExpression');
 const NodeInterface = require('./NodeInterface');
 const NullLiteral = require('./NullLiteral');
@@ -270,9 +272,14 @@ class Class extends implementationOf(NodeInterface) {
         });
 
         if (fieldsInitializators.length) {
+            const parentCall = new IfStatement(null,
+                new BinaryExpression(null, '!==', new Identifier(null, 'undefined'), new MemberExpression(null, new Identifier(null, 'super'), new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false), true)),
+                new CallExpression(null, new MemberExpression(null, new Identifier(null, 'super'), new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false), true), []),
+            );
+
             members.push(new ClassMethod(
                 null,
-                new BlockStatement(null, fieldsInitializators),
+                new BlockStatement(null, [ parentCall, ...fieldsInitializators ]),
                 new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false),
                 'method'
             ));
