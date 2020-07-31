@@ -496,4 +496,14 @@ x[Symbol.docblock] = null;
 αa(x,"field");
 ;`);
     });
+
+    it ('should correctly parse bigint notation', () => {
+        const program = parser.parse(`
+const x = 1n;
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal('const x = 1n;');
+    });
 });

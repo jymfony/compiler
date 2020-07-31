@@ -225,7 +225,9 @@ class ExpressionParserTrait {
                 let number = this._lexer.token.value;
                 this._next(false);
 
-                if (number.startsWith('0x')) {
+                if (number.endsWith('n')) {
+                    number = BigInt(number.substr(0, number.length - 1));
+                } else if (number.startsWith('0x')) {
                     number = Number.parseInt(number.substr(2), 16);
                 } else if (number.startsWith('0o')) {
                     number = Number.parseInt(number.substr(2), 8);
