@@ -98,9 +98,9 @@ class Compiler {
         this._variableCount = 1;
 
         this.compileNode(program);
-        this._sourceMapGenerator.sourceContent = program.location.source;
+        this._sourceMapGenerator.sourceContent = program.location ? program.location.source : null;
 
-        for (const mapping of program.sourceMappings) {
+        for (const mapping of program.sourceMappings || []) {
             if (isString(mapping)) {
                 continue;
             }

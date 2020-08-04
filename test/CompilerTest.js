@@ -1,3 +1,4 @@
+const AST = require('../src/AST');
 const Compiler = require('../src/Compiler');
 const Generator = require('../src/SourceMap/Generator');
 const StackHandler = require('../src/SourceMap/StackHandler');
@@ -16,6 +17,12 @@ describe('[Compiler] Compiler', function () {
             return {};
         }
     }();
+
+    it ('should compile simple generated expression', () => {
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(new AST.NullLiteral(null));
+        expect(compiled).to.be.equal('null');
+    })
 
     it ('should compile assert expressions in debug', () => {
         const debug = __jymfony.autoload.debug;
