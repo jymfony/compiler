@@ -506,4 +506,16 @@ const x = 1n;
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal('const x = 1n;');
     });
+
+    it ('should strip shebang directive from generated code', () => {
+        const program = parser.parse(`#!/usr/bin/env node
+
+const module = require('module');
+console.log(module);
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`const module = require('module');console.log(module);`);
+    });
 });

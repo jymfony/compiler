@@ -355,6 +355,10 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 this._skipSpaces();
             }
 
+            if (this._lexer.isToken(Lexer.T_SHEBANG)) {
+                continue;
+            }
+
             if (this._lexer.isToken(Lexer.T_COMMENT)) {
                 if (this._lexer.token.value.startsWith('//# sourceMappingURL')) {
                     let mapping;

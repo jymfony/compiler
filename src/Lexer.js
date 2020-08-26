@@ -343,6 +343,7 @@ class Lexer {
      */
     getPatterns() {
         return [
+            '#!.+[\\r\\n]',
             '\\.\\.\\.',
             '\\?\\.',
             Lexer.NUMBERS,
@@ -401,6 +402,13 @@ class Lexer {
                     return Lexer.T_COMMENT;
                 } else if (holder.value.match(this._regexes)) {
                     return Lexer.T_REGEX;
+                }
+
+                break;
+
+            case '#':
+                if (holder.value.startsWith('#!')) {
+                    return Lexer.T_SHEBANG;
                 }
         }
 
@@ -647,6 +655,7 @@ Lexer.T_NULL = 43;
 Lexer.T_SPREAD = 44;
 Lexer.T_YIELD = 45;
 Lexer.T_ARGUMENTS = 46;
+Lexer.T_SHEBANG = 47;
 Lexer.T_OTHER = 255;
 Lexer.T_EOF = 256;
 
