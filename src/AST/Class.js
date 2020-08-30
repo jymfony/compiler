@@ -179,6 +179,10 @@ class Class extends implementationOf(NodeInterface) {
 
         /** @type {ClassProperty[]} */
         const initializableFields = [];
+        const propertyNames = members
+            .filter(m => m instanceof ClassProperty)
+            .filter(m => m.key instanceof Identifier)
+            .map(m => (m.private ? '#' : '') + m.key.name);
 
         for (const member of members) {
             if (member instanceof ClassMethod && ('constructor' === member.name || '__construct' === member.name)) {
@@ -189,6 +193,10 @@ class Class extends implementationOf(NodeInterface) {
 
                     const declaredField = statement.fieldDeclarationExpression;
                     if (! (declaredField instanceof Identifier)) {
+                        continue;
+                    }
+
+                    if (propertyNames.includes(declaredField.name)) {
                         continue;
                     }
 

@@ -54,6 +54,75 @@ describe('[Compiler] Compiler', function () {
         }
     });
 
+    it ('should correctly compile classes with private members', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+class ClassB {
+    #internal;
+}
+
+export default class ClassA extends ClassB {
+    #internal;
+    initialized = false;
+
+    constructor() {
+        super();
+        this.#internal = 'internal';
+    }
+}
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            eval(compiled);
+            expect(compiled).to.be.equal(`class ClassB extends __jymfony.JObject {
+#internal;
+static get [Symbol.reflection]() {
+return {
+fields: {
+"#internal": {
+get: (obj) => obj.#internal,set: (obj,value) => obj.#internal = value,docblock: null,},},staticFields: {
+},};
+}
+
+
+}
+ClassB[Symbol.docblock] = null;
+;const ClassA = class ClassA extends ClassB {
+#internal;
+constructor() {
+super();
+this.#internal = 'internal';
+}
+
+static get [Symbol.reflection]() {
+return {
+fields: {
+"#internal": {
+get: (obj) => obj.#internal,set: (obj,value) => obj.#internal = value,docblock: null,},initialized: {
+get: (obj) => obj.initialized,set: (obj,value) => obj.initialized = value,docblock: null,},},staticFields: {
+},};
+}
+
+[Symbol.__jymfony_field_initialization]() {
+if (undefined !== super[Symbol.__jymfony_field_initialization]) super[Symbol.__jymfony_field_initialization]()
+;
+Object.defineProperty(this,"initialized",{
+writable: true,enumerable: true,configurable: true,value: false,});
+}
+
+
+}
+;
+exports.default = ClassA;`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
+
     it ('should handle error stack correctly', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
         const program = parser.parse(`
 class x {
