@@ -59,19 +59,35 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
      */
     compile(compiler) {
         const variableName = compiler.generateVariableName();
-        compiler._emit('const ' + variableName + ' = require');
+        compiler._emit('const ' + variableName + ' = ');
+
+        if (this._optional) {
+            compiler._emit('(() => { try { return ');
+        }
+
+        compiler._emit('require');
 
         if (this._nocompile) {
-            compiler._emit('.nocompile(');
-        } else {
-            compiler._emit(this._optional ? '.optional(' : '(');
+            compiler._emit('.nocompile');
         }
 
+        compiler._emit('(');
         compiler.compileNode(this._source);
-        if (this._optional && (1 < this._specifiers.length || this._specifiers[0] instanceof ImportSpecifier)) {
-            compiler._emit(', true');
+        compiler._emit(')');
+
+        if (this._optional) {
+            compiler._emit('; } catch (e) { ');
+
+            if (1 < this._specifiers.length || this._specifiers[0] instanceof ImportSpecifier) {
+                compiler._emit('return {};');
+            } else {
+                compiler._emit('return undefined;');
+            }
+
+            compiler._emit(' } })()');
         }
-        compiler._emit(');\n');
+
+        compiler._emit(';\n');
 
         for (const specifier of this._specifiers) {
             let right;

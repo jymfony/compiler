@@ -197,6 +197,26 @@ export default () => {
         expect(() => compiler.compile(program)).not.to.throw();
     });
 
+    it ('should correctly compile multiple import flags', () => {
+        const program = parser.parse(`import { Inject } from '@jymfony/decorators';
+import { Client } from 'non-existent-package' nocompile optional;
+
+export default () => {
+    return [ Inject !== undefined, Client === undefined ];
+};
+`);
+
+        const compiler = new Compiler(generator);
+        expect(compiler.compile(program)).to.be.eq(`const αa = require('@jymfony/decorators');
+const Inject = αa.Inject;
+;const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
+const Client = αb.Client;
+;exports.default = () => {
+return [ Inject !== undefined, Client === undefined,  ];
+}
+;`);
+    });
+
     it ('should correctly compile raw imports', () => {
         const program = parser.parse(`import { Sloppy } from 'sloppy-package' nocompile;
 
