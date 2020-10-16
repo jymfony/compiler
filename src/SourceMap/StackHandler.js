@@ -4,6 +4,7 @@ const Parser = require('./Parser');
  * @type {HashTable}
  */
 let fileMappings;
+let pendingMappings = {};
 
 class StackHandler {
     /**
@@ -104,7 +105,16 @@ class StackHandler {
      */
     static registerSourceMap(filename, mappings) {
         if (undefined === fileMappings) {
-            fileMappings = new HashTable();
+            if ('undefined' === typeof HashTable || 'undefined' === typeof BTree) {
+                pendingMappings[filename] = mappings;
+            } else {
+                fileMappings = new HashTable();
+                for (const [ key, value ] of __jymfony.getEntries(pendingMappings)) {
+                    fileMappings.put(key, Parser.parseMappings(value));
+                }
+
+                pendingMappings = {};
+            }
         }
 
         fileMappings.put(filename, Parser.parseMappings(mappings));
