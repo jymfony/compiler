@@ -77,7 +77,6 @@ export default class ClassA extends ClassB {
 
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
-            eval(compiled);
             expect(compiled).to.be.equal(`class ClassB extends __jymfony.JObject {
 #internal;
 static get [Symbol.reflection]() {
