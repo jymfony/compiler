@@ -538,4 +538,15 @@ console.log(module);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const module = require('module');console.log(module);`);
     });
+
+    it ('should correctly export named async functions', () => {
+        const program = parser.parse(`
+export async function named() {
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal('async function named(){\n}\n;\nexports.named = named;');
+    });
 });

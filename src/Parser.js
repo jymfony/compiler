@@ -907,6 +907,17 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                     }
 
                     return declaration;
+                } else if ('async' === this._lexer.token.value) {
+                    let nextToken = this._lexer.peek();
+                    while (nextToken.type === Lexer.T_SPACE) {
+                        nextToken = this._lexer.peek();
+                    }
+
+                    if ('function' === nextToken.value) {
+                        const declaration = this._parseStatement(true);
+
+                        return new AST.ExportNamedDeclaration(this._makeLocation(start), declaration, [], null);
+                    }
                 } else if ([ 'function', 'class' ].includes(this._lexer.token.value)) {
                     const declaration = this._parseStatement(true);
 
