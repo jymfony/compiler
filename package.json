@@ -17,9 +17,6 @@
   "engines": {
     "node": ">=8.10.0"
   },
-  "peerDependencies": {
-    "@jymfony/autoloader": "^0.1.0-alpha.22"
-  },
   "devDependencies": {
     "@jymfony/autoloader": "^0.1.0-alpha.22",
     "@jymfony/datastructure": "^0.1.0-alpha.22",
