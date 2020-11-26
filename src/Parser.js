@@ -1084,6 +1084,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 pattern = this._parseExpression({ maxLevel: 18, pattern: true });
             } break;
 
+            case Lexer.T_KEYWORD:
             case Lexer.T_SET:
             case Lexer.T_GET:
             case Lexer.T_ASYNC:

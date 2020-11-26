@@ -161,6 +161,7 @@ class ExpressionParserTrait {
         }
 
         let expression;
+        let async = false;
 
         // Literals and level 20
         switch (this._lexer.token.type) {
@@ -175,13 +176,21 @@ class ExpressionParserTrait {
                 expression = new AST.ClassExpression(...this._parseClass());
             } break;
 
-            case Lexer.T_ASYNC:
-            case Lexer.T_FUNCTION: {
-                const async = Lexer.T_ASYNC === this._lexer.token.type;
-                if (async) {
-                    this._next();
+            case Lexer.T_ASYNC: {
+                const state = this.state;
+
+                this._next();
+                if (! this._lexer.isToken(Lexer.T_FUNCTION)) {
+                    // "async" is used as an identifier here.
+                    // Restore parser state and proceed.
+                    this.state = state;
+                    break;
                 }
 
+                async = true;
+            } // Fallthrough
+
+            case Lexer.T_FUNCTION: {
                 this._next(); // Function keyword. async arrow functions are already handled.
 
                 const generator = '*' === this._lexer.token.value;
@@ -351,6 +360,7 @@ class ExpressionParserTrait {
                     expression = new AST.MemberExpression(this._makeLocation(start), expression, property, true, optional);
                 } break;
 
+                case Lexer.T_KEYWORD:
                 case Lexer.T_THIS:
                 case Lexer.T_SUPER:
                 case Lexer.T_SET:

@@ -58,32 +58,18 @@ describe('[Compiler] Parser', function () {
         'f658dbaa20c36388.js', // With statement. Not supported: all the generated code is in strict mode.
         '14199f22a45c7e30.js', // "let" as identifier. Not supported: let is reserved word in ES6
         '2ef5ba0343d739dc.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '4f731d62a74ab666.js', // "let" as identifier. Not supported: let is reserved word in ES6
         '5654d4106d7025c2.js', // "let" as identifier. Not supported: let is reserved word in ES6
         '56e2ba90e05f5659.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '5ecbbdc097bee212.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '63c92209eb77315a.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '65401ed8dc152370.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '660f5a175a2d46ac.js', // "let" as identifier. Not supported: let is reserved word in ES6
         '6815ab22de966de8.js', // "let" as identifier. Not supported: let is reserved word in ES6
         '6b36b5ad4f3ad84d.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '818ea8eaeef8b3da.js', // "let" as identifier. Not supported: let is reserved word in ES6
         '9aa93e1e417ce8e3.js', // "let" as identifier. Not supported: let is reserved word in ES6
         '9fe1d41db318afba.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'a1594a4d0c0ee99a.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'b885e6a35c04d915.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'b8c98b5cd38f2bd9.js', // "let" as identifier. Not supported: let is reserved word in ES6
         'c442dc81201e2b55.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'c8565124aee75c69.js', // "let" as identifier. Not supported: let is reserved word in ES6
         'df696c501125c86f.js', // "let" as identifier. Not supported: let is reserved word in ES6
         'ee4e8fa6257d810a.js', // "let" as identifier. Not supported: let is reserved word in ES6
         'f0d9a7a2f5d42210.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'f0fbbdabdaca2146.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'f2e41488e95243a8.js', // "let" as identifier. Not supported: let is reserved word in ES6
         'ffaf5b9d3140465b.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'a91ad31c88855e59.js', // "implements", "interface", "package" as identifier. Not supported: reserved words in ES6
         'd22f8660531e1c1a.js', // "static" as identifier. Not supported: static is reserved word in ES6
-        'e74a8d269a6abdb7.js', // "private", "protected", "public" as identifier. Not supported: reserved words in ES6
         'f4a61fcdefebb9d4.js', // "private", "protected", "public" as identifier. Not supported: reserved words in ES6
     ];
 
@@ -548,5 +534,24 @@ export async function named() {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal('async function named(){\n}\n;\nexports.named = named;');
+    });
+
+    it ('should correctly parse keywords in incorrect context', () => {
+        const program = parser.parse(`
+const let = 'a let identifier';
+const const = 'a const identifier';
+const async = 'this is a string';
+if (async === null) {
+    debugger;
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`const let = 'a let identifier';const const = 'a const identifier';const async = \'this is a string\';if (async === null) {
+debugger;
+}
+
+;`);
     });
 });
