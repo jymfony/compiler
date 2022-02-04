@@ -1,6 +1,6 @@
 {
   "name": "@jymfony/compiler",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Jymfony Compiler",
   "main": "index.js",
   "typings": "types/index.d.ts",

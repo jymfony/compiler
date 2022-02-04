@@ -575,6 +575,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 this._next();
                 if (Lexer.T_AWAIT === this._lexer.token.type) {
                     _await = true;
+                    this._next();
                 }
 
                 this._expect(Lexer.T_OPEN_PARENTHESIS);
