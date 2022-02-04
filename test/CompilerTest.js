@@ -193,4 +193,20 @@ Has to be thrown
     at x.ts:10:0`)).to.be.true;
         }
     });
+
+    it ('should compile exports correctly', () => {
+        const program = parser.parse(`
+export { x, y, z as ɵZ };
+`);
+
+        const gen = new Generator({ file: 'x.js' });
+        const compiler = new Compiler(gen);
+        const compiled = compiler.compile(program);
+
+        expect(compiled.startsWith(
+`exports.x = x;
+exports.y = y;
+exports.ɵZ = z;
+`)).to.be.true;
+    });
 });

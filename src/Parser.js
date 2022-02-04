@@ -942,6 +942,9 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                         }
 
                         specifiers.push(new AST.ExportSpecifier(this._makeLocation(start), local, exported));
+                        if (this._lexer.isToken(Lexer.T_COMMA)) {
+                            this._next();
+                        }
                     }
 
                     this._next(); // Curly brace closed.
