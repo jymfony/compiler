@@ -198,9 +198,8 @@ const Inject = αa.Inject;
 ;const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
 const Client = αb.Client;
 ;exports.default = () => {
-return [ Inject !== undefined, Client === undefined,  ];
-}
-;`);
+  return [ Inject !== undefined, Client === undefined,  ];
+};`);
     });
 
     it ('should correctly compile raw imports', () => {
@@ -273,7 +272,7 @@ export default () => {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const { g, ...x } = {\ng: \'foo\',y: \'test\',p: 123,};');
+        expect(compiled).to.be.equal('const { g, ...x } = {\n  g: \'foo\',\n  y: \'test\',\n  p: 123,\n};');
     });
 
     it ('should parse xor operator correctly', () => {
@@ -284,9 +283,8 @@ function op_xor(x,y) { return x^y; }
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`function op_xor(x,y){
-return x ^ y;
-}
-;`);
+  return x ^ y;
+};`);
     });
 
     it ('should parse async as variable identifier', () => {
@@ -299,9 +297,8 @@ async.isCore = function isCore(x) { return core[x]; };
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`var async = require('./lib/async');async.core = core;async.isCore = function isCore(x){
-return core[x];
-}
-;`);
+  return core[x];
+};`);
     });
 
     it ('should parse break with newline and identifier next', () => {
@@ -315,11 +312,10 @@ return core[x];
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`for (var i = released.length - 1;i >= 0;i--){
-if (minimum > getMajor(released[i])) break
-;
-selected.unshift(released[i]);
-}
-;`);
+  if (minimum > getMajor(released[i])) 
+    break;
+  selected.unshift(released[i]);
+};`);
     });
 
     it ('should correctly rescan the rest of the file if a wrong regex has been matched', () => {
@@ -340,7 +336,8 @@ const a = {[k]: env = defaultEnv};
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const a = {
-[k]: env = defaultEnv,};`);
+  [k]: env = defaultEnv,
+};`);
     });
 
     it ('should correctly rethrow a rescan through the call chain', () => {
@@ -353,9 +350,8 @@ const a = {[k]: env = defaultEnv};
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB,  ].map(function xmap(v){
-return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
-}
-);`);
+  return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
+});`);
     });
 
     it ('should correctly rescan multiple times', () => {
@@ -376,15 +372,12 @@ convert.gray.rgb = function gray(args) {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple){
-return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255,  ];
-}
-;convert.rgb.apple = function apple(rgb){
-return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535,  ];
-}
-;convert.gray.rgb = function gray(args){
-return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
-}
-;`);
+  return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255,  ];
+};convert.rgb.apple = function apple(rgb){
+  return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535,  ];
+};convert.gray.rgb = function gray(args){
+  return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
+};`);
     });
 
     it ('should correctly split keyword and string operator', () => {
@@ -422,8 +415,8 @@ class x {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.have.string(`class x extends __jymfony.JObject {
-[computed](param) {
-}
+  [computed](param) {
+  }
 `);
     });
 
@@ -437,22 +430,29 @@ class x {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.have.string(`class x extends __jymfony.JObject {
-static get [Symbol.reflection]() {
-return {
-fields: {
-field: {
-get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},},staticFields: {
-},};
-}
-
-[Symbol.__jymfony_field_initialization]() {
-if (undefined !== super[Symbol.__jymfony_field_initialization]) super[Symbol.__jymfony_field_initialization]()
-;
-Object.defineProperty(this,"field",{
-writable: true,enumerable: true,configurable: true,value: 'foo',});
-}
-
-
+  static get [Symbol.reflection]() {
+    return {
+      fields: {
+        field: {
+          get: (obj) => obj.field,
+          set: (obj,value) => obj.field = value,
+          docblock: null,
+        },
+      },
+      staticFields: {
+      },
+    };
+  }
+  [Symbol.__jymfony_field_initialization]() {
+    if (undefined !== super[Symbol.__jymfony_field_initialization]) 
+      super[Symbol.__jymfony_field_initialization]();
+    Object.defineProperty(this,"field",{
+      writable: true,
+      enumerable: true,
+      configurable: true,
+      value: 'foo',
+    });
+  }
 }
 x[Symbol.docblock] = null;
 ;`);
@@ -460,10 +460,45 @@ x[Symbol.docblock] = null;
 
     it ('should correctly invoke decorators on class declarations', () => {
         const program = parser.parse(`
+function register() { return () => {}; }
+function initialize() { return () => {}; }
+const secondary = () => console.log;
+const logger = {
+    logged: (value, { kind, name }) => {
+        if (kind === "method") {
+            return function (...args) {
+                console.log(\`starting \${name} with arguments \${args.join(", ")}\`);
+                const ret = value.call(this, ...args);
+                console.log(\`ending \${name}\`);
+                return ret;
+            };
+        }
+
+        if (kind === "field") {
+            return function (initialValue) {
+                console.log(\`initializing \${name} with value \${initialValue}\`);
+                return initialValue;
+            };
+        }
+    },
+}
+
 class x {
+  @logger.logged
   @register((target, prop, parameterIndex = null) => {})
   @initialize((instance, key, value) => {})
   field = 'foo';
+
+  @logger.logged
+  @secondary('great')
+  test() {
+  }
+
+  @logger.logged
+  @secondary('great')
+  get test_getter() {
+    return 'test';
+  }
 }
 `);
 
@@ -533,7 +568,7 @@ export async function named() {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('async function named(){\n}\n;\nexports.named = named;');
+        expect(compiled).to.be.equal('async function named(){\n};\nexports.named = named;');
     });
 
     it ('should correctly parse keywords in incorrect context', () => {
@@ -549,9 +584,7 @@ if (async === null) {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const let = 'a let identifier';const const = 'a const identifier';const async = \'this is a string\';if (async === null) {
-debugger;
-}
-
-;`);
+  debugger;
+};`);
     });
 });

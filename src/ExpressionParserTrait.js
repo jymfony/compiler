@@ -12,7 +12,7 @@ class ExpressionParserTrait {
                 this._next();
             }
 
-            if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_DECORATOR, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type)) {
+            if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type)) {
                 this._next();
 
                 return this._lexer.isToken(Lexer.T_ARROW);
@@ -51,7 +51,7 @@ class ExpressionParserTrait {
         }
 
         let args;
-        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_DECORATOR, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type)) {
+        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type)) {
             const argument = this._parseIdentifier();
             this._skipSpaces();
             if (argumentDocblock) {
@@ -156,7 +156,7 @@ class ExpressionParserTrait {
     }
 
     _parseExpressionStage1(start, maxLevel) {
-        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_DECORATOR, Lexer.T_OPEN_PARENTHESIS, Lexer.T_ASYNC, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type) && this._isArrowFunctionExpression()) {
+        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_OPEN_PARENTHESIS, Lexer.T_ASYNC, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type) && this._isArrowFunctionExpression()) {
             return this._parseArrowFunctionExpression();
         }
 
@@ -366,7 +366,6 @@ class ExpressionParserTrait {
                 case Lexer.T_SET:
                 case Lexer.T_GET:
                 case Lexer.T_ASYNC:
-                case Lexer.T_DECORATOR:
                 case Lexer.T_ARGUMENTS:
                 case Lexer.T_IDENTIFIER: {
                     if (undefined !== expression) {

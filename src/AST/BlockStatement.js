@@ -35,16 +35,21 @@ class BlockStatement extends implementationOf(StatementInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        compiler._emit('{\n');
+        compiler.indentationLevel++;
+        compiler._emit('{');
         for (const statement of this._body) {
             if (statement instanceof Docblock) {
                 continue;
             }
 
+            compiler.newLine();
             compiler.compileNode(statement);
-            compiler._emit(';\n');
+            compiler._emit(';');
         }
-        compiler._emit('}\n');
+
+        compiler.indentationLevel--;
+        compiler.newLine();
+        compiler._emit('}');
     }
 }
 

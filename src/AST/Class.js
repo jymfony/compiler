@@ -6,6 +6,7 @@ const CallExpression = require('./CallExpression');
 const ClassMethod = require('./ClassMethod');
 const ClassProperty = require('./ClassProperty');
 const ExpressionStatement = require('./ExpressionStatement');
+const Function = require('./Function');
 const Identifier = require('./Identifier');
 const IfStatement = require('./IfStatement');
 const MemberExpression = require('./MemberExpression');
@@ -15,6 +16,10 @@ const ObjectExpression = require('./ObjectExpression');
 const ObjectProperty = require('./ObjectProperty');
 const ReturnStatement = require('./ReturnStatement');
 const StringLiteral = require('./StringLiteral');
+const ValueHolder = require('../ValueHolder');
+const VariableDeclaration = require('./VariableDeclaration');
+const VariableDeclarator = require('./VariableDeclarator');
+const UnaryExpression = require('./UnaryExpression');
 
 /**
  * @abstract
@@ -130,7 +135,7 @@ class Class extends implementationOf(NodeInterface) {
     }
 
     /**
-     * Class has constructor.
+     * Returns the class constructor or null.
      *
      * @returns {ClassMethod|null}
      */
@@ -141,6 +146,24 @@ class Class extends implementationOf(NodeInterface) {
                 if (null !== id && 'constructor' === id._name) {
                     return member;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the class member with given name or null.
+     *
+     * @param {string} name
+     *
+     * @returns {ClassMemberInterface|null}
+     */
+    getMember(name) {
+        for (const member of this._body._body) {
+            const id = member.key;
+            if (null !== id && name === id.name) {
+                return member;
             }
         }
 
@@ -161,9 +184,12 @@ class Class extends implementationOf(NodeInterface) {
             compiler.compileNode(this._superClass);
         }
 
-        compiler._emit(' {\n');
+        compiler.indentationLevel++;
+        compiler._emit(' {');
         compiler.compileNode(this._body);
-        compiler._emit('\n}\n');
+        compiler._emit('\n}');
+        compiler.indentationLevel--;
+        compiler.newLine();
     }
 
     _prepare() {
@@ -185,6 +211,10 @@ class Class extends implementationOf(NodeInterface) {
             .map(m => (m.private ? '#' : '') + m.key.name);
 
         for (const member of members) {
+            if (member.location === null) {
+                continue;
+            }
+
             if (member instanceof ClassMethod && ('constructor' === member.name || '__construct' === member.name)) {
                 for (const statement of member.body.statements) {
                     if (! statement.isFieldDeclaration) {
@@ -301,12 +331,13 @@ class Class extends implementationOf(NodeInterface) {
      * @param {Identifier} id
      */
     compileDocblock(compiler, id) {
-        compiler.compileNode(new ExpressionStatement(null, new AssignmentExpression(
-            null, '=',
-            new MemberExpression(null, id, new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false), true),
-            this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
-        )));
-        compiler._emit(';\n');
+        const tail = [
+            new ExpressionStatement(null, new AssignmentExpression(
+                null, '=',
+                new MemberExpression(null, id, new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false), true),
+                this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
+            )),
+        ];
 
         for (const member of this._body.members) {
             if (! member.docblock || ! (member instanceof ClassMethod)) {
@@ -314,7 +345,7 @@ class Class extends implementationOf(NodeInterface) {
             }
 
             if ('method' === member.kind) {
-                compiler.compileNode(new ExpressionStatement(null, new AssignmentExpression(
+                tail.push(new ExpressionStatement(null, new AssignmentExpression(
                     null,
                     '=',
                     new MemberExpression(
@@ -331,7 +362,7 @@ class Class extends implementationOf(NodeInterface) {
                     member.docblock ? new StringLiteral(null, JSON.stringify(member.docblock)) : new NullLiteral(null)
                 )));
             } else if ('get' === member.kind || 'set' === member.kind) {
-                compiler.compileNode(new ExpressionStatement(null, new AssignmentExpression(
+                tail.push(new ExpressionStatement(null, new AssignmentExpression(
                     null,
                     '=',
                     new MemberExpression(
@@ -351,9 +382,9 @@ class Class extends implementationOf(NodeInterface) {
                     member.docblock ? new StringLiteral(null, JSON.stringify(member.docblock)) : new NullLiteral(null)
                 )));
             }
-
-            compiler._emit(';\n');
         }
+
+        return tail;
     }
 
     /**
@@ -364,26 +395,86 @@ class Class extends implementationOf(NodeInterface) {
      * @returns {StatementInterface[]}
      */
     compileDecorators(compiler) {
-        /**
-         * @param {AppliedDecorator} a
-         * @param {AppliedDecorator} b
-         */
-        const sortDecorators = (a, b) => {
-            const aPriority = a.priority;
-            const bPriority = b.priority;
-
-            return aPriority > bPriority ? 1 : (bPriority > aPriority ? -1 : 0);
-        };
-
         const tail = [];
         if (null !== this.decorators && 0 !== this.decorators.length) {
-            for (const decorator of this.decorators.sort(sortDecorators)) {
-                tail.push(...decorator.compile(compiler, this, this));
+            for (const decorator of this.decorators) {
+                tail.push(...decorator.compile(compiler, this, new ValueHolder(this)));
             }
         }
 
-        for (const member of this._body.members) {
-            tail.push(...member.compileDecorators(compiler, this));
+        for (let member of [ ...this._body.members ]) {
+            const memberName = member.key instanceof Identifier ? member.key : new Identifier(null, '_name_xΞ' + (~~(Math.random() * 1000000)).toString(16));
+            const targetRef = new ValueHolder(member);
+            const originalName = member.key;
+
+            const tempSymbol = new Identifier(null, compiler.generateVariableName() + '_' + this.id.name + '_temp_' + memberName.name + 'Ξ' + (~~(Math.random() * 1000000)).toString(16));
+            const isPrivate = member.private;
+            const isStatic = member.static;
+            const kind = member.kind;
+            const decorators = member.decorators || [];
+
+            for (const [i, decorator] of __jymfony.getEntries(decorators)) {
+                const privateSymbol = new Identifier(null, compiler.generateVariableName() + '_' + this.id.name + '_private_' + memberName.name + 'Ξ' + (~~(Math.random() * 1000000)).toString(16));
+
+                compiler.compileNode(new VariableDeclaration(null, 'const', [
+                    new VariableDeclarator(null, privateSymbol, new CallExpression(null, new Identifier(null, 'Symbol'), [])),
+                ]));
+                compiler._emit(';');
+                compiler.newLine();
+
+                if (member instanceof ClassMethod) {
+                    if (i === decorators.length - 1) {
+                        compiler.compileNode(new VariableDeclaration(null, 'const', [
+                            new VariableDeclarator(null, tempSymbol, new CallExpression(null, new Identifier(null, 'Symbol'), [])),
+                        ]));
+                        compiler._emit(';');
+                        compiler.newLine();
+
+                        tail.push(new UnaryExpression(null, 'delete',
+                            new MemberExpression(null,
+                                isStatic ? this.id : new MemberExpression(null, this.id, new Identifier(null, 'prototype')),
+                                tempSymbol,
+                                true
+                            )
+                        ));
+
+                        if (kind === 'method') {
+                            this.body.addMember(new ClassProperty(null, originalName, new MemberExpression(null, this.id, privateSymbol, true), isPrivate, isStatic));
+                        } else {
+                            this.body.addMember(new ClassMethod(null, new BlockStatement(null, [
+                                // return C[sym].call(this, ...args)
+                                new ReturnStatement(null, new CallExpression(null,
+                                    new MemberExpression(null, new MemberExpression(null, this.id, privateSymbol, true), new Identifier(null, 'call')),
+                                    [
+                                        new Identifier(null, 'this'),
+                                        ...member.params,
+                                    ]
+                                ))
+                            ]), originalName, kind, member.params, {
+                                Static: isStatic,
+                                Private: isPrivate,
+                            }));
+                        }
+                    } else if (i === 0) {
+                        member._id = new StringLiteral(null, tempSymbol.name);
+                        member._private = false;
+                        member._static = false;
+                        member._kind = 'method';
+                    }
+                }
+
+                tail.push(...decorator.compile(compiler, this, member, targetRef, privateSymbol, originalName, kind));
+
+                if (member instanceof ClassMethod) {
+                    this.body.addMember(targetRef.value);
+                }
+            }
+
+            if (member instanceof Function) {
+                for (const param of member.params) {
+                    tail.push(...param.compileDecorators(compiler, this));
+                }
+            }
         }
 
         return tail;

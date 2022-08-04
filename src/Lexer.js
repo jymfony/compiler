@@ -346,6 +346,7 @@ class Lexer {
             '#!.+[\\r\\n]',
             '\\.\\.\\.',
             '\\?\\.',
+            '@',
             Lexer.NUMBERS,
             '`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:`(?:[^`\\\\$]|\\\\[\\s\\S]|\\$(?!\\{)|\\$\\{(?:[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]|[^}])*\\}?)*?[`]',
             '[\'](?:\\\\(?=\\n|\\r|\\r\\n|\u2028|\u2029)[\\r\\n\u2028\u2029]*|[^\\\'\\\\\\r\\n]|\\\\.)*?[\']',
@@ -377,9 +378,6 @@ class Lexer {
             case '\'':
             case '`':
                 return Lexer.T_STRING;
-
-            case '@':
-                return Lexer.T_DECORATOR_IDENTIFIER;
 
             case '<':
                 if (holder.value.startsWith('<!--')) {
@@ -416,6 +414,9 @@ class Lexer {
             case '.':
             case '?.':
                 return Lexer.T_DOT;
+
+            case '@':
+                return Lexer.T_AT;
 
             case '...':
                 return Lexer.T_SPREAD;
@@ -535,9 +536,6 @@ class Lexer {
                 case 'function':
                     return Lexer.T_FUNCTION;
 
-                case 'decorator':
-                    return Lexer.T_DECORATOR;
-
                 case 'static':
                     return Lexer.T_STATIC;
 
@@ -632,8 +630,7 @@ Lexer.T_NUMBER = 20;
 Lexer.T_COLON = 21;
 Lexer.T_FUNCTION = 22;
 Lexer.T_REGEX = 23;
-Lexer.T_DECORATOR = 24;
-Lexer.T_DECORATOR_IDENTIFIER = 25;
+Lexer.T_AT = 24;
 Lexer.T_GET = 26;
 Lexer.T_SET = 27;
 Lexer.T_STATIC = 28;

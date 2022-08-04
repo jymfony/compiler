@@ -25,13 +25,17 @@ class ObjectExpression extends implementationOf(ExpressionInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        compiler._emit('{\n');
+        compiler.indentationLevel++;
+        compiler._emit('{');
 
         for (const property of this._properties) {
+            compiler.newLine();
             compiler.compileNode(property);
             compiler._emit(',');
         }
 
+        compiler.indentationLevel--;
+        compiler.newLine();
         compiler._emit('}');
     }
 }

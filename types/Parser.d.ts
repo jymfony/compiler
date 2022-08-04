@@ -15,8 +15,6 @@ declare module "@jymfony/compiler" {
         private _column: number;
         private _level: number;
         private _pendingDocblock: string;
-        private _pendingDecorators: AST.AppliedDecorator[];
-        private _descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage;
         private _decorators: Record<string, (location: AST.SourceLocation, ...args: any[]) => AST.AppliedDecorator>;
         private _esModule: boolean;
 

@@ -9,7 +9,7 @@ class ClassMethod extends mix(Function, ClassMemberInterface) {
      * @param {SourceLocation} location
      * @param {BlockStatement} body
      * @param {Identifier} id
-     * @param {string} kind
+     * @param {'constructor' | 'method' | 'get' | 'set'} kind
      * @param {PatternInterface[]} [params = []]
      * @param {boolean} [generator = false]
      * @param {boolean} [async = false]
@@ -20,7 +20,7 @@ class ClassMethod extends mix(Function, ClassMemberInterface) {
         super.__construct(location, body, id, params, { generator, async });
 
         /**
-         * @type {string}
+         * @type {'constructor' | 'method' | 'get' | 'set'}
          *
          * @private
          */
@@ -49,16 +49,25 @@ class ClassMethod extends mix(Function, ClassMemberInterface) {
     /**
      * Gets the identifier.
      *
-     * @returns {*}
+     * @returns {Identifier}
      */
     get id() {
         return this._id;
     }
 
     /**
-     * Gets the identifier.
+     * Gets the name of the method.
      *
-     * @returns {string}
+     * @returns {Identifier}
+     */
+    get key() {
+        return this.id;
+    }
+
+    /**
+     * Gets the method kind.
+     *
+     * @returns {'constructor' | 'method' | 'get' | 'set'}
      */
     get kind() {
         return this._kind;
@@ -80,33 +89,6 @@ class ClassMethod extends mix(Function, ClassMemberInterface) {
      */
     get private() {
         return this._private;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    compileDecorators(compiler, target) {
-        /**
-         * @param {AppliedDecorator} a
-         * @param {AppliedDecorator} b
-         */
-        const sortDecorators = (a, b) => {
-            const aPriority = a.priority;
-            const bPriority = b.priority;
-
-            return aPriority > bPriority ? 1 : (bPriority > aPriority ? -1 : 0);
-        };
-
-        const tail = [];
-        for (const decorator of (this.decorators || []).sort(sortDecorators)) {
-            tail.push(...decorator.compile(compiler, target, this));
-        }
-
-        for (const param of this._params) {
-            tail.push(...param.compileDecorators(compiler, target));
-        }
-
-        return tail;
     }
 
     /**

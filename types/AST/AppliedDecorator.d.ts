@@ -2,15 +2,12 @@ declare module "@jymfony/compiler" {
     namespace AST {
         class AppliedDecorator extends implementationOf(NodeInterface) {
             public location: SourceLocation;
-            protected _mangled: string;
-            private _decorator: DecoratorDescriptor;
-            private _args: ExpressionInterface[];
+            private _expression: ExpressionInterface;
 
             /**
              * Constructor.
              */
             __construct(location: SourceLocation, decorator: DecoratorDescriptor, args: ExpressionInterface[]): void;
-
             constructor(location: SourceLocation, decorator: DecoratorDescriptor, args: ExpressionInterface[]);
 
             /**
@@ -19,35 +16,14 @@ declare module "@jymfony/compiler" {
             public readonly decorator: DecoratorDescriptor;
 
             /**
-             * Gets the priority of the decorator.
-             * Used to indicate which decorator should be compiled first.
+             * Gets the decorator expression.
              */
-            public readonly priority: number;
-
-            /**
-             * Gets the mangled name of the callback.
-             */
-            public readonly mangledName: string;
-
-            /**
-             * Gets the callback expression.
-             */
-            public readonly callback: Function;
-
-            /**
-             * Gets the arguments of the applied decorator.
-             */
-            public readonly args: ExpressionInterface[];
-
-            /**
-             * Generates code for decorator application.
-             */
-            apply(compiler: Compiler, class_: Class, target: Class | ClassMemberInterface, variable: string): StatementInterface[];
+            public readonly expression: ExpressionInterface;
 
             /**
              * Compiles a decorator.
              */
-            compile(compiler: Compiler, class_?: Class, target?: Class | ClassMemberInterface): StatementInterface[];
+            compile(compiler: Compiler, class_?: Class, target?: Class | ClassMemberInterface, targetRef: ValueHolder<Class|ClassMemberInterface>, privateSymbol: Identifier, originalName: ExpressionInterface, targetKind: 'constructor' | 'method' | 'get' | 'set'): StatementInterface[];
         }
     }
 }

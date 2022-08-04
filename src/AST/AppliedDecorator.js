@@ -1,112 +1,55 @@
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
+const AssignmentExpression = require('./AssignmentExpression');
+const BinaryExpression = require('./BinaryExpression');
+const BlockStatement = require('./BlockStatement');
+const BooleanLiteral = require('./BooleanLiteral');
 const CallExpression = require('./CallExpression');
+const ClassMethod = require('./ClassMethod');
+const ClassProperty = require('./ClassProperty');
+const ExpressionStatement = require('./ExpressionStatement');
+const FunctionExpression = require('./FunctionExpression');
 const Identifier = require('./Identifier');
+const IfStatement = require('./IfStatement');
+const MemberExpression = require('./MemberExpression');
+const NewExpression = require('./NewExpression');
 const NodeInterface = require('./NodeInterface');
+const ObjectExpression = require('./ObjectExpression');
+const ObjectMethod = require('./ObjectMethod');
+const ObjectProperty = require('./ObjectProperty');
+const ParenthesizedExpression = require('./ParenthesizedExpression');
+const ReturnStatement = require('./ReturnStatement');
+const StringLiteral = require('./StringLiteral');
 const VariableDeclaration = require('./VariableDeclaration');
 const VariableDeclarator = require('./VariableDeclarator');
-const { createHash } = require('crypto');
 
 class AppliedDecorator extends implementationOf(NodeInterface) {
     /**
      * Constructor.
      *
      * @param {SourceLocation} location
-     * @param {DecoratorDescriptor} decorator
-     * @param {ExpressionInterface[]} args
+     * @param {ExpressionInterface} expression
      */
-    __construct(location, decorator, args) {
+    __construct(location, expression) {
         /**
          * @type {SourceLocation}
          */
         this.location = location;
 
         /**
-         * @type {DecoratorDescriptor}
+         * @type {ExpressionInterface}
          *
          * @private
          */
-        this._decorator = decorator;
-
-        /**
-         * @type {ExpressionInterface[]}
-         *
-         * @private
-         */
-        this._args = args;
-
-        /**
-         * @type {string}
-         *
-         * @protected
-         */
-        this._mangled = undefined;
+        this._expression = expression;
     }
 
     /**
-     * Gets the decorator descriptor.
+     * Gets the decorator expression.
      *
-     * @returns {DecoratorDescriptor}
+     * @returns {ExpressionInterface}
      */
-    get decorator() {
-        return this._decorator;
-    }
-
-    /**
-     * Gets the priority of the decorator.
-     * Used to indicate which decorator should be compiled first.
-     *
-     * @returns {int}
-     */
-    get priority() {
-        return 0;
-    }
-
-    /**
-     * Gets the mangled name of the callback.
-     *
-     * @returns {string}
-     */
-    get mangledName() {
-        if (undefined !== this._mangled) {
-            return this._mangled;
-        }
-
-        const hash = createHash('sha512');
-        hash.update(JSON.stringify(this.location));
-
-        return this._mangled = '__δdecorators__' + this._decorator.name.name.substr(1) + hash.digest().toString('hex');
-    }
-
-    /**
-     * Gets the callback expression.
-     *
-     * @returns {Function}
-     */
-    get callback() {
-        return new ArrowFunctionExpression(null, new CallExpression(null, new Identifier(null, this._decorator.mangledName), this._args));
-    }
-
-    /**
-     * Gets the arguments of the applied decorator.
-     *
-     * @returns {ExpressionInterface[]}
-     */
-    get args() {
-        return this._args;
-    }
-
-    /**
-     * Generates code for decorator application.
-     *
-     * @param {Compiler} compiler
-     * @param {Class} class_
-     * @param {Class|ClassMemberInterface} target
-     * @param {string} variable
-     *
-     * @returns {StatementInterface[]}
-     */
-    apply(compiler, class_, target, variable) {
-        return this._decorator.apply(compiler, class_, target, variable);
+    get expression() {
+        return this._expression;
     }
 
     /**
@@ -115,20 +58,120 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
      * @param {Compiler} compiler
      * @param {Class} class_
      * @param {Class|ClassMemberInterface} target
+     * @param {ValueHolder<Class|ClassMemberInterface>} targetRef
+     * @param {Identifier} privateSymbol
+     * @param {ExpressionInterface} originalName
+     * @param {'constructor' | 'method' | 'get' | 'set'} targetKind
      *
      * @returns {StatementInterface[]}
      */
-    compile(compiler, class_, target) {
-        const variableName = compiler.generateVariableName();
-        compiler.compileNode(new VariableDeclaration(null, 'const', [
-            new VariableDeclarator(null,
-                new Identifier(null, variableName),
-                new CallExpression(null, new Identifier(null, this._decorator.mangledName), this._args)
-            ),
-        ]));
-        compiler._emit(';\n');
+    compile(compiler, class_, target, targetRef, privateSymbol, originalName, targetKind) {
+        const tail = [];
+        if (target instanceof ClassProperty) {
+            const variableName = compiler.generateVariableName();
+            const variable = new Identifier(null, variableName);
 
-        return this._decorator.apply(compiler, class_, target, variableName);
+            const initializer = new FunctionExpression(null, new BlockStatement(null, [
+                // let xy = logged(undefined, { ... })
+                new VariableDeclaration(null, 'let', [
+                    new VariableDeclarator(null, variable, new CallExpression(null, this._expression, [
+                        new Identifier(null, 'undefined'),
+                        new ObjectExpression(null, [
+                            new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '\'field\'')),
+                            new ObjectProperty(null, new Identifier(null, 'name'), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : null),
+                            new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
+                                new ObjectMethod(null, new BlockStatement(null, [
+                                    new ReturnStatement(null, new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier)))
+                                ]), new Identifier(null, 'get'), 'method'),
+                                new ObjectMethod(null, new BlockStatement(null, [
+                                    new ExpressionStatement(null, new AssignmentExpression(
+                                        null,
+                                        '=',
+                                        new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier)),
+                                        new Identifier(null, 'value')
+                                    ))
+                                ]), new Identifier(null, 'set'), 'method', [new Identifier(null, 'value')]),
+                            ])),
+                            new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
+                            new ObjectProperty(null, new Identifier(null, 'private'), new BooleanLiteral(null, target.private)),
+                        ]),
+                    ])),
+                ]),
+
+                // if (xy === undefined) xy = (initial) => initial;
+                new IfStatement(
+                    null,
+                    new BinaryExpression(null, '===', variable, new Identifier(null, 'undefined')),
+                    new ExpressionStatement(null, new AssignmentExpression(
+                        null,
+                        '=',
+                        variable,
+                        new ArrowFunctionExpression(null, new Identifier(null, 'initialValue'), null, [new Identifier(null, 'initialValue')]),
+                    ))
+                ),
+
+                // return xy;
+                new ReturnStatement(null, variable),
+            ]));
+
+            const privateMember = new ClassProperty(null, new StringLiteral(null, privateSymbol.name), initializer, true, false);
+            class_.body.addMember(privateMember);
+
+            target._value = new CallExpression(
+                null,
+                new MemberExpression(null, new MemberExpression(null, class_.id, privateSymbol, true), new Identifier(null, 'call')),
+                [ new Identifier(null, 'this'), target.value ? target.value : new Identifier(null, 'undefined') ]
+            );
+        } else if (target instanceof ClassMethod) {
+            if (targetKind === 'constructor') {
+                throw new Error('Cannot apply a decorator onto a class constructor');
+            }
+
+            const kind = targetKind === 'method' ? targetKind : targetKind + 'ter';
+            const currentTarget = targetRef.value;
+            const targetFetcher = currentTarget.static ?
+                new MemberExpression(null, class_.id, currentTarget.key, true) :
+                new MemberExpression(null, new MemberExpression(null, class_.id, new Identifier(null, 'prototype')), currentTarget.key, true);
+
+            const variableName = compiler.generateVariableName();
+            const variable = new Identifier(null, variableName);
+
+            const initializer = new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
+                // let xy = logged(() => { ... }, { ... })
+                new VariableDeclaration(null, 'let', [
+                    new VariableDeclarator(null, variable, new CallExpression(null, this._expression, [
+                        targetFetcher,
+                        new ObjectExpression(null, [
+                            new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, JSON.stringify(kind))),
+                            new ObjectProperty(null, new Identifier(null, 'name'), originalName instanceof Identifier ? new StringLiteral(null, JSON.stringify(originalName.name)) : null),
+                            new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
+                                new ObjectMethod(null, new BlockStatement(null, [
+                                    new ReturnStatement(null, targetFetcher)
+                                ]), new Identifier(null, 'get'), 'method'),
+                            ])),
+                            new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
+                            new ObjectProperty(null, new Identifier(null, 'private'), new BooleanLiteral(null, target.private)),
+                        ]),
+                    ])),
+                ]),
+
+                // if (xy === undefined) xy = (initial) => initial;
+                new IfStatement(
+                    null,
+                    new BinaryExpression(null, '===', variable, new Identifier(null, 'undefined')),
+                    new ExpressionStatement(null, new AssignmentExpression(null, '=', variable, targetFetcher)),
+                ),
+
+                // return xy;
+                new ReturnStatement(null, variable),
+            ]))), []);
+
+            targetRef.value = new ClassProperty(null, new StringLiteral(null, privateSymbol.name), initializer, true, false);
+        } else {
+            debugger;
+        }
+
+        return tail;
     }
 }
 

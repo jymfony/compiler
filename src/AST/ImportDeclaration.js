@@ -105,14 +105,13 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
             } else if (specifier instanceof ImportNamespaceSpecifier) {
                 right = new Identifier(null, variableName);
             } else if (specifier instanceof ImportSpecifier) {
-                const imported = specifier.imported.isDecoratorIdentifier ? new Identifier(null, '__δdecorators__' + specifier.imported.name.substr(1)) : specifier.imported;
-                right = new MemberExpression(null, new Identifier(null, variableName), imported);
+                right = new MemberExpression(null, new Identifier(null, variableName), specifier.imported);
             }
 
-            const local = specifier.local.isDecoratorIdentifier ? new Identifier(null, '__δdecorators__' + specifier.local.name.substr(1)) : specifier.local;
             compiler.compileNode(new VariableDeclaration(null, 'const', [
-                new VariableDeclarator(null, local, right),
+                new VariableDeclarator(null, specifier.local, right),
             ]));
+
             compiler._emit(';\n');
         }
     }

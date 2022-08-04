@@ -14,15 +14,18 @@ class FunctionStatement extends mix(Function, StatementInterface) {
             compiler._emit('static ');
         }
 
-        compiler._emit('function ');
+        compiler._emit('function');
 
         if (this._generator) {
-            compiler._emit('* ');
+            compiler._emit(' *');
         }
 
+        compiler._emit(' ');
         compiler.compileNode(this._id);
         Function.compileParams(compiler, this._params);
+        compiler._emit(' ');
         compiler.compileNode(this._body);
+        compiler._emit('\n');
     }
 }
 
