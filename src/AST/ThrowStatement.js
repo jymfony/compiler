@@ -24,6 +24,13 @@ class ThrowStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('throw ');
         compiler.compileNode(this._expression);

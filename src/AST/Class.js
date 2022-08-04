@@ -211,7 +211,7 @@ class Class extends implementationOf(NodeInterface) {
             .map(m => (m.private ? '#' : '') + m.key.name);
 
         for (const member of members) {
-            if (member.location === null) {
+            if (null === member.location) {
                 continue;
             }
 
@@ -402,7 +402,7 @@ class Class extends implementationOf(NodeInterface) {
             }
         }
 
-        for (let member of [ ...this._body.members ]) {
+        for (const member of [ ...this._body.members ]) {
             const memberName = member.key instanceof Identifier ? member.key : new Identifier(null, '_name_xΞ' + (~~(Math.random() * 1000000)).toString(16));
             const targetRef = new ValueHolder(member);
             const originalName = member.key;
@@ -413,7 +413,7 @@ class Class extends implementationOf(NodeInterface) {
             const kind = member.kind;
             const decorators = member.decorators || [];
 
-            for (const [i, decorator] of __jymfony.getEntries(decorators)) {
+            for (const [ i, decorator ] of __jymfony.getEntries(decorators)) {
                 const privateSymbol = new Identifier(null, compiler.generateVariableName() + '_' + this.id.name + '_private_' + memberName.name + 'Ξ' + (~~(Math.random() * 1000000)).toString(16));
 
                 compiler.compileNode(new VariableDeclaration(null, 'const', [
@@ -438,24 +438,24 @@ class Class extends implementationOf(NodeInterface) {
                             )
                         ));
 
-                        if (kind === 'method') {
+                        if ('method' === kind) {
                             this.body.addMember(new ClassProperty(null, originalName, new MemberExpression(null, this.id, privateSymbol, true), isPrivate, isStatic));
                         } else {
                             this.body.addMember(new ClassMethod(null, new BlockStatement(null, [
-                                // return C[sym].call(this, ...args)
+                                // Return C[sym].call(this, ...args)
                                 new ReturnStatement(null, new CallExpression(null,
                                     new MemberExpression(null, new MemberExpression(null, this.id, privateSymbol, true), new Identifier(null, 'call')),
                                     [
                                         new Identifier(null, 'this'),
                                         ...member.params,
                                     ]
-                                ))
+                                )),
                             ]), originalName, kind, member.params, {
                                 Static: isStatic,
                                 Private: isPrivate,
                             }));
                         }
-                    } else if (i === 0) {
+                    } else if (0 === i) {
                         member._id = new StringLiteral(null, tempSymbol.name);
                         member._private = false;
                         member._static = false;

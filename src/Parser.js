@@ -12,10 +12,8 @@ const FOR_OF = 3;
 class Parser extends implementationOf(ExpressionParserTrait) {
     /**
      * Constructor.
-     *
-     * @param {Jymfony.Component.Autoloader.DescriptorStorage} descriptorStorage
      */
-    __construct(descriptorStorage) {
+    __construct() {
         /**
          * @type {Lexer}
          *
@@ -329,7 +327,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 continue;
             }
 
-            while (this._inDecorator === 0 && ! processDecorators && this._lexer.isToken(Lexer.T_AT)) {
+            while (0 === this._inDecorator && ! processDecorators && this._lexer.isToken(Lexer.T_AT)) {
                 const docblock = this._pendingDocblock;
                 this._pendingDocblock = undefined;
 
@@ -1521,7 +1519,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
         while (! this._lexer.isToken(Lexer.T_CLOSED_PARENTHESIS)) {
             const start = this._getCurrentPosition();
 
-            while (this._inDecorator === 0 && this._lexer.isToken(Lexer.T_AT)) {
+            while (0 === this._inDecorator && this._lexer.isToken(Lexer.T_AT)) {
                 const docblock = this._pendingDocblock;
                 this._pendingDocblock = undefined;
 

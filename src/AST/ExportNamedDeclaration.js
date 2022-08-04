@@ -5,6 +5,7 @@ const Function = require('./Function');
 const Identifier = require('./Identifier');
 const MemberExpression = require('./MemberExpression');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
+const StatementInterface = require('./StatementInterface');
 const VariableDeclaration = require('./VariableDeclaration');
 
 class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface) {
@@ -57,6 +58,13 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         if (null === this._declarations) {
             for (const specifier of this._specifiers) {
@@ -68,14 +76,16 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
                         specifier.local
                     ))
                 );
-                compiler._emit(';\n');
             }
 
             return;
         }
 
         compiler.compileNode(this._declarations);
-        compiler._emit(';\n');
+        if (! (this._declarations instanceof StatementInterface) || this._declarations.shouldBeClosed) {
+            compiler._emit(';');
+            compiler.newLine();
+        }
 
         if (this._declarations instanceof VariableDeclaration) {
             for (const declarator of this._declarations.declarators) {

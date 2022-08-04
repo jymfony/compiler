@@ -11,7 +11,6 @@ const FunctionExpression = require('./FunctionExpression');
 const Identifier = require('./Identifier');
 const IfStatement = require('./IfStatement');
 const MemberExpression = require('./MemberExpression');
-const NewExpression = require('./NewExpression');
 const NodeInterface = require('./NodeInterface');
 const ObjectExpression = require('./ObjectExpression');
 const ObjectMethod = require('./ObjectMethod');
@@ -72,7 +71,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
             const variable = new Identifier(null, variableName);
 
             const initializer = new FunctionExpression(null, new BlockStatement(null, [
-                // let xy = logged(undefined, { ... })
+                // Let xy = logged(undefined, { ... })
                 new VariableDeclaration(null, 'let', [
                     new VariableDeclarator(null, variable, new CallExpression(null, this._expression, [
                         new Identifier(null, 'undefined'),
@@ -81,7 +80,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                             new ObjectProperty(null, new Identifier(null, 'name'), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : null),
                             new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
                                 new ObjectMethod(null, new BlockStatement(null, [
-                                    new ReturnStatement(null, new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier)))
+                                    new ReturnStatement(null, new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier))),
                                 ]), new Identifier(null, 'get'), 'method'),
                                 new ObjectMethod(null, new BlockStatement(null, [
                                     new ExpressionStatement(null, new AssignmentExpression(
@@ -89,8 +88,8 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                                         '=',
                                         new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier)),
                                         new Identifier(null, 'value')
-                                    ))
-                                ]), new Identifier(null, 'set'), 'method', [new Identifier(null, 'value')]),
+                                    )),
+                                ]), new Identifier(null, 'set'), 'method', [ new Identifier(null, 'value') ]),
                             ])),
                             new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
                             new ObjectProperty(null, new Identifier(null, 'private'), new BooleanLiteral(null, target.private)),
@@ -98,7 +97,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                     ])),
                 ]),
 
-                // if (xy === undefined) xy = (initial) => initial;
+                // If (xy === undefined) xy = (initial) => initial;
                 new IfStatement(
                     null,
                     new BinaryExpression(null, '===', variable, new Identifier(null, 'undefined')),
@@ -106,11 +105,11 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                         null,
                         '=',
                         variable,
-                        new ArrowFunctionExpression(null, new Identifier(null, 'initialValue'), null, [new Identifier(null, 'initialValue')]),
+                        new ArrowFunctionExpression(null, new Identifier(null, 'initialValue'), null, [ new Identifier(null, 'initialValue') ]),
                     ))
                 ),
 
-                // return xy;
+                // Return xy;
                 new ReturnStatement(null, variable),
             ]));
 
@@ -123,11 +122,11 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                 [ new Identifier(null, 'this'), target.value ? target.value : new Identifier(null, 'undefined') ]
             );
         } else if (target instanceof ClassMethod) {
-            if (targetKind === 'constructor') {
+            if ('constructor' === targetKind) {
                 throw new Error('Cannot apply a decorator onto a class constructor');
             }
 
-            const kind = targetKind === 'method' ? targetKind : targetKind + 'ter';
+            const kind = 'method' === targetKind ? targetKind : targetKind + 'ter';
             const currentTarget = targetRef.value;
             const targetFetcher = currentTarget.static ?
                 new MemberExpression(null, class_.id, currentTarget.key, true) :
@@ -137,7 +136,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
             const variable = new Identifier(null, variableName);
 
             const initializer = new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
-                // let xy = logged(() => { ... }, { ... })
+                // Let xy = logged(() => { ... }, { ... })
                 new VariableDeclaration(null, 'let', [
                     new VariableDeclarator(null, variable, new CallExpression(null, this._expression, [
                         targetFetcher,
@@ -146,7 +145,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                             new ObjectProperty(null, new Identifier(null, 'name'), originalName instanceof Identifier ? new StringLiteral(null, JSON.stringify(originalName.name)) : null),
                             new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
                                 new ObjectMethod(null, new BlockStatement(null, [
-                                    new ReturnStatement(null, targetFetcher)
+                                    new ReturnStatement(null, targetFetcher),
                                 ]), new Identifier(null, 'get'), 'method'),
                             ])),
                             new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
@@ -155,14 +154,14 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                     ])),
                 ]),
 
-                // if (xy === undefined) xy = (initial) => initial;
+                // If (xy === undefined) xy = (initial) => initial;
                 new IfStatement(
                     null,
                     new BinaryExpression(null, '===', variable, new Identifier(null, 'undefined')),
                     new ExpressionStatement(null, new AssignmentExpression(null, '=', variable, targetFetcher)),
                 ),
 
-                // return xy;
+                // Return xy;
                 new ReturnStatement(null, variable),
             ]))), []);
 

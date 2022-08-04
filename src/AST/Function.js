@@ -136,7 +136,7 @@ class Function extends implementationOf(NodeInterface) {
                 null, '=',
                 new MemberExpression(null, id, new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false), true),
                 this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
-            ))
+            )),
         ];
     }
 

@@ -23,6 +23,13 @@ class BlockStatement extends implementationOf(StatementInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
      * Gets the block statements array.
      *
      * @return {StatementInterface[]}
@@ -37,14 +44,20 @@ class BlockStatement extends implementationOf(StatementInterface) {
     compile(compiler) {
         compiler.indentationLevel++;
         compiler._emit('{');
-        for (const statement of this._body) {
+        compiler.newLine();
+        for (const [ i, statement ] of __jymfony.getEntries(this._body)) {
             if (statement instanceof Docblock) {
                 continue;
             }
 
-            compiler.newLine();
             compiler.compileNode(statement);
-            compiler._emit(';');
+
+            if (! (statement instanceof StatementInterface) || statement.shouldBeClosed) {
+                compiler._emit(';');
+                if (i !== this._body.length - 1) {
+                    compiler.newLine();
+                }
+            }
         }
 
         compiler.indentationLevel--;

@@ -36,6 +36,13 @@ class ExportDefaultDeclaration extends implementationOf(ModuleDeclarationInterfa
     }
 
     /**
+     * @inheritdoc
+     */
+    get shouldBeClosed() {
+        return true;
+    }
+
+    /**
      * Gets the expression to be default exported.
      *
      * @return {ExpressionInterface}

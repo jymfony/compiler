@@ -32,14 +32,26 @@ class SwitchStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('switch (');
         compiler.compileNode(this._discriminant);
-        compiler._emit(') {\n');
+        compiler._emit(') {');
 
         for (const c of this._cases) {
+            compiler.indentationLevel++;
+            compiler.newLine();
             compiler.compileNode(c);
-            compiler._emit('\n');
+            compiler.indentationLevel--;
+
+
+            compiler.newLine();
         }
 
         compiler._emit('}');

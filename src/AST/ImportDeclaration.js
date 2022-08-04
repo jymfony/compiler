@@ -57,6 +57,13 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         const variableName = compiler.generateVariableName();
         compiler._emit('const ' + variableName + ' = ');
@@ -87,7 +94,8 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
             compiler._emit(' } })()');
         }
 
-        compiler._emit(';\n');
+        compiler._emit(';');
+        compiler.newLine();
 
         for (const specifier of this._specifiers) {
             let right;
@@ -112,7 +120,8 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
                 new VariableDeclarator(null, specifier.local, right),
             ]));
 
-            compiler._emit(';\n');
+            compiler._emit(';');
+            compiler.newLine();
         }
     }
 }

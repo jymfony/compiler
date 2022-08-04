@@ -1,4 +1,5 @@
 const NodeInterface = require('./NodeInterface');
+const StatementInterface = require('./StatementInterface');
 
 class SwitchCase extends implementationOf(NodeInterface) {
     /**
@@ -40,11 +41,21 @@ class SwitchCase extends implementationOf(NodeInterface) {
             compiler.compileNode(this._test);
         }
 
-        compiler._emit(':\n');
-        for (const consequent of this._consequent) {
+        compiler._emit(':');
+
+        compiler.indentationLevel++;
+        compiler.newLine();
+        for (const [ i, consequent ] of __jymfony.getEntries(this._consequent)) {
             compiler.compileNode(consequent);
-            compiler._emit(';\n');
+            if (! (consequent instanceof StatementInterface) || consequent.shouldBeClosed) {
+                compiler._emit(';');
+                if (i !== this._consequent.length - 1) {
+                    compiler.newLine();
+                }
+            }
         }
+
+        compiler.indentationLevel--;
     }
 }
 

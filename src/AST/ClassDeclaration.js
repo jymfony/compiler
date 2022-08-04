@@ -1,5 +1,6 @@
 const Class = require('./Class');
 const DeclarationInterface = require('./DeclarationInterface');
+const StatementInterface = require('./StatementInterface');
 
 class ClassDeclaration extends mix(Class, DeclarationInterface) {
     compile(compiler) {
@@ -12,7 +13,11 @@ class ClassDeclaration extends mix(Class, DeclarationInterface) {
 
         for (const statement of tail) {
             compiler.compileNode(statement);
-            compiler._emit(';\n');
+
+            if (! (statement instanceof StatementInterface) || statement.shouldBeClosed) {
+                compiler._emit(';');
+                compiler.newLine();
+            }
         }
     }
 }

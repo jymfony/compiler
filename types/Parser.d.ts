@@ -21,8 +21,8 @@ declare module "@jymfony/compiler" {
         /**
          * Constructor.
          */
-        __construct(descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage): void;
-        constructor(descriptorStorage: Jymfony.Component.Autoloader.DescriptorStorage);
+        __construct(): void;
+        constructor();
 
         /**
          * Gets/sets the current parser state.

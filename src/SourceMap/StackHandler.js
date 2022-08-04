@@ -108,14 +108,14 @@ class StackHandler {
             if ('undefined' === typeof HashTable || 'undefined' === typeof BTree) {
                 pendingMappings[filename] = mappings;
                 return;
-            } else {
-                fileMappings = new HashTable();
-                for (const [ key, value ] of __jymfony.getEntries(pendingMappings)) {
-                    fileMappings.put(key, Parser.parseMappings(value));
-                }
-
-                pendingMappings = {};
             }
+            fileMappings = new HashTable();
+            for (const [ key, value ] of __jymfony.getEntries(pendingMappings)) {
+                fileMappings.put(key, Parser.parseMappings(value));
+            }
+
+            pendingMappings = {};
+
         }
 
         fileMappings.put(filename, Parser.parseMappings(mappings));

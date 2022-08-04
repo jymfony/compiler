@@ -16,6 +16,13 @@ class DebuggerStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('debugger');
     }

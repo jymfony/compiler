@@ -36,6 +36,13 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    get shouldBeClosed() {
+        return true;
+    }
+
+    /**
      * Gets the variable declarators.
      *
      * @return {VariableDeclarator[]}
@@ -49,15 +56,12 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
      */
     compile(compiler) {
         const Class = require('./Class');
-        let tail = [];
+        const tail = [];
         if (1 === this._declarators.length) {
             const declarator = this._declarators[0];
             const init = declarator.init;
 
             if (!! this.docblock) {
-                compiler._emit(';');
-                compiler.newLine();
-
                 if (init instanceof Function || init instanceof Class) {
                     tail.push(...init.compileDocblock(compiler, declarator.id));
                 }
@@ -78,9 +82,9 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
         }
 
         for (const statement of tail) {
-            compiler.compileNode(statement);
             compiler._emit(';');
             compiler.newLine();
+            compiler.compileNode(statement);
         }
     }
 }

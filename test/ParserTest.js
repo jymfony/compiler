@@ -195,11 +195,12 @@ export default () => {
         const compiler = new Compiler(generator);
         expect(compiler.compile(program)).to.be.eq(`const αa = require('@jymfony/decorators');
 const Inject = αa.Inject;
-;const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
+const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
 const Client = αb.Client;
-;exports.default = () => {
+exports.default = () => {
   return [ Inject !== undefined, Client === undefined,  ];
-};`);
+};
+`);
     });
 
     it ('should correctly compile raw imports', () => {
@@ -262,7 +263,7 @@ export default () => {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const x = [ 1, , 3, 4,  ];');
+        expect(compiled).to.be.equal('const x = [ 1, , 3, 4,  ];\n');
     });
 
     it ('should spread operator in object unpacking', () => {
@@ -272,7 +273,7 @@ export default () => {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const { g, ...x } = {\n  g: \'foo\',\n  y: \'test\',\n  p: 123,\n};');
+        expect(compiled).to.be.equal('const { g, ...x } = {\n  g: \'foo\',\n  y: \'test\',\n  p: 123,\n};\n');
     });
 
     it ('should parse xor operator correctly', () => {
@@ -282,9 +283,10 @@ function op_xor(x,y) { return x^y; }
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`function op_xor(x,y){
+        expect(compiled).to.be.equal(`function op_xor(x,y) {
   return x ^ y;
-};`);
+}
+`);
     });
 
     it ('should parse async as variable identifier', () => {
@@ -296,9 +298,12 @@ async.isCore = function isCore(x) { return core[x]; };
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`var async = require('./lib/async');async.core = core;async.isCore = function isCore(x){
+        expect(compiled).to.be.equal(`var async = require('./lib/async');
+async.core = core;
+async.isCore = function isCore(x) {
   return core[x];
-};`);
+};
+`);
     });
 
     it ('should parse break with newline and identifier next', () => {
@@ -315,7 +320,8 @@ async.isCore = function isCore(x) { return core[x]; };
   if (minimum > getMajor(released[i])) 
     break;
   selected.unshift(released[i]);
-};`);
+  
+}`);
     });
 
     it ('should correctly rescan the rest of the file if a wrong regex has been matched', () => {
@@ -325,7 +331,7 @@ const foo = cond ? Number(bar) / 100 : undefined; // return a comment
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const foo = cond ? Number(bar) / 100 : undefined;');
+        expect(compiled).to.be.equal('const foo = cond ? Number(bar) / 100 : undefined;\n');
     });
 
     it ('should parse composed key in literal object', () => {
@@ -337,7 +343,8 @@ const a = {[k]: env = defaultEnv};
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const a = {
   [k]: env = defaultEnv,
-};`);
+};
+`);
     });
 
     it ('should correctly rethrow a rescan through the call chain', () => {
@@ -349,9 +356,10 @@ const a = {[k]: env = defaultEnv};
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB,  ].map(function xmap(v){
+        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB,  ].map(function xmap(v) {
   return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
-});`);
+});
+`);
     });
 
     it ('should correctly rescan multiple times', () => {
@@ -371,13 +379,16 @@ convert.gray.rgb = function gray(args) {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple){
+        expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple) {
   return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255,  ];
-};convert.rgb.apple = function apple(rgb){
+};
+convert.rgb.apple = function apple(rgb) {
   return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535,  ];
-};convert.gray.rgb = function gray(args){
+};
+convert.gray.rgb = function gray(args) {
   return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
-};`);
+};
+`);
     });
 
     it ('should correctly split keyword and string operator', () => {
@@ -388,11 +399,10 @@ switch(c){case'\\t':read();return;}
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`switch (c) {
-case '\\t':
-read();
-return;
-
-};`);
+  case '\\t':
+    read();
+    return;
+}`);
     });
 
     it ('should correctly parse yield expression assignment', () => {
@@ -402,7 +412,7 @@ result = yield transform(source, options);
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('result = yield transform(source,options);');
+        expect(compiled).to.be.equal('result = yield transform(source,options);\n');
     });
 
     it ('should correctly parse computed class member id', () => {
@@ -416,6 +426,7 @@ class x {
         const compiled = compiler.compile(program);
         expect(compiled).to.have.string(`class x extends __jymfony.JObject {
   [computed](param) {
+    
   }
 `);
     });
@@ -429,7 +440,7 @@ class x {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.have.string(`class x extends __jymfony.JObject {
+        expect(compiled).to.be.eq(`class x extends __jymfony.JObject {
   static get [Symbol.reflection]() {
     return {
       fields: {
@@ -455,7 +466,7 @@ class x {
   }
 }
 x[Symbol.docblock] = null;
-;`);
+`);
     });
 
     it ('should correctly invoke decorators on class declarations', () => {
@@ -504,7 +515,7 @@ class x {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.have.string(`const αa = (target,prop,parameterIndex = null) => {
+        expect(compiled).to.be.eq(`const αa = (target,prop,parameterIndex = null) => {
 }
 ;
 class x extends __jymfony.JObject {
@@ -545,7 +556,7 @@ const x = 1n;
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const x = 1n;');
+        expect(compiled).to.be.equal('const x = 1n;\n');
     });
 
     it ('should strip shebang directive from generated code', () => {
@@ -557,7 +568,9 @@ console.log(module);
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const module = require('module');console.log(module);`);
+        expect(compiled).to.be.equal(`const module = require('module');
+console.log(module);
+`);
     });
 
     it ('should correctly export named async functions', () => {
@@ -568,7 +581,7 @@ export async function named() {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('async function named(){\n};\nexports.named = named;');
+        expect(compiled).to.be.equal('async function named() {\n  \n}\nexports.named = named;\n');
     });
 
     it ('should correctly parse keywords in incorrect context', () => {
@@ -583,8 +596,12 @@ if (async === null) {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const let = 'a let identifier';const const = 'a const identifier';const async = \'this is a string\';if (async === null) {
+        expect(compiled).to.be.equal(`const let = 'a let identifier';
+const const = 'a const identifier';
+const async = \'this is a string\';
+if (async === null) {
   debugger;
-};`);
+}
+`);
     });
 });

@@ -5,6 +5,13 @@ class FunctionStatement extends mix(Function, StatementInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         if (this._async) {
             compiler._emit('async ');

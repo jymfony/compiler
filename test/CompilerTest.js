@@ -33,7 +33,7 @@ describe('[Compiler] Compiler', function () {
 
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal('__assert(foo instanceof Foo);');
+            expect(compiled).to.be.equal('__assert(foo instanceof Foo);\n');
         } finally {
             __jymfony.autoload.debug = debug;
         }
@@ -48,7 +48,7 @@ describe('[Compiler] Compiler', function () {
 
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(';');
+            expect(compiled).to.be.equal('');
         } finally {
             __jymfony.autoload.debug = debug;
         }
@@ -94,11 +94,12 @@ export default class ClassA extends ClassB {
   }
 }
 ClassB[Symbol.docblock] = null;
-;const ClassA = class ClassA extends ClassB {
+const ClassA = class ClassA extends ClassB {
   #internal;
   constructor() {
     super();
     this.#internal = 'internal';
+    
   }
   static get [Symbol.reflection]() {
     return {
@@ -130,7 +131,8 @@ ClassB[Symbol.docblock] = null;
   }
 }
 ;
-exports.default = ClassA;`);
+exports.default = ClassA;
+`);
         } finally {
             __jymfony.autoload.debug = debug;
         }

@@ -1,6 +1,6 @@
-const NodeInterface = require('./NodeInterface');
+const StatementInterface = require('./StatementInterface');
 
-class ModuleDeclarationInterface extends NodeInterface.definition {
+class ModuleDeclarationInterface extends StatementInterface.definition {
 }
 
 module.exports = getInterface(ModuleDeclarationInterface);

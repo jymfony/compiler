@@ -41,6 +41,13 @@ class IfStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('if (');
         compiler.compileNode(this._test);
@@ -52,6 +59,9 @@ class IfStatement extends implementationOf(StatementInterface) {
         }
 
         compiler.compileNode(this._consequent);
+        if (! (this._consequent instanceof BlockStatement)) {
+            compiler._emit(';');
+        }
 
         if (null !== this._alternate) {
             if (! (this._consequent instanceof BlockStatement)) {
@@ -62,7 +72,12 @@ class IfStatement extends implementationOf(StatementInterface) {
             }
 
             compiler.compileNode(this._alternate);
+            if (! (this._alternate instanceof BlockStatement)) {
+                compiler._emit(';');
+            }
         }
+
+        compiler.newLine();
     }
 }
 
