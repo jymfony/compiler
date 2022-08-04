@@ -1,6 +1,6 @@
 declare module "@jymfony/compiler" {
     namespace AST {
-        class SpreadElement extends implementationOf(NodeInterface) {
+        class SpreadElement extends implementationOf(NodeInterface, ObjectMember) {
             public location: SourceLocation;
             private _expression: ExpressionInterface;
 
@@ -8,7 +8,6 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, expression: ExpressionInterface): void;
-
             constructor(location: SourceLocation, expression: ExpressionInterface);
 
             /**

@@ -1,4 +1,3 @@
-const Class = require('./Class');
 const DeclarationInterface = require('./DeclarationInterface');
 const Function = require('./Function');
 
@@ -37,6 +36,13 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    get shouldBeClosed() {
+        return true;
+    }
+
+    /**
      * Gets the variable declarators.
      *
      * @return {VariableDeclarator[]}
@@ -49,12 +55,15 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        let tail = [];
+        const tail = [];
         if (1 === this._declarators.length) {
             const declarator = this._declarators[0];
             const init = declarator.init;
-            if (init instanceof Class) {
-                tail = init.compileDecorators(compiler);
+
+            if (!! this.docblock) {
+                if (init instanceof Function) {
+                    tail.push(...init.compileDocblock(compiler, declarator.id));
+                }
             }
         }
 
@@ -67,19 +76,10 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
             }
         }
 
-        if (!! this.docblock && 1 === this._declarators.length) {
-            compiler._emit(';\n');
-
-            const declarator = this._declarators[0];
-            const init = declarator.init;
-            if (init instanceof Function || init instanceof Class) {
-                init.compileDocblock(compiler, declarator.id);
-            }
-        }
-
         for (const statement of tail) {
+            compiler._emit(';');
+            compiler.newLine();
             compiler.compileNode(statement);
-            compiler._emit(';\n');
         }
     }
 }

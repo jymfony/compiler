@@ -13,7 +13,6 @@ declare module "@jymfony/compiler" {
              */
             // @ts-ignore
             __construct(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'constructor' | 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async, Private, Static }?: { generator?: boolean, async?: boolean, Private?: boolean, Static?: boolean }): void;
-
             constructor(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'constructor' | 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async, Private, Static }?: { generator?: boolean, async?: boolean, Private?: boolean, Static?: boolean });
 
             /**
@@ -24,7 +23,7 @@ declare module "@jymfony/compiler" {
             /**
              * Gets the identifier.
              */
-            public readonly kind: string;
+            public readonly kind: 'constructor' | 'method' | 'get' | 'set';
 
             /**
              * Whether this method is static.

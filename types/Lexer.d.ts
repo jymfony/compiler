@@ -31,8 +31,7 @@ declare class Lexer {
     public static readonly T_COLON = 21;
     public static readonly T_FUNCTION = 22;
     public static readonly T_REGEX = 23;
-    public static readonly T_DECORATOR = 24;
-    public static readonly T_DECORATOR_IDENTIFIER = 25;
+    public static readonly T_AT = 24;
     public static readonly T_GET = 26;
     public static readonly T_SET = 27;
     public static readonly T_STATIC = 28;

@@ -31,10 +31,19 @@ declare module "@jymfony/compiler" {
             public readonly body: BlockStatement;
 
             /**
+             * Whether the function is a generator.
+             */
+            public readonly generator: boolean;
+
+            /**
+             * Whether the function is async.
+             */
+            public readonly async: boolean;
+
+            /**
              * Constructor.
              */
             __construct(location: SourceLocation, body: BlockStatement, id?: Identifier | null, params?: PatternInterface[], { generator, async }?: { generator?: boolean, async?: boolean }): void;
-
             constructor(location: SourceLocation, body: BlockStatement, id?: Identifier | null, params?: PatternInterface[], { generator, async }?: { generator?: boolean, async?: boolean });
 
             /**

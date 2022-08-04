@@ -24,6 +24,13 @@ class ReturnStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('return');
         if (null !== this._argument) {

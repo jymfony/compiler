@@ -61,8 +61,8 @@ class ClassBody extends implementationOf(NodeInterface) {
      */
     compile(compiler) {
         for (const member of this._body) {
+            compiler.newLine();
             compiler.compileNode(member);
-            compiler._emit('\n');
         }
     }
 }

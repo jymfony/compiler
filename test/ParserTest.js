@@ -7,6 +7,7 @@ const Generator = require('../src/SourceMap/Generator');
 const Parser = require('../src/Parser');
 const { expect } = require('chai');
 const folder = dirname(require.resolve('test262-parser-tests/package.json'));
+const seedrandom = require('seedrandom');
 
 describe('[Compiler] Parser', function () {
     const parser = new Parser();
@@ -195,12 +196,12 @@ export default () => {
         const compiler = new Compiler(generator);
         expect(compiler.compile(program)).to.be.eq(`const αa = require('@jymfony/decorators');
 const Inject = αa.Inject;
-;const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
+const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
 const Client = αb.Client;
-;exports.default = () => {
-return [ Inject !== undefined, Client === undefined,  ];
-}
-;`);
+exports.default = () => {
+  return [ Inject !== undefined, Client === undefined,  ];
+};
+`);
     });
 
     it ('should correctly compile raw imports', () => {
@@ -263,7 +264,7 @@ export default () => {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const x = [ 1, , 3, 4,  ];');
+        expect(compiled).to.be.equal('const x = [ 1, , 3, 4,  ];\n');
     });
 
     it ('should spread operator in object unpacking', () => {
@@ -273,20 +274,20 @@ export default () => {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const { g, ...x } = {\ng: \'foo\',y: \'test\',p: 123,};');
+        expect(compiled).to.be.equal('const { g, ...x } = {\n  g: \'foo\',\n  y: \'test\',\n  p: 123,\n};\n');
     });
 
     it ('should parse xor operator correctly', () => {
         const program = parser.parse(`
-function op_xor(x,y) { return x^y; } 
+function op_xor(x,y) { return x^y; }
 `);
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`function op_xor(x,y){
-return x ^ y;
+        expect(compiled).to.be.equal(`function op_xor(x,y) {
+  return x ^ y;
 }
-;`);
+`);
     });
 
     it ('should parse async as variable identifier', () => {
@@ -298,10 +299,12 @@ async.isCore = function isCore(x) { return core[x]; };
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`var async = require('./lib/async');async.core = core;async.isCore = function isCore(x){
-return core[x];
-}
-;`);
+        expect(compiled).to.be.equal(`var async = require('./lib/async');
+async.core = core;
+async.isCore = function isCore(x) {
+  return core[x];
+};
+`);
     });
 
     it ('should parse break with newline and identifier next', () => {
@@ -315,11 +318,11 @@ return core[x];
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`for (var i = released.length - 1;i >= 0;i--){
-if (minimum > getMajor(released[i])) break
-;
-selected.unshift(released[i]);
-}
-;`);
+  if (minimum > getMajor(released[i])) 
+    break;
+  selected.unshift(released[i]);
+  
+}`);
     });
 
     it ('should correctly rescan the rest of the file if a wrong regex has been matched', () => {
@@ -329,7 +332,7 @@ const foo = cond ? Number(bar) / 100 : undefined; // return a comment
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const foo = cond ? Number(bar) / 100 : undefined;');
+        expect(compiled).to.be.equal('const foo = cond ? Number(bar) / 100 : undefined;\n');
     });
 
     it ('should parse composed key in literal object', () => {
@@ -340,7 +343,9 @@ const a = {[k]: env = defaultEnv};
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const a = {
-[k]: env = defaultEnv,};`);
+  [k]: env = defaultEnv,
+};
+`);
     });
 
     it ('should correctly rethrow a rescan through the call chain', () => {
@@ -352,10 +357,10 @@ const a = {[k]: env = defaultEnv};
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB,  ].map(function xmap(v){
-return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
-}
-);`);
+        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB,  ].map(function xmap(v) {
+  return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
+});
+`);
     });
 
     it ('should correctly rescan multiple times', () => {
@@ -375,16 +380,16 @@ convert.gray.rgb = function gray(args) {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple){
-return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255,  ];
-}
-;convert.rgb.apple = function apple(rgb){
-return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535,  ];
-}
-;convert.gray.rgb = function gray(args){
-return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
-}
-;`);
+        expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple) {
+  return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255,  ];
+};
+convert.rgb.apple = function apple(rgb) {
+  return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535,  ];
+};
+convert.gray.rgb = function gray(args) {
+  return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
+};
+`);
     });
 
     it ('should correctly split keyword and string operator', () => {
@@ -395,11 +400,10 @@ switch(c){case'\\t':read();return;}
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`switch (c) {
-case '\\t':
-read();
-return;
-
-};`);
+  case '\\t':
+    read();
+    return;
+}`);
     });
 
     it ('should correctly parse yield expression assignment', () => {
@@ -409,7 +413,7 @@ result = yield transform(source, options);
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('result = yield transform(source,options);');
+        expect(compiled).to.be.equal('result = yield transform(source,options);\n');
     });
 
     it ('should correctly parse computed class member id', () => {
@@ -422,8 +426,9 @@ class x {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.have.string(`class x extends __jymfony.JObject {
-[computed](param) {
-}
+  [computed](param) {
+    
+  }
 `);
     });
 
@@ -436,71 +441,409 @@ class x {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.have.string(`class x extends __jymfony.JObject {
-static get [Symbol.reflection]() {
-return {
-fields: {
-field: {
-get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},},staticFields: {
-},};
-}
-
-[Symbol.__jymfony_field_initialization]() {
-if (undefined !== super[Symbol.__jymfony_field_initialization]) super[Symbol.__jymfony_field_initialization]()
-;
-Object.defineProperty(this,"field",{
-writable: true,enumerable: true,configurable: true,value: 'foo',});
-}
-
-
+        expect(compiled).to.be.eq(`class x extends __jymfony.JObject {
+  static get [Symbol.reflection]() {
+    return {
+      fields: {
+        field: {
+          get: (obj) => obj.field,
+          set: (obj,value) => obj.field = value,
+          docblock: null,
+        },
+      },
+      staticFields: {
+      },
+    };
+  }
+  [Symbol.__jymfony_field_initialization]() {
+    if (undefined !== super[Symbol.__jymfony_field_initialization]) 
+      super[Symbol.__jymfony_field_initialization]();
+    Object.defineProperty(this,"field",{
+      writable: true,
+      enumerable: true,
+      configurable: true,
+      value: 'foo',
+    });
+  }
 }
 x[Symbol.docblock] = null;
-;`);
+`);
     });
 
     it ('should correctly invoke decorators on class declarations', () => {
+        seedrandom('decorators', { global: true });
         const program = parser.parse(`
+function register() { return () => {}; }
+function initialize() { return () => {}; }
+const secondary = () => console.log;
+const logger = {
+    logged: (value, { kind, name }) => {
+        if (kind === "method") {
+            return function (...args) {
+                console.log(\`starting \${name} with arguments \${args.join(", ")}\`);
+                const ret = value.call(this, ...args);
+                console.log(\`ending \${name}\`);
+                return ret;
+            };
+        }
+
+        if (kind === "field") {
+            return function (initialValue) {
+                console.log(\`initializing \${name} with value \${initialValue}\`);
+                return initialValue;
+            };
+        }
+    },
+}
+
+@logger.logged
 class x {
+  @logger.logged
   @register((target, prop, parameterIndex = null) => {})
   @initialize((instance, key, value) => {})
   field = 'foo';
+
+  @logger.logged
+  @secondary('great')
+  test() {
+    const cc = @logger.logged class {}
+  }
+
+  @logger.logged
+  @secondary('great')
+  get test_getter() {
+    return 'test';
+  }
+
+  @logger.logged
+  @secondary('great')
+  set test_setter(value) {
+  }
+  
+  @logger.logged
+  testMethod(@type(Request) firstArg) {
+    dump(firstArg);
+  }
 }
 `);
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.have.string(`const αa = (target,prop,parameterIndex = null) => {
+        expect(compiled).to.be.eq(`function register() {
+  return () => {
+    
+  };
 }
-;
+function initialize() {
+  return () => {
+    
+  };
+}
+const secondary = () => console.log;
+const logger = {
+  logged: (value,{ kind, name }) => {
+    if (kind === "method") {
+      return function _anonymous_xΞ11ea6(...args) {
+        console.log(\`starting \${name} with arguments \${args.join(", ")}\`);
+        const ret = value.call(this,...args);
+        console.log(\`ending \${name}\`);
+        return ret;
+      };
+    }
+    if (kind === "field") {
+      return function _anonymous_xΞ8f93b(initialValue) {
+        console.log(\`initializing \${name} with value \${initialValue}\`);
+        return initialValue;
+      };
+    }
+    
+  },
+};
+const αc_x_private_fieldΞe3230 = Symbol();
+const αe_x_private_fieldΞ2d2d9 = Symbol();
+const αg_x_private_fieldΞa87ad = Symbol();
+const αj_x_private_testΞ577e = Symbol();
+const αl_x_private_testΞ36fc8 = Symbol();
+const αi_x_temp_testΞebcd6 = Symbol();
+const αo_x_private_test_getterΞ2d8c2 = Symbol();
+const αq_x_private_test_getterΞ9dd90 = Symbol();
+const αn_x_temp_test_getterΞ640 = Symbol();
+const αt_x_private_test_setterΞb8d2 = Symbol();
+const αv_x_private_test_setterΞ7aa42 = Symbol();
+const αs_x_temp_test_setterΞde2f4 = Symbol();
+const αy_x_private_testMethodΞ32b8e = Symbol();
+const αx_x_temp_testMethodΞ897cb = Symbol();
 class x extends __jymfony.JObject {
-constructor() {
-super();
-((instance,key,value) => {
-}
-)(this,"field",'foo');
-;
-}
-
-static get [Symbol.reflection]() {
-return {
-fields: {
-field: {
-get: (obj) => obj.field,set: (obj,value) => obj.field = value,docblock: null,},},staticFields: {
-},};
-}
-
-[Symbol.__jymfony_field_initialization]() {
-if (undefined !== super[Symbol.__jymfony_field_initialization]) super[Symbol.__jymfony_field_initialization]()
-;
-Object.defineProperty(this,"field",{
-writable: true,enumerable: true,configurable: true,value: undefined,});
-}
-
-
+  [αi_x_temp_testΞebcd6]() {
+    const cc = (() => {
+      let _anonymous_xΞc91f4 = class _anonymous_xΞc91f4 extends __jymfony.JObject {
+        static get [Symbol.reflection]() {
+          return {
+            fields: {
+            },
+            staticFields: {
+            },
+          };
+        }
+      }
+      ;
+      _anonymous_xΞc91f4[Symbol.docblock] = null;
+      _anonymous_xΞc91f4 = (() => {
+        const α0 = logger.logged(_anonymous_xΞc91f4,{
+          kind: 'field',
+          name: "_anonymous_xΞc91f4",
+        });
+        if (α0 === undefined) 
+          return _anonymous_xΞc91f4;
+        return α0;
+      })();
+      
+      return _anonymous_xΞc91f4;
+    })();
+  }
+  [αn_x_temp_test_getterΞ640]() {
+    return 'test';
+  }
+  [αs_x_temp_test_setterΞde2f4](value) {
+    
+  }
+  testMethod(firstArg) {
+    dump(firstArg);
+    
+  }
+  static [αc_x_private_fieldΞe3230] = function _anonymous_xΞ9502d() {
+    let αd = logger.logged(undefined,{
+      kind: 'field',
+      name: "field",
+      access: {
+        get() {
+          return this.field;
+        },
+        set(value) {
+          this.field = value;
+          
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αd === undefined) 
+      αd = (initialValue) => initialValue;
+    ;
+    return αd;
+  };
+  static [αe_x_private_fieldΞ2d2d9] = function _anonymous_xΞe9a02() {
+    let αf = register((target,prop,parameterIndex = null) => {
+      
+    })(undefined,{
+      kind: 'field',
+      name: "field",
+      access: {
+        get() {
+          return this.field;
+        },
+        set(value) {
+          this.field = value;
+          
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αf === undefined) 
+      αf = (initialValue) => initialValue;
+    ;
+    return αf;
+  };
+  static [αg_x_private_fieldΞa87ad] = function _anonymous_xΞ6e2d3() {
+    let αh = initialize((instance,key,value) => {
+      
+    })(undefined,{
+      kind: 'field',
+      name: "field",
+      access: {
+        get() {
+          return this.field;
+        },
+        set(value) {
+          this.field = value;
+          
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αh === undefined) 
+      αh = (initialValue) => initialValue;
+    ;
+    return αh;
+  };
+  static [αj_x_private_testΞ577e] = (() => {
+    let αk = logger.logged(x.prototype[αi_x_temp_testΞebcd6],{
+      kind: "method",
+      name: "test",
+      access: {
+        get() {
+          return x.prototype[αi_x_temp_testΞebcd6];
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αk === undefined) 
+      αk = x.prototype[αi_x_temp_testΞebcd6];
+    ;
+    return αk;
+  })();
+  test = x[αl_x_private_testΞ36fc8];
+  static [αl_x_private_testΞ36fc8] = (() => {
+    let αm = secondary('great')(x[αj_x_private_testΞ577e],{
+      kind: "method",
+      name: "test",
+      access: {
+        get() {
+          return x[αj_x_private_testΞ577e];
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αm === undefined) 
+      αm = x[αj_x_private_testΞ577e];
+    ;
+    return αm;
+  })();
+  static [αo_x_private_test_getterΞ2d8c2] = (() => {
+    let αp = logger.logged(x.prototype[αn_x_temp_test_getterΞ640],{
+      kind: "getter",
+      name: "test_getter",
+      access: {
+        get() {
+          return x.prototype[αn_x_temp_test_getterΞ640];
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αp === undefined) 
+      αp = x.prototype[αn_x_temp_test_getterΞ640];
+    ;
+    return αp;
+  })();
+  get test_getter() {
+    return x[αq_x_private_test_getterΞ9dd90].call(this);
+  }
+  static [αq_x_private_test_getterΞ9dd90] = (() => {
+    let αr = secondary('great')(x[αo_x_private_test_getterΞ2d8c2],{
+      kind: "getter",
+      name: "test_getter",
+      access: {
+        get() {
+          return x[αo_x_private_test_getterΞ2d8c2];
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αr === undefined) 
+      αr = x[αo_x_private_test_getterΞ2d8c2];
+    ;
+    return αr;
+  })();
+  static [αt_x_private_test_setterΞb8d2] = (() => {
+    let αu = logger.logged(x.prototype[αs_x_temp_test_setterΞde2f4],{
+      kind: "setter",
+      name: "test_setter",
+      access: {
+        get() {
+          return x.prototype[αs_x_temp_test_setterΞde2f4];
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αu === undefined) 
+      αu = x.prototype[αs_x_temp_test_setterΞde2f4];
+    ;
+    return αu;
+  })();
+  set test_setter(value) {
+    return x[αv_x_private_test_setterΞ7aa42].call(this,value);
+  }
+  static [αv_x_private_test_setterΞ7aa42] = (() => {
+    let αw = secondary('great')(x[αt_x_private_test_setterΞb8d2],{
+      kind: "setter",
+      name: "test_setter",
+      access: {
+        get() {
+          return x[αt_x_private_test_setterΞb8d2];
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αw === undefined) 
+      αw = x[αt_x_private_test_setterΞb8d2];
+    ;
+    return αw;
+  })();
+  testMethod = x[αy_x_private_testMethodΞ32b8e];
+  static [αy_x_private_testMethodΞ32b8e] = (() => {
+    let αz = logger.logged(x.prototype[testMethod],{
+      kind: "method",
+      name: "testMethod",
+      access: {
+        get() {
+          return x.prototype[testMethod];
+        },
+      },
+      static: false,
+      private: false,
+    });
+    if (αz === undefined) 
+      αz = x.prototype[testMethod];
+    ;
+    return αz;
+  })();
+  static get [Symbol.reflection]() {
+    return {
+      fields: {
+        field: {
+          get: (obj) => obj.field,
+          set: (obj,value) => obj.field = value,
+          docblock: null,
+        },
+      },
+      staticFields: {
+      },
+    };
+  }
+  [Symbol.__jymfony_field_initialization]() {
+    if (undefined !== super[Symbol.__jymfony_field_initialization]) 
+      super[Symbol.__jymfony_field_initialization]();
+    Object.defineProperty(this,"field",{
+      writable: true,
+      enumerable: true,
+      configurable: true,
+      value: x[αg_x_private_fieldΞa87ad].call(this,x[αe_x_private_fieldΞ2d2d9].call(this,x[αc_x_private_fieldΞe3230].call(this,'foo'))),
+    });
+  }
 }
 x[Symbol.docblock] = null;
-αa(x,"field");
-;`);
+delete x.prototype[αx_x_temp_testMethodΞ897cb];
+delete x.prototype[αs_x_temp_test_setterΞde2f4];
+delete x.prototype[αn_x_temp_test_getterΞ640];
+delete x.prototype[αi_x_temp_testΞebcd6];
+x = (() => {
+  const αa = logger.logged(x,{
+    kind: 'field',
+    name: "x",
+  });
+  if (αa === undefined) 
+    return x;
+  return αa;
+})();
+`);
     });
 
     it ('should correctly parse bigint notation', () => {
@@ -510,7 +853,7 @@ const x = 1n;
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const x = 1n;');
+        expect(compiled).to.be.equal('const x = 1n;\n');
     });
 
     it ('should strip shebang directive from generated code', () => {
@@ -522,7 +865,9 @@ console.log(module);
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const module = require('module');console.log(module);`);
+        expect(compiled).to.be.equal(`const module = require('module');
+console.log(module);
+`);
     });
 
     it ('should correctly export named async functions', () => {
@@ -533,7 +878,7 @@ export async function named() {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('async function named(){\n}\n;\nexports.named = named;');
+        expect(compiled).to.be.equal('async function named() {\n  \n}\nexports.named = named;\n');
     });
 
     it ('should correctly parse keywords in incorrect context', () => {
@@ -548,10 +893,12 @@ if (async === null) {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const let = 'a let identifier';const const = 'a const identifier';const async = \'this is a string\';if (async === null) {
-debugger;
+        expect(compiled).to.be.equal(`const let = 'a let identifier';
+const const = 'a const identifier';
+const async = \'this is a string\';
+if (async === null) {
+  debugger;
 }
-
-;`);
+`);
     });
 });

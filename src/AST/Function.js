@@ -107,19 +107,37 @@ class Function extends implementationOf(NodeInterface) {
     }
 
     /**
+     * Whether the function is a generator.
+     *
+     * @return {boolean}
+     */
+    get generator() {
+        return this._generator;
+    }
+
+    /**
+     * Whether the function is async.
+     *
+     * @return {boolean}
+     */
+    get async() {
+        return this._async;
+    }
+
+    /**
      * Compiles the docblock registration code.
      *
      * @param {Compiler} compiler
      * @param {Identifier} id
      */
     compileDocblock(compiler, id) {
-        compiler.compileNode(new ExpressionStatement(null, new AssignmentExpression(
-            null, '=',
-            new MemberExpression(null, id, new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false), true),
-            this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
-        )));
-
-        compiler._emit(';\n');
+        return [
+            new ExpressionStatement(null, new AssignmentExpression(
+                null, '=',
+                new MemberExpression(null, id, new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false), true),
+                this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
+            )),
+        ];
     }
 
     static compileParams(compiler, params) {

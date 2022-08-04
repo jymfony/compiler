@@ -1,11 +1,11 @@
 const AssignmentExpression = require('./AssignmentExpression');
 const Class = require('./Class');
-const DecoratorDescriptor = require('./DecoratorDescriptor');
 const ExpressionStatement = require('./ExpressionStatement');
 const Function = require('./Function');
 const Identifier = require('./Identifier');
 const MemberExpression = require('./MemberExpression');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
+const StatementInterface = require('./StatementInterface');
 const VariableDeclaration = require('./VariableDeclaration');
 
 class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface) {
@@ -58,6 +58,13 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         if (null === this._declarations) {
             for (const specifier of this._specifiers) {
@@ -69,27 +76,21 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
                         specifier.local
                     ))
                 );
-                compiler._emit(';\n');
             }
 
             return;
         }
 
         compiler.compileNode(this._declarations);
-        compiler._emit(';\n');
+        if (! (this._declarations instanceof StatementInterface) || this._declarations.shouldBeClosed) {
+            compiler._emit(';');
+            compiler.newLine();
+        }
 
         if (this._declarations instanceof VariableDeclaration) {
             for (const declarator of this._declarations.declarators) {
                 ExportNamedDeclaration._exportDeclarator(compiler, declarator);
             }
-        } else if (this._declarations instanceof DecoratorDescriptor) {
-            compiler.compileNode(
-                new ExpressionStatement(null, new AssignmentExpression(
-                    null, '=',
-                    new MemberExpression(null, new Identifier(null, 'exports'), new Identifier(null, this._declarations.mangledName)),
-                    new Identifier(null, this._declarations.mangledName)
-                ))
-            );
         } else if (this._declarations instanceof Function || this._declarations instanceof Class) {
             if (this.decorators) {
                 this._declarations.declarators = this.decorators;

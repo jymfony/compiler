@@ -1,6 +1,7 @@
 const NodeInterface = require('./NodeInterface');
+const ObjectMember = require('./ObjectMember');
 
-class SpreadElement extends implementationOf(NodeInterface) {
+class SpreadElement extends implementationOf(NodeInterface, ObjectMember) {
     /**
      * Constructor.
      *

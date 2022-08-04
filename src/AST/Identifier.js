@@ -45,15 +45,6 @@ class Identifier extends implementationOf(NodeInterface, ExpressionInterface, Pa
     }
 
     /**
-     * Whether this identifier is a decorator name.
-     *
-     * @returns {boolean}
-     */
-    get isDecoratorIdentifier() {
-        return '@' === this._name[0];
-    }
-
-    /**
      * @inheritdoc
      */
     compile(compiler) {

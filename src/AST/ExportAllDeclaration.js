@@ -24,10 +24,18 @@ class ExportAllDeclaration extends implementationOf(ModuleDeclarationInterface) 
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('module.exports = exports = { ...exports, ...require(');
         compiler.compileNode(this._source);
-        compiler._emit(') };\n');
+        compiler._emit(') };');
+        compiler.newLine();
     }
 }
 

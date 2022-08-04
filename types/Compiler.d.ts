@@ -1,6 +1,7 @@
 declare module "@jymfony/compiler" {
     export class Compiler {
         public readonly code: string;
+        public indentationLevel: number;
 
         private _code: string;
         private _locations: AST.SourceLocation[];
@@ -35,6 +36,11 @@ declare module "@jymfony/compiler" {
          * Emits a code string.
          */
         _emit(code: string): void;
+
+        /**
+         * Emit a newline.
+         */
+        newLine(): void;
 
         /**
          * @internal

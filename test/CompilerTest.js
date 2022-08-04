@@ -33,7 +33,7 @@ describe('[Compiler] Compiler', function () {
 
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal('__assert(foo instanceof Foo);');
+            expect(compiled).to.be.equal('__assert(foo instanceof Foo);\n');
         } finally {
             __jymfony.autoload.debug = debug;
         }
@@ -48,7 +48,7 @@ describe('[Compiler] Compiler', function () {
 
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(';');
+            expect(compiled).to.be.equal('');
         } finally {
             __jymfony.autoload.debug = debug;
         }
@@ -78,45 +78,66 @@ export default class ClassA extends ClassB {
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
             expect(compiled).to.be.equal(`class ClassB extends __jymfony.JObject {
-#internal;
-static get [Symbol.reflection]() {
-return {
-fields: {
-"#internal": {
-get: (obj) => obj.#internal,set: (obj,value) => obj.#internal = value,docblock: null,},},staticFields: {
-},};
-}
-
-
+  #internal;
+  static get [Symbol.reflection]() {
+    return {
+      fields: {
+        "#internal": {
+          get: (obj) => obj.#internal,
+          set: (obj,value) => obj.#internal = value,
+          docblock: null,
+        },
+      },
+      staticFields: {
+      },
+    };
+  }
 }
 ClassB[Symbol.docblock] = null;
-;const ClassA = class ClassA extends ClassB {
-#internal;
-constructor() {
-super();
-this.#internal = 'internal';
-}
-
-static get [Symbol.reflection]() {
-return {
-fields: {
-"#internal": {
-get: (obj) => obj.#internal,set: (obj,value) => obj.#internal = value,docblock: null,},initialized: {
-get: (obj) => obj.initialized,set: (obj,value) => obj.initialized = value,docblock: null,},},staticFields: {
-},};
-}
-
-[Symbol.__jymfony_field_initialization]() {
-if (undefined !== super[Symbol.__jymfony_field_initialization]) super[Symbol.__jymfony_field_initialization]()
-;
-Object.defineProperty(this,"initialized",{
-writable: true,enumerable: true,configurable: true,value: false,});
-}
-
-
-}
-;
-exports.default = ClassA;`);
+const ClassA = (() => {
+  let ClassA = class ClassA extends ClassB {
+    #internal;
+    constructor() {
+      super();
+      this.#internal = 'internal';
+      
+    }
+    static get [Symbol.reflection]() {
+      return {
+        fields: {
+          "#internal": {
+            get: (obj) => obj.#internal,
+            set: (obj,value) => obj.#internal = value,
+            docblock: null,
+          },
+          initialized: {
+            get: (obj) => obj.initialized,
+            set: (obj,value) => obj.initialized = value,
+            docblock: null,
+          },
+        },
+        staticFields: {
+        },
+      };
+    }
+    [Symbol.__jymfony_field_initialization]() {
+      if (undefined !== super[Symbol.__jymfony_field_initialization]) 
+        super[Symbol.__jymfony_field_initialization]();
+      Object.defineProperty(this,"initialized",{
+        writable: true,
+        enumerable: true,
+        configurable: true,
+        value: false,
+      });
+    }
+  }
+  ;
+  ClassA[Symbol.docblock] = null;
+  
+  return ClassA;
+})();
+exports.default = ClassA;
+`);
         } finally {
             __jymfony.autoload.debug = debug;
         }
@@ -147,8 +168,8 @@ new x(true);
             throw new Error('FAIL');
         } catch (e) {
             expect(e.stack.startsWith(`x.js:4
-throw new Error('Has to be thrown');
-^
+      throw new Error('Has to be thrown');
+      ^
 
 Has to be thrown
 
@@ -184,8 +205,8 @@ new x(true);
             throw new Error('FAIL');
         } catch (e) {
             expect(e.stack.startsWith(`x.ts:4
-throw new Error('Has to be thrown');
-^
+      throw new Error('Has to be thrown');
+      ^
 
 Has to be thrown
 

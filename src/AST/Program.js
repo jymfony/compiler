@@ -6,6 +6,7 @@ const MemberExpression = require('./MemberExpression');
 const NodeInterface = require('./NodeInterface');
 const ObjectExpression = require('./ObjectExpression');
 const ObjectProperty = require('./ObjectProperty');
+const StatementInterface = require('./StatementInterface');
 const StringLiteral = require('./StringLiteral');
 
 class Program extends implementationOf(NodeInterface) {
@@ -114,7 +115,11 @@ class Program extends implementationOf(NodeInterface) {
     compile(compiler) {
         for (const node of this._body) {
             compiler.compileNode(node);
-            compiler._emit(';');
+
+            if (! (node instanceof StatementInterface) || node.shouldBeClosed) {
+                compiler._emit(';');
+                compiler.newLine();
+            }
         }
     }
 }

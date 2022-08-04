@@ -1,16 +1,15 @@
 const NodeInterface = require('./NodeInterface');
 
+/**
+ * @property {AppliedDecorator[] | null} decorators
+ */
 class ClassMemberInterface extends NodeInterface.definition {
     /**
-     * Compiles the decorators.
-     * Code to be appended should be returned as an array of statements.
+     * The name of the class member.
      *
-     * @param {Compiler} compiler
-     * @param {Class} target
-     *
-     * @returns {StatementInterface[]}
+     * @returns {ExpressionInterface}
      */
-    compileDecorators(compiler, target) { }
+    get key() { }
 }
 
 module.exports = getInterface(ClassMemberInterface);

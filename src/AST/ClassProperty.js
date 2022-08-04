@@ -102,29 +102,6 @@ class ClassProperty extends implementationOf(ClassMemberInterface) {
     /**
      * @inheritdoc
      */
-    compileDecorators(compiler, target) {
-        /**
-         * @param {AppliedDecorator} a
-         * @param {AppliedDecorator} b
-         */
-        const sortDecorators = (a, b) => {
-            const aPriority = a.priority;
-            const bPriority = b.priority;
-
-            return aPriority > bPriority ? 1 : (bPriority > aPriority ? -1 : 0);
-        };
-
-        const tail = [];
-        for (const decorator of (this.decorators || []).sort(sortDecorators)) {
-            tail.push(...decorator.compile(compiler, target, this));
-        }
-
-        return tail;
-    }
-
-    /**
-     * @inheritdoc
-     */
     compile(compiler) {
         if (this._static) {
             compiler._emit('static ');

@@ -50,6 +50,11 @@ class Compiler {
          * @private
          */
         this._variableCount = 1;
+
+        /**
+         * @type {int}
+         */
+        this.indentationLevel = 0;
     }
 
     /**
@@ -133,6 +138,13 @@ class Compiler {
                 this._column++;
             }
         }
+    }
+
+    /**
+     * Emit a newline.
+     */
+    newLine() {
+        this._emit('\n'+ ('  '.repeat(this.indentationLevel)));
     }
 
     /**

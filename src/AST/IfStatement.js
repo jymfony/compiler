@@ -1,3 +1,4 @@
+const BlockStatement = require('./BlockStatement');
 const StatementInterface = require('./StatementInterface');
 
 class IfStatement extends implementationOf(StatementInterface) {
@@ -40,17 +41,43 @@ class IfStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    get shouldBeClosed() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('if (');
         compiler.compileNode(this._test);
         compiler._emit(') ');
+        if (! (this._consequent instanceof BlockStatement)) {
+            compiler.indentationLevel++;
+            compiler.newLine();
+            compiler.indentationLevel--;
+        }
+
         compiler.compileNode(this._consequent);
-        compiler._emit('\n');
+        if (! (this._consequent instanceof BlockStatement)) {
+            compiler._emit(';');
+        }
 
         if (null !== this._alternate) {
-            compiler._emit(' else ');
+            if (! (this._consequent instanceof BlockStatement)) {
+                compiler.newLine();
+                compiler._emit('else ');
+            } else {
+                compiler._emit(' else ');
+            }
+
             compiler.compileNode(this._alternate);
+            if (! (this._alternate instanceof BlockStatement)) {
+                compiler._emit(';');
+            }
         }
+
+        compiler.newLine();
     }
 }
 
