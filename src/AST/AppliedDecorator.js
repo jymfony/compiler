@@ -173,7 +173,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
             const callDecorator = new CallExpression(null, this._expression, [
                 identifier,
                 new ObjectExpression(null, [
-                    new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '\'field\'')),
+                    new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '\'class\'')),
                     new ObjectProperty(null, new Identifier(null, 'name'), new StringLiteral(null, JSON.stringify(identifier.name))),
                 ]),
             ]);
