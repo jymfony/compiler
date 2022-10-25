@@ -590,7 +590,7 @@ class x extends __jymfony.JObject {
       _anonymous_xΞc91f4[Symbol.docblock] = null;
       _anonymous_xΞc91f4 = (() => {
         const α0 = logger.logged(_anonymous_xΞc91f4,{
-          kind: 'field',
+          kind: 'class',
           name: "_anonymous_xΞc91f4",
         });
         if (α0 === undefined) 
@@ -844,7 +844,7 @@ delete x.prototype[αn_x_temp_test_getterΞ640];
 delete x.prototype[αi_x_temp_testΞebcd6];
 x = (() => {
   const αa = logger.logged(x,{
-    kind: 'field',
+    kind: 'class',
     name: "x",
   });
   if (αa === undefined) 
@@ -910,7 +910,7 @@ if (async === null) {
 `);
     });
 
-    it ('should ', () => {
+    it ('should correctly compile decorators on classes in named exports or variable declarations', () => {
         seedrandom('decorators', { global: true });
         const program = parser.parse(`
         import { Annotation, ANNOTATION_TARGET_CLASS, ANNOTATION_TARGET_FUNCTION } from '../src';
@@ -944,7 +944,7 @@ class TestAnnotation extends __jymfony.JObject {
 TestAnnotation[Symbol.docblock] = null;
 TestAnnotation = (() => {
   const αb = Annotation(ANNOTATION_TARGET_CLASS)(TestAnnotation,{
-    kind: 'field',
+    kind: 'class',
     name: "TestAnnotation",
   });
   if (αb === undefined) 
@@ -967,7 +967,7 @@ const TestConstClassAnnotation = (() => {
   _anonymous_xΞ96888[Symbol.docblock] = null;
   _anonymous_xΞ96888 = (() => {
     const αc = Annotation(ANNOTATION_TARGET_CLASS)(_anonymous_xΞ96888,{
-      kind: 'field',
+      kind: 'class',
       name: "_anonymous_xΞ96888",
     });
     if (αc === undefined) 
@@ -978,6 +978,91 @@ const TestConstClassAnnotation = (() => {
   return _anonymous_xΞ96888;
 })();
 exports.TestConstClassAnnotation = TestConstClassAnnotation;
+`);
+    });
+
+    it ('should', () => {
+        seedrandom('decorators', { global: true });
+        const program = parser.parse(`import { Delete, Get, Patch, Post, Put, Route } from '../src';
+
+@Route({ path: '/foobar' })
+@Route('/barbar')
+export default class RoutableClass {
+    @Get('/get')
+    getAction() {}
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`const αa = require('../src');
+const Delete = αa.Delete;
+const Get = αa.Get;
+const Patch = αa.Patch;
+const Post = αa.Post;
+const Put = αa.Put;
+const Route = αa.Route;
+const RoutableClass = (() => {
+  const αe_RoutableClass_private_getActionΞ11ea6 = Symbol();
+  const αd_RoutableClass_temp_getActionΞaa291 = Symbol();
+  let RoutableClass = class RoutableClass extends __jymfony.JObject {
+    getAction() {
+      
+    }
+    getAction = RoutableClass[αe_RoutableClass_private_getActionΞ11ea6];
+    static [αe_RoutableClass_private_getActionΞ11ea6] = (() => {
+      let αf = Get('/get')(RoutableClass.prototype[getAction],{
+        kind: "method",
+        name: "getAction",
+        access: {
+          get() {
+            return RoutableClass.prototype[getAction];
+          },
+        },
+        static: false,
+        private: false,
+      });
+      if (αf === undefined) 
+        αf = RoutableClass.prototype[getAction];
+      ;
+      return αf;
+    })();
+    static get [Symbol.reflection]() {
+      return {
+        fields: {
+        },
+        staticFields: {
+        },
+      };
+    }
+  }
+  ;
+  RoutableClass[Symbol.docblock] = null;
+  delete RoutableClass.prototype[αd_RoutableClass_temp_getActionΞaa291];
+  RoutableClass = (() => {
+    const αb = Route({
+      path: '/foobar',
+    })(RoutableClass,{
+      kind: 'class',
+      name: "RoutableClass",
+    });
+    if (αb === undefined) 
+      return RoutableClass;
+    return αb;
+  })();
+  RoutableClass = (() => {
+    const αc = Route('/barbar')(RoutableClass,{
+      kind: 'class',
+      name: "RoutableClass",
+    });
+    if (αc === undefined) 
+      return RoutableClass;
+    return αc;
+  })();
+  
+  return RoutableClass;
+})();
+exports.default = RoutableClass;
 `);
     })
 });

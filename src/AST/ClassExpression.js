@@ -11,13 +11,13 @@ class ClassExpression extends mix(Class, ExpressionInterface) {
         const id = __jymfony.clone(this.id);
         id.location = null;
 
+        compiler._emit('(() => {');
+        compiler.indentationLevel++;
+        compiler.newLine();
+
         const tail = this.compileDocblock(compiler, id);
         tail.push(...this.compileDecorators(compiler));
 
-        compiler._emit('(() => {');
-        compiler.indentationLevel++;
-
-        compiler.newLine();
         compiler._emit('let ' + id.name + ' = ');
         super.compile(compiler);
         compiler._emit(';');
