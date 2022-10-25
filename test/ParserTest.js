@@ -806,6 +806,14 @@ class x extends __jymfony.JObject {
     return αz;
   })();
   static get [Symbol.reflection]() {
+    if (! this.__jymfony_parameters_reflection) {
+      type(Request)(undefined,{
+        kind: "parameter",
+        target: this.prototype.testMethod,
+        parameterIndex: 0,
+      });
+      this.__jymfony_parameters_reflection = true;
+    }
     return {
       fields: {
         field: {

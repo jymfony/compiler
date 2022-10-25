@@ -302,7 +302,7 @@ class Class extends implementationOf(NodeInterface) {
         members.push(new ClassMethod(
             null,
             new BlockStatement(null, [
-                ...(0 < decoratorCalls ? [ new IfStatement(null,
+                ...(0 < decoratorCalls.length ? [ new IfStatement(null,
                     new UnaryExpression(null, '!', new MemberExpression(null, new Identifier(null, 'this'), new Identifier(null, '__jymfony_parameters_reflection'))),
                     new BlockStatement(null, [
                         ...decoratorCalls,
