@@ -809,7 +809,9 @@ class x extends __jymfony.JObject {
     if (! this.__jymfony_parameters_reflection) {
       type(Request)(undefined,{
         kind: "parameter",
-        target: this.prototype.testMethod,
+        target: this,
+        name: "testMethod",
+        private: false,
         parameterIndex: 0,
       });
       this.__jymfony_parameters_reflection = true;
@@ -981,7 +983,7 @@ exports.TestConstClassAnnotation = TestConstClassAnnotation;
 `);
     });
 
-    it ('should', () => {
+    it ('should correctly compile classes with decorated methods on export default', () => {
         seedrandom('decorators', { global: true });
         const program = parser.parse(`import { Delete, Get, Patch, Post, Put, Route } from '../src';
 
@@ -1063,6 +1065,64 @@ const RoutableClass = (() => {
   return RoutableClass;
 })();
 exports.default = RoutableClass;
+`);
+    });
+
+    it ('should correctly compile param decorators in private methods', () => {
+        const program = parser.parse(`
+import { Type } from "../src";
+
+export default class TypedPrivateMethodClass {
+    #getAction(
+        @Type('FooType') param1,
+        @Type(Object) param2,
+        param3
+    ) {
+    }
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`const αa = require("../src");
+const Type = αa.Type;
+const TypedPrivateMethodClass = (() => {
+  let TypedPrivateMethodClass = class TypedPrivateMethodClass extends __jymfony.JObject {
+    #getAction(param1,param2,param3) {
+      
+    }
+    static get [Symbol.reflection]() {
+      if (! this.__jymfony_parameters_reflection) {
+        Type('FooType')(undefined,{
+          kind: "parameter",
+          target: this,
+          name: "#getAction",
+          private: true,
+          parameterIndex: 0,
+        });
+        Type(Object)(undefined,{
+          kind: "parameter",
+          target: this,
+          name: "#getAction",
+          private: true,
+          parameterIndex: 1,
+        });
+        this.__jymfony_parameters_reflection = true;
+      }
+      return {
+        fields: {
+        },
+        staticFields: {
+        },
+      };
+    }
+  }
+  ;
+  TypedPrivateMethodClass[Symbol.docblock] = null;
+  
+  return TypedPrivateMethodClass;
+})();
+exports.default = TypedPrivateMethodClass;
 `);
     })
 });

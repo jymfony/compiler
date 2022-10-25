@@ -244,17 +244,17 @@ class Class extends implementationOf(NodeInterface) {
                         );
                     }
                 } else {
-                    const memberFromStaticContext = member.static ?
-                        new MemberExpression(null, new Identifier(null, 'this'), member.key, ! (member.key instanceof Identifier)) :
-                        new MemberExpression(null, new MemberExpression(null, new Identifier(null, 'this'), new Identifier(null, 'prototype')), member.key, ! (member.key instanceof Identifier));
-
+                    const isPrivate = member.private;
+                    const key = member.key;
                     for (const [ idx, param ] of __jymfony.getEntries(member.params)) {
                         for (/** @type {AppliedDecorator} */ const decorator of param.decorators) {
                             decoratorCalls.push(new CallExpression(null, decorator.expression, [
                                 new Identifier(null, 'undefined'),
                                 new ObjectExpression(null, [
                                     new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '"parameter"')),
-                                    new ObjectProperty(null, new Identifier(null, 'target'), memberFromStaticContext),
+                                    new ObjectProperty(null, new Identifier(null, 'target'), new Identifier(null, 'this')),
+                                    new ObjectProperty(null, new Identifier(null, 'name'), key instanceof Identifier ? new StringLiteral(null, JSON.stringify((isPrivate ? '#' : '') + key.name)) : key),
+                                    new ObjectProperty(null, new Identifier(null, 'private'), new StringLiteral(null, JSON.stringify(isPrivate))),
                                     new ObjectProperty(null, new Identifier(null, 'parameterIndex'), new StringLiteral(null, idx.toString())),
                                 ]),
                             ]));
