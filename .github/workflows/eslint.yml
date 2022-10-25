@@ -10,7 +10,7 @@ jobs:
             - name: Setup node
               uses: actions/setup-node@v1
               with:
-                  node-version: 14
+                  node-version: 16
             - run: npm install
             - run: npm install -g eslint
-            - run: npm run-script lint
+            - run: eslint src/
