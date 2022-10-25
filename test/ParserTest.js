@@ -629,7 +629,7 @@ class x extends __jymfony.JObject {
     });
     if (αd === undefined) 
       αd = (initialValue) => initialValue;
-    ;
+    
     return αd;
   };
   static [αe_x_private_fieldΞ2d2d9] = function _anonymous_xΞe9a02() {
@@ -652,7 +652,7 @@ class x extends __jymfony.JObject {
     });
     if (αf === undefined) 
       αf = (initialValue) => initialValue;
-    ;
+    
     return αf;
   };
   static [αg_x_private_fieldΞa87ad] = function _anonymous_xΞ6e2d3() {
@@ -675,7 +675,7 @@ class x extends __jymfony.JObject {
     });
     if (αh === undefined) 
       αh = (initialValue) => initialValue;
-    ;
+    
     return αh;
   };
   static [αj_x_private_testΞ577e] = (() => {
@@ -692,7 +692,7 @@ class x extends __jymfony.JObject {
     });
     if (αk === undefined) 
       αk = x.prototype[αi_x_temp_testΞebcd6];
-    ;
+    
     return αk;
   })();
   test = x[αl_x_private_testΞ36fc8];
@@ -710,7 +710,7 @@ class x extends __jymfony.JObject {
     });
     if (αm === undefined) 
       αm = x[αj_x_private_testΞ577e];
-    ;
+    
     return αm;
   })();
   static [αo_x_private_test_getterΞ2d8c2] = (() => {
@@ -727,7 +727,7 @@ class x extends __jymfony.JObject {
     });
     if (αp === undefined) 
       αp = x.prototype[αn_x_temp_test_getterΞ640];
-    ;
+    
     return αp;
   })();
   get test_getter() {
@@ -747,7 +747,7 @@ class x extends __jymfony.JObject {
     });
     if (αr === undefined) 
       αr = x[αo_x_private_test_getterΞ2d8c2];
-    ;
+    
     return αr;
   })();
   static [αt_x_private_test_setterΞb8d2] = (() => {
@@ -764,7 +764,7 @@ class x extends __jymfony.JObject {
     });
     if (αu === undefined) 
       αu = x.prototype[αs_x_temp_test_setterΞde2f4];
-    ;
+    
     return αu;
   })();
   set test_setter(value) {
@@ -784,7 +784,7 @@ class x extends __jymfony.JObject {
     });
     if (αw === undefined) 
       αw = x[αt_x_private_test_setterΞb8d2];
-    ;
+    
     return αw;
   })();
   testMethod = x[αy_x_private_testMethodΞ32b8e];
@@ -802,7 +802,7 @@ class x extends __jymfony.JObject {
     });
     if (αz === undefined) 
       αz = x.prototype.testMethod;
-    ;
+    
     return αz;
   })();
   static get [Symbol.reflection]() {
@@ -1026,7 +1026,7 @@ const RoutableClass = (() => {
       });
       if (αf === undefined) 
         αf = RoutableClass.prototype.getAction;
-      ;
+      
       return αf;
     })();
     static get [Symbol.reflection]() {

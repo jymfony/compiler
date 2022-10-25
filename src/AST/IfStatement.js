@@ -59,20 +59,22 @@ class IfStatement extends implementationOf(StatementInterface) {
         }
 
         compiler.compileNode(this._consequent);
-        if (! (this._consequent instanceof BlockStatement)) {
+        if (this._consequent.shouldBeClosed) {
             compiler._emit(';');
         }
 
         if (null !== this._alternate) {
             if (! (this._consequent instanceof BlockStatement)) {
-                compiler.newLine();
+                if (this._consequent.shouldBeClosed) {
+                    compiler.newLine();
+                }
                 compiler._emit('else ');
             } else {
                 compiler._emit(' else ');
             }
 
             compiler.compileNode(this._alternate);
-            if (! (this._alternate instanceof BlockStatement)) {
+            if (this._alternate.shouldBeClosed) {
                 compiler._emit(';');
             }
         }

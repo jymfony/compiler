@@ -39,6 +39,13 @@ class CallExpression extends implementationOf(ExpressionInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    get shouldBeClosed() {
+        return true;
+    }
+
+    /**
      * Gets the callee expression.
      *
      * @returns {ExpressionInterface}
