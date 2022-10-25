@@ -7,6 +7,10 @@ const MemberExpression = require('./MemberExpression');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
 const StatementInterface = require('./StatementInterface');
 const VariableDeclaration = require('./VariableDeclaration');
+const ClassDeclaration = require('./ClassDeclaration');
+const ClassExpression = require('./ClassExpression');
+const FunctionExpression = require('./FunctionExpression');
+const FunctionStatement = require('./FunctionStatement');
 
 class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface) {
     /**
@@ -79,6 +83,17 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
             }
 
             return;
+        }
+
+        if (null !== this.decorators) {
+            if ((this._declarations instanceof ClassDeclaration) || (this._declarations instanceof FunctionStatement)) {
+                this._declarations.decorators = this.decorators;
+            } else if (
+                this._declarations instanceof VariableDeclaration && 1 === this._declarations.declarators.length &&
+                ((this._declarations.declarators[0].init instanceof ClassExpression) || (this._declarations.declarators[0].init instanceof FunctionExpression))
+            ) {
+                this._declarations.declarators[0].init.decorators = this.decorators;
+            }
         }
 
         compiler.compileNode(this._declarations);

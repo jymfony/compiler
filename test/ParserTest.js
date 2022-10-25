@@ -909,4 +909,75 @@ if (async === null) {
 }
 `);
     });
+
+    it ('should ', () => {
+        seedrandom('decorators', { global: true });
+        const program = parser.parse(`
+        import { Annotation, ANNOTATION_TARGET_CLASS, ANNOTATION_TARGET_FUNCTION } from '../src';
+@Annotation(ANNOTATION_TARGET_CLASS)
+export class TestAnnotation {
+    // ...
+}
+
+@Annotation(ANNOTATION_TARGET_CLASS)
+export const TestConstClassAnnotation = class {
+    // ...
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`const αa = require('../src');
+const Annotation = αa.Annotation;
+const ANNOTATION_TARGET_CLASS = αa.ANNOTATION_TARGET_CLASS;
+const ANNOTATION_TARGET_FUNCTION = αa.ANNOTATION_TARGET_FUNCTION;
+class TestAnnotation extends __jymfony.JObject {
+  static get [Symbol.reflection]() {
+    return {
+      fields: {
+      },
+      staticFields: {
+      },
+    };
+  }
+}
+TestAnnotation[Symbol.docblock] = null;
+TestAnnotation = (() => {
+  const αb = Annotation(ANNOTATION_TARGET_CLASS)(TestAnnotation,{
+    kind: 'field',
+    name: "TestAnnotation",
+  });
+  if (αb === undefined) 
+    return TestAnnotation;
+  return αb;
+})();
+exports.TestAnnotation = TestAnnotation;
+const TestConstClassAnnotation = (() => {
+  let _anonymous_xΞ96888 = class _anonymous_xΞ96888 extends __jymfony.JObject {
+    static get [Symbol.reflection]() {
+      return {
+        fields: {
+        },
+        staticFields: {
+        },
+      };
+    }
+  }
+  ;
+  _anonymous_xΞ96888[Symbol.docblock] = null;
+  _anonymous_xΞ96888 = (() => {
+    const αc = Annotation(ANNOTATION_TARGET_CLASS)(_anonymous_xΞ96888,{
+      kind: 'field',
+      name: "_anonymous_xΞ96888",
+    });
+    if (αc === undefined) 
+      return _anonymous_xΞ96888;
+    return αc;
+  })();
+  
+  return _anonymous_xΞ96888;
+})();
+exports.TestConstClassAnnotation = TestConstClassAnnotation;
+`);
+    })
 });

@@ -339,7 +339,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 this._skipSpaces();
             }
 
-            if (this._lexer.isToken(Lexer.T_SHEBANG)) {
+            if (1 === this._lexer.position && this._lexer.isToken(Lexer.T_SHEBANG)) {
                 continue;
             }
 
