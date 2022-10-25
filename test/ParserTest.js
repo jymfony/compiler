@@ -789,19 +789,19 @@ class x extends __jymfony.JObject {
   })();
   testMethod = x[αy_x_private_testMethodΞ32b8e];
   static [αy_x_private_testMethodΞ32b8e] = (() => {
-    let αz = logger.logged(x.prototype[testMethod],{
+    let αz = logger.logged(x.prototype.testMethod,{
       kind: "method",
       name: "testMethod",
       access: {
         get() {
-          return x.prototype[testMethod];
+          return x.prototype.testMethod;
         },
       },
       static: false,
       private: false,
     });
     if (αz === undefined) 
-      αz = x.prototype[testMethod];
+      αz = x.prototype.testMethod;
     ;
     return αz;
   })();
@@ -1011,19 +1011,19 @@ const RoutableClass = (() => {
     }
     getAction = RoutableClass[αe_RoutableClass_private_getActionΞ11ea6];
     static [αe_RoutableClass_private_getActionΞ11ea6] = (() => {
-      let αf = Get('/get')(RoutableClass.prototype[getAction],{
+      let αf = Get('/get')(RoutableClass.prototype.getAction,{
         kind: "method",
         name: "getAction",
         access: {
           get() {
-            return RoutableClass.prototype[getAction];
+            return RoutableClass.prototype.getAction;
           },
         },
         static: false,
         private: false,
       });
       if (αf === undefined) 
-        αf = RoutableClass.prototype[getAction];
+        αf = RoutableClass.prototype.getAction;
       ;
       return αf;
     })();

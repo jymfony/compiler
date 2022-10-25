@@ -131,8 +131,8 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
             const kind = 'method' === targetKind ? targetKind : targetKind + 'ter';
             const currentTarget = targetRef.value;
             const targetFetcher = currentTarget.static ?
-                new MemberExpression(null, class_.id, currentTarget.key, true) :
-                new MemberExpression(null, new MemberExpression(null, class_.id, new Identifier(null, 'prototype')), currentTarget.key, true);
+                new MemberExpression(null, class_.id, currentTarget.key, currentTarget.key !== originalName) :
+                new MemberExpression(null, new MemberExpression(null, class_.id, new Identifier(null, 'prototype')), currentTarget.key, currentTarget.key !== originalName);
 
             const variableName = compiler.generateVariableName();
             const variable = new Identifier(null, variableName);
