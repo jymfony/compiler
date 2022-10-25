@@ -255,7 +255,7 @@ class Class extends implementationOf(NodeInterface) {
                                 new ObjectExpression(null, [
                                     new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '"parameter"')),
                                     new ObjectProperty(null, new Identifier(null, 'target'), memberFromStaticContext),
-                                    new ObjectProperty(null, new Identifier(null, 'index'), new StringLiteral(null, idx.toString())),
+                                    new ObjectProperty(null, new Identifier(null, 'parameterIndex'), new StringLiteral(null, idx.toString())),
                                 ]),
                             ]));
                         }
