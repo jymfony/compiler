@@ -5,6 +5,7 @@ const StackHandler = require('../src/SourceMap/StackHandler');
 const Parser = require('../src/Parser');
 const { expect } = require('chai');
 const { runInNewContext } = require('vm');
+const seedrandom = require('seedrandom');
 
 describe('[Compiler] Compiler', function () {
     const parser = new Parser();
@@ -265,6 +266,37 @@ function x(er, real) {
   
 }
 `);
+    });
 
-    })
+    it ('should correctly compile new expressions with anonymous classes', () => {
+        seedrandom('anonymous classes', { global: true });
+        const program = parser.parse(`
+const x = new class {
+    getFoo() { }
+}();
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.equal(`const x = new ((() => {
+  let _anonymous_xΞ518e6 = class _anonymous_xΞ518e6 extends __jymfony.JObject {
+    getFoo() {
+      
+    }
+    static get [Symbol.reflection]() {
+      return {
+        fields: {
+        },
+        staticFields: {
+        },
+      };
+    }
+  }
+  ;
+  _anonymous_xΞ518e6[Symbol.docblock] = null;
+  
+  return _anonymous_xΞ518e6;
+})())();
+`);
+    });
 });

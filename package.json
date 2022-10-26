@@ -17,11 +17,9 @@
   "engines": {
     "node": ">=14.0"
   },
-  "peerDependencies": {
-    "@jymfony/autoloader": "^0.1.0-alpha.30",
-    "@jymfony/datastructure": "^0.1.0-alpha.30"
-  },
   "devDependencies": {
+    "@jymfony/autoloader": "^0.1.0-alpha.30",
+    "@jymfony/datastructure": "^0.1.0-alpha.30",
     "@jymfony/util": "^0.1.0-alpha.30",
     "@types/node": "^14",
     "chai": "^4.2",
