@@ -1,5 +1,6 @@
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
+const AssignmentProperty = require('./AssignmentProperty');
 const BinaryExpression = require('./BinaryExpression');
 const BlockStatement = require('./BlockStatement');
 const BooleanLiteral = require('./BooleanLiteral');
@@ -14,6 +15,7 @@ const MemberExpression = require('./MemberExpression');
 const NodeInterface = require('./NodeInterface');
 const ObjectExpression = require('./ObjectExpression');
 const ObjectMethod = require('./ObjectMethod');
+const ObjectPattern = require('./ObjectPattern');
 const ObjectProperty = require('./ObjectProperty');
 const ParenthesizedExpression = require('./ParenthesizedExpression');
 const ReturnStatement = require('./ReturnStatement');
@@ -130,15 +132,31 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
 
             const kind = 'method' === targetKind ? targetKind : targetKind + 'ter';
             const currentTarget = targetRef.value;
-            const targetFetcher = currentTarget.static ?
-                new MemberExpression(null, class_.id, currentTarget.key, currentTarget.key !== originalName) :
-                new MemberExpression(null, new MemberExpression(null, class_.id, new Identifier(null, 'prototype')), currentTarget.key, currentTarget.key !== originalName);
+            const targetFetcher = ('get' === targetKind || 'set' === targetKind ?
+                new Identifier(null, targetKind) :
+                (currentTarget.static ?
+                    new MemberExpression(null, class_.id, currentTarget.key, currentTarget.key !== originalName) :
+                    new MemberExpression(null, new MemberExpression(null, class_.id, new Identifier(null, 'prototype')), currentTarget.key, currentTarget.key !== originalName))
+            );
 
             const variableName = compiler.generateVariableName();
             const variable = new Identifier(null, variableName);
 
             const initializer = new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
                 // Let xy = logged(() => { ... }, { ... })
+                ...('get' === targetKind || 'set' === targetKind ? [
+                    new VariableDeclaration(null, 'let', [
+                        new VariableDeclarator(null,
+                            new ObjectPattern(null, [
+                                new AssignmentProperty(null, new Identifier(null, targetKind), null),
+                            ]),
+                            new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
+                                currentTarget.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype')),
+                                currentTarget.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(currentTarget.key.name)) : currentTarget.key,
+                            ])
+                        ),
+                    ]),
+                ] : []),
                 new VariableDeclaration(null, 'let', [
                     new VariableDeclarator(null, variable, new CallExpression(null, this._expression, [
                         targetFetcher,

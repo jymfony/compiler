@@ -5,6 +5,7 @@ const BlockStatement = require('./BlockStatement');
 const CallExpression = require('./CallExpression');
 const ClassMethod = require('./ClassMethod');
 const ClassProperty = require('./ClassProperty');
+const ClassPrototypeProperty = require('./ClassPrototypeProperty');
 const ExpressionStatement = require('./ExpressionStatement');
 const Identifier = require('./Identifier');
 const IfStatement = require('./IfStatement');
@@ -190,6 +191,31 @@ class Class extends implementationOf(NodeInterface) {
         compiler.newLine();
         compiler._emit('}');
         compiler.newLine();
+
+        this._body.members.forEach(p => {
+            if (! (p instanceof ClassPrototypeProperty)) {
+                return;
+            }
+
+            this._body.removeMember(p);
+
+            compiler.compileNode(new CallExpression(
+                p.location,
+                new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty'), false),
+                [
+                    new MemberExpression(null, this._id, new Identifier(null, 'prototype')),
+                    p.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(p.key.name)) : p.key,
+                    new ObjectExpression(null, [
+                        new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'true')),
+                        new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'true')),
+                        new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
+                        new ObjectProperty(null, new Identifier(null, 'value'), null !== p.value ? p.value : new Identifier(null, 'undefined')),
+                    ]),
+                ]
+            ));
+            compiler._emit(';');
+            compiler.newLine();
+        });
     }
 
     _prepare() {
@@ -263,7 +289,7 @@ class Class extends implementationOf(NodeInterface) {
                 }
             }
 
-            if (member instanceof ClassProperty) {
+            if (member instanceof ClassProperty && ! (member instanceof ClassPrototypeProperty)) {
                 const accessor = new MemberExpression(
                     null,
                     member.static ? this._id : new Identifier(null, 'obj'),
@@ -287,9 +313,10 @@ class Class extends implementationOf(NodeInterface) {
                     staticFields.push(prop);
                 } else {
                     fields.push(prop);
-                    if (! member.private) {
-                        initializableFields.push(member);
-                    }
+                }
+
+                if (! member.static && ! member.private) {
+                    initializableFields.push(member);
                 }
             }
         }
@@ -318,6 +345,10 @@ class Class extends implementationOf(NodeInterface) {
         ));
 
         const fieldsInitializators = initializableFields.map(p => {
+            if (p instanceof ClassPrototypeProperty) {
+                return null;
+            }
+
             this._body.removeMember(p);
 
             return new CallExpression(
@@ -344,7 +375,7 @@ class Class extends implementationOf(NodeInterface) {
 
             members.push(new ClassMethod(
                 null,
-                new BlockStatement(null, [ parentCall, ...fieldsInitializators ]),
+                new BlockStatement(null, [ parentCall, ...(fieldsInitializators.filter(i => !!i)) ]),
                 new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false),
                 'method'
             ));
@@ -467,7 +498,7 @@ class Class extends implementationOf(NodeInterface) {
                         ));
 
                         if ('method' === kind) {
-                            this.body.addMember(new ClassProperty(null, originalName, new MemberExpression(null, this.id, privateSymbol, true), isPrivate, isStatic));
+                            this.body.addMember(new ClassPrototypeProperty(member.location, originalName, new MemberExpression(null, this.id, privateSymbol, true), isPrivate, isStatic));
                         } else {
                             this.body.addMember(new ClassMethod(null, new BlockStatement(null, [
                                 // Return C[sym].call(this, ...args)

@@ -714,19 +714,20 @@ class x extends __jymfony.JObject {
     return αm;
   })();
   static [αo_x_private_test_getterΞ2d8c2] = (() => {
-    let αp = logger.logged(x.prototype[αn_x_temp_test_getterΞ640],{
+    let { get } = Object.getOwnPropertyDescriptor(x.prototype,αn_x_temp_test_getterΞ640);
+    let αp = logger.logged(get,{
       kind: "getter",
       name: "test_getter",
       access: {
         get() {
-          return x.prototype[αn_x_temp_test_getterΞ640];
+          return get;
         },
       },
       static: false,
       private: false,
     });
     if (αp === undefined) 
-      αp = x.prototype[αn_x_temp_test_getterΞ640];
+      αp = get;
     
     return αp;
   })();
@@ -734,36 +735,38 @@ class x extends __jymfony.JObject {
     return x[αq_x_private_test_getterΞ9dd90].call(this);
   }
   static [αq_x_private_test_getterΞ9dd90] = (() => {
-    let αr = secondary('great')(x[αo_x_private_test_getterΞ2d8c2],{
+    let { get } = Object.getOwnPropertyDescriptor(x,αo_x_private_test_getterΞ2d8c2);
+    let αr = secondary('great')(get,{
       kind: "getter",
       name: "test_getter",
       access: {
         get() {
-          return x[αo_x_private_test_getterΞ2d8c2];
+          return get;
         },
       },
       static: false,
       private: false,
     });
     if (αr === undefined) 
-      αr = x[αo_x_private_test_getterΞ2d8c2];
+      αr = get;
     
     return αr;
   })();
   static [αt_x_private_test_setterΞb8d2] = (() => {
-    let αu = logger.logged(x.prototype[αs_x_temp_test_setterΞde2f4],{
+    let { set } = Object.getOwnPropertyDescriptor(x.prototype,αs_x_temp_test_setterΞde2f4);
+    let αu = logger.logged(set,{
       kind: "setter",
       name: "test_setter",
       access: {
         get() {
-          return x.prototype[αs_x_temp_test_setterΞde2f4];
+          return set;
         },
       },
       static: false,
       private: false,
     });
     if (αu === undefined) 
-      αu = x.prototype[αs_x_temp_test_setterΞde2f4];
+      αu = set;
     
     return αu;
   })();
@@ -771,19 +774,20 @@ class x extends __jymfony.JObject {
     return x[αv_x_private_test_setterΞ7aa42].call(this,value);
   }
   static [αv_x_private_test_setterΞ7aa42] = (() => {
-    let αw = secondary('great')(x[αt_x_private_test_setterΞb8d2],{
+    let { set } = Object.getOwnPropertyDescriptor(x,αt_x_private_test_setterΞb8d2);
+    let αw = secondary('great')(set,{
       kind: "setter",
       name: "test_setter",
       access: {
         get() {
-          return x[αt_x_private_test_setterΞb8d2];
+          return set;
         },
       },
       static: false,
       private: false,
     });
     if (αw === undefined) 
-      αw = x[αt_x_private_test_setterΞb8d2];
+      αw = set;
     
     return αw;
   })();
@@ -839,6 +843,18 @@ class x extends __jymfony.JObject {
     });
   }
 }
+Object.defineProperty(x.prototype,"test",{
+  writable: true,
+  enumerable: true,
+  configurable: true,
+  value: x[αl_x_private_testΞ36fc8],
+});
+Object.defineProperty(x.prototype,"testMethod",{
+  writable: true,
+  enumerable: true,
+  configurable: true,
+  value: x[αy_x_private_testMethodΞ32b8e],
+});
 x[Symbol.docblock] = null;
 delete x.prototype[αx_x_temp_testMethodΞ897cb];
 delete x.prototype[αs_x_temp_test_setterΞde2f4];
@@ -1038,6 +1054,12 @@ const RoutableClass = (() => {
       };
     }
   }
+  Object.defineProperty(RoutableClass.prototype,"getAction",{
+    writable: true,
+    enumerable: true,
+    configurable: true,
+    value: RoutableClass[αe_RoutableClass_private_getActionΞ11ea6],
+  });
   ;
   RoutableClass[Symbol.docblock] = null;
   delete RoutableClass.prototype[αd_RoutableClass_temp_getActionΞaa291];
