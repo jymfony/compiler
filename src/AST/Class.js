@@ -174,7 +174,7 @@ class Class extends implementationOf(NodeInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        this._prepare();
+        this._prepare(compiler);
 
         compiler._emit('class ');
         compiler.compileNode(this._id);
@@ -218,11 +218,12 @@ class Class extends implementationOf(NodeInterface) {
         });
     }
 
-    _prepare() {
+    _prepare(compiler) {
         if (this._prepared) {
             return;
         }
 
+        const ClassAccessor = require('./ClassAccessor');
         this._prepared = true;
 
         const members = this._body.members;
@@ -318,6 +319,10 @@ class Class extends implementationOf(NodeInterface) {
                 if (! member.static && ! member.private) {
                     initializableFields.push(member);
                 }
+            }
+
+            if (member instanceof ClassAccessor) {
+                member.prepare(compiler, this);
             }
         }
 

@@ -502,6 +502,10 @@ class x {
   @register((target, prop, parameterIndex = null) => {})
   @initialize((instance, key, value) => {})
   field = 'foo';
+  
+  @logger.logged
+  @initialize((instance, key, value) => {})
+  accessor fieldAcc = 'foobar';
 
   @logger.logged
   @secondary('great')
@@ -559,24 +563,37 @@ const logger = {
     
   },
 };
-const αc_x_private_fieldΞe3230 = Symbol();
-const αe_x_private_fieldΞ2d2d9 = Symbol();
-const αg_x_private_fieldΞa87ad = Symbol();
-const αj_x_private_testΞ577e = Symbol();
-const αl_x_private_testΞ36fc8 = Symbol();
-const αi_x_temp_testΞebcd6 = Symbol();
-const αo_x_private_test_getterΞ2d8c2 = Symbol();
-const αq_x_private_test_getterΞ9dd90 = Symbol();
-const αn_x_temp_test_getterΞ640 = Symbol();
-const αt_x_private_test_setterΞb8d2 = Symbol();
-const αv_x_private_test_setterΞ7aa42 = Symbol();
-const αs_x_temp_test_setterΞde2f4 = Symbol();
-const αy_x_private_testMethodΞ32b8e = Symbol();
-const αx_x_temp_testMethodΞ897cb = Symbol();
+const αc_x_private_fieldΞ9502d = Symbol();
+const αe_x_private_fieldΞe9a02 = Symbol();
+const αg_x_private_fieldΞ6e2d3 = Symbol();
+const αj_x_private_fieldAccΞ36fc8 = Symbol();
+const αk_x_accessor_fieldAccΞbe817 = Symbol(), αk_x_accessor_fieldAccΞbe817_init = [  ];
+const αl_x_private_fieldAccΞ2d8c2 = Symbol();
+const αn_x_private_testΞ6e2a3 = Symbol();
+const αp_x_private_testΞb8d2 = Symbol();
+const αm_x_temp_testΞ9dd90 = Symbol();
+const αs_x_private_test_getterΞ5e3ba = Symbol();
+const αu_x_private_test_getterΞ32b8e = Symbol();
+const αr_x_temp_test_getterΞ7aa42 = Symbol();
+const αx_x_private_test_setterΞ5dcfd = Symbol();
+const αz_x_private_test_setterΞb61b4 = Symbol();
+const αw_x_temp_test_setterΞ2d49f = Symbol();
+const α2_x_private_testMethodΞ6ffce = Symbol();
+const α1_x_temp_testMethodΞ33c1 = Symbol();
 class x extends __jymfony.JObject {
-  [αi_x_temp_testΞebcd6]() {
+  [αk_x_accessor_fieldAccΞbe817] = (() => {
+    let initialValue = 'foobar';
+    for (const initFn of αk_x_accessor_fieldAccΞbe817_init){
+      const v = initFn(initialValue);
+      if (v !== undefined) 
+        initialValue = v;
+      
+    };return initialValue;
+  })();
+  
+  [αm_x_temp_testΞ9dd90]() {
     const cc = (() => {
-      let _anonymous_xΞc91f4 = class _anonymous_xΞc91f4 extends __jymfony.JObject {
+      let _anonymous_xΞ5d6ae = class _anonymous_xΞ5d6ae extends __jymfony.JObject {
         static get [Symbol.reflection]() {
           return {
             fields: {
@@ -587,31 +604,31 @@ class x extends __jymfony.JObject {
         }
       }
       ;
-      _anonymous_xΞc91f4[Symbol.docblock] = null;
-      _anonymous_xΞc91f4 = (() => {
-        const α0 = logger.logged(_anonymous_xΞc91f4,{
+      _anonymous_xΞ5d6ae[Symbol.docblock] = null;
+      _anonymous_xΞ5d6ae = (() => {
+        const α4 = logger.logged(_anonymous_xΞ5d6ae,{
           kind: 'class',
-          name: "_anonymous_xΞc91f4",
+          name: "_anonymous_xΞ5d6ae",
         });
-        if (α0 === undefined) 
-          return _anonymous_xΞc91f4;
-        return α0;
+        if (α4 === undefined) 
+          return _anonymous_xΞ5d6ae;
+        return α4;
       })();
       
-      return _anonymous_xΞc91f4;
+      return _anonymous_xΞ5d6ae;
     })();
   }
-  [αn_x_temp_test_getterΞ640]() {
+  [αr_x_temp_test_getterΞ7aa42]() {
     return 'test';
   }
-  [αs_x_temp_test_setterΞde2f4](value) {
+  [αw_x_temp_test_setterΞ2d49f](value) {
     
   }
   testMethod(firstArg) {
     dump(firstArg);
     
   }
-  static [αc_x_private_fieldΞe3230] = function _anonymous_xΞ9502d() {
+  static [αc_x_private_fieldΞ9502d] = function _anonymous_xΞ91adb() {
     let αd = logger.logged(undefined,{
       kind: 'field',
       name: "field",
@@ -632,7 +649,7 @@ class x extends __jymfony.JObject {
     
     return αd;
   };
-  static [αe_x_private_fieldΞ2d2d9] = function _anonymous_xΞe9a02() {
+  static [αe_x_private_fieldΞe9a02] = function _anonymous_xΞa85de() {
     let αf = register((target,prop,parameterIndex = null) => {
       
     })(undefined,{
@@ -655,7 +672,7 @@ class x extends __jymfony.JObject {
     
     return αf;
   };
-  static [αg_x_private_fieldΞa87ad] = function _anonymous_xΞ6e2d3() {
+  static [αg_x_private_fieldΞ6e2d3] = function _anonymous_xΞ577e() {
     let αh = initialize((instance,key,value) => {
       
     })(undefined,{
@@ -678,44 +695,50 @@ class x extends __jymfony.JObject {
     
     return αh;
   };
-  static [αj_x_private_testΞ577e] = (() => {
-    let αk = logger.logged(x.prototype[αi_x_temp_testΞebcd6],{
+  get fieldAcc() {
+    return this[αk_x_accessor_fieldAccΞbe817];
+  }
+  set fieldAcc(value) {
+    this[αk_x_accessor_fieldAccΞbe817] = value;
+  }
+  static [αn_x_private_testΞ6e2a3] = (() => {
+    let αo = logger.logged(x.prototype[αm_x_temp_testΞ9dd90],{
       kind: "method",
       name: "test",
       access: {
         get() {
-          return x.prototype[αi_x_temp_testΞebcd6];
+          return x.prototype[αm_x_temp_testΞ9dd90];
         },
       },
       static: false,
       private: false,
     });
-    if (αk === undefined) 
-      αk = x.prototype[αi_x_temp_testΞebcd6];
+    if (αo === undefined) 
+      αo = x.prototype[αm_x_temp_testΞ9dd90];
     
-    return αk;
+    return αo;
   })();
-  test = x[αl_x_private_testΞ36fc8];
-  static [αl_x_private_testΞ36fc8] = (() => {
-    let αm = secondary('great')(x[αj_x_private_testΞ577e],{
+  test = x[αp_x_private_testΞb8d2];
+  static [αp_x_private_testΞb8d2] = (() => {
+    let αq = secondary('great')(x[αn_x_private_testΞ6e2a3],{
       kind: "method",
       name: "test",
       access: {
         get() {
-          return x[αj_x_private_testΞ577e];
+          return x[αn_x_private_testΞ6e2a3];
         },
       },
       static: false,
       private: false,
     });
-    if (αm === undefined) 
-      αm = x[αj_x_private_testΞ577e];
+    if (αq === undefined) 
+      αq = x[αn_x_private_testΞ6e2a3];
     
-    return αm;
+    return αq;
   })();
-  static [αo_x_private_test_getterΞ2d8c2] = (() => {
-    let { get } = Object.getOwnPropertyDescriptor(x.prototype,αn_x_temp_test_getterΞ640);
-    let αp = logger.logged(get,{
+  static [αs_x_private_test_getterΞ5e3ba] = (() => {
+    let { get } = Object.getOwnPropertyDescriptor(x.prototype,αr_x_temp_test_getterΞ7aa42);
+    let αt = logger.logged(get,{
       kind: "getter",
       name: "test_getter",
       access: {
@@ -726,17 +749,17 @@ class x extends __jymfony.JObject {
       static: false,
       private: false,
     });
-    if (αp === undefined) 
-      αp = get;
+    if (αt === undefined) 
+      αt = get;
     
-    return αp;
+    return αt;
   })();
   get test_getter() {
-    return x[αq_x_private_test_getterΞ9dd90].call(this);
+    return x[αu_x_private_test_getterΞ32b8e].call(this);
   }
-  static [αq_x_private_test_getterΞ9dd90] = (() => {
-    let { get } = Object.getOwnPropertyDescriptor(x,αo_x_private_test_getterΞ2d8c2);
-    let αr = secondary('great')(get,{
+  static [αu_x_private_test_getterΞ32b8e] = (() => {
+    let { get } = Object.getOwnPropertyDescriptor(x,αs_x_private_test_getterΞ5e3ba);
+    let αv = secondary('great')(get,{
       kind: "getter",
       name: "test_getter",
       access: {
@@ -747,14 +770,14 @@ class x extends __jymfony.JObject {
       static: false,
       private: false,
     });
-    if (αr === undefined) 
-      αr = get;
+    if (αv === undefined) 
+      αv = get;
     
-    return αr;
+    return αv;
   })();
-  static [αt_x_private_test_setterΞb8d2] = (() => {
-    let { set } = Object.getOwnPropertyDescriptor(x.prototype,αs_x_temp_test_setterΞde2f4);
-    let αu = logger.logged(set,{
+  static [αx_x_private_test_setterΞ5dcfd] = (() => {
+    let { set } = Object.getOwnPropertyDescriptor(x.prototype,αw_x_temp_test_setterΞ2d49f);
+    let αy = logger.logged(set,{
       kind: "setter",
       name: "test_setter",
       access: {
@@ -765,17 +788,17 @@ class x extends __jymfony.JObject {
       static: false,
       private: false,
     });
-    if (αu === undefined) 
-      αu = set;
+    if (αy === undefined) 
+      αy = set;
     
-    return αu;
+    return αy;
   })();
   set test_setter(value) {
-    return x[αv_x_private_test_setterΞ7aa42].call(this,value);
+    return x[αz_x_private_test_setterΞb61b4].call(this,value);
   }
-  static [αv_x_private_test_setterΞ7aa42] = (() => {
-    let { set } = Object.getOwnPropertyDescriptor(x,αt_x_private_test_setterΞb8d2);
-    let αw = secondary('great')(set,{
+  static [αz_x_private_test_setterΞb61b4] = (() => {
+    let { set } = Object.getOwnPropertyDescriptor(x,αx_x_private_test_setterΞ5dcfd);
+    let α0 = secondary('great')(set,{
       kind: "setter",
       name: "test_setter",
       access: {
@@ -786,14 +809,14 @@ class x extends __jymfony.JObject {
       static: false,
       private: false,
     });
-    if (αw === undefined) 
-      αw = set;
+    if (α0 === undefined) 
+      α0 = set;
     
-    return αw;
+    return α0;
   })();
-  testMethod = x[αy_x_private_testMethodΞ32b8e];
-  static [αy_x_private_testMethodΞ32b8e] = (() => {
-    let αz = logger.logged(x.prototype.testMethod,{
+  testMethod = x[α2_x_private_testMethodΞ6ffce];
+  static [α2_x_private_testMethodΞ6ffce] = (() => {
+    let α3 = logger.logged(x.prototype.testMethod,{
       kind: "method",
       name: "testMethod",
       access: {
@@ -804,10 +827,10 @@ class x extends __jymfony.JObject {
       static: false,
       private: false,
     });
-    if (αz === undefined) 
-      αz = x.prototype.testMethod;
+    if (α3 === undefined) 
+      α3 = x.prototype.testMethod;
     
-    return αz;
+    return α3;
   })();
   static get [Symbol.reflection]() {
     if (! this.__jymfony_parameters_reflection) {
@@ -839,7 +862,7 @@ class x extends __jymfony.JObject {
       writable: true,
       enumerable: true,
       configurable: true,
-      value: x[αg_x_private_fieldΞa87ad].call(this,x[αe_x_private_fieldΞ2d2d9].call(this,x[αc_x_private_fieldΞe3230].call(this,'foo'))),
+      value: x[αg_x_private_fieldΞ6e2d3].call(this,x[αe_x_private_fieldΞe9a02].call(this,x[αc_x_private_fieldΞ9502d].call(this,'foo'))),
     });
   }
 }
@@ -847,19 +870,19 @@ Object.defineProperty(x.prototype,"test",{
   writable: true,
   enumerable: true,
   configurable: true,
-  value: x[αl_x_private_testΞ36fc8],
+  value: x[αp_x_private_testΞb8d2],
 });
 Object.defineProperty(x.prototype,"testMethod",{
   writable: true,
   enumerable: true,
   configurable: true,
-  value: x[αy_x_private_testMethodΞ32b8e],
+  value: x[α2_x_private_testMethodΞ6ffce],
 });
 x[Symbol.docblock] = null;
-delete x.prototype[αx_x_temp_testMethodΞ897cb];
-delete x.prototype[αs_x_temp_test_setterΞde2f4];
-delete x.prototype[αn_x_temp_test_getterΞ640];
-delete x.prototype[αi_x_temp_testΞebcd6];
+delete x.prototype[α1_x_temp_testMethodΞ33c1];
+delete x.prototype[αw_x_temp_test_setterΞ2d49f];
+delete x.prototype[αr_x_temp_test_getterΞ7aa42];
+delete x.prototype[αm_x_temp_testΞ9dd90];
 x = (() => {
   const αa = logger.logged(x,{
     kind: 'class',
@@ -868,6 +891,46 @@ x = (() => {
   if (αa === undefined) 
     return x;
   return αa;
+})();
+(() => {
+  const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,αk_x_accessor_fieldAccΞbe817);
+  let { get: newGet = oldGet, set: newSet = oldSet, init } = logger.logged({
+    get: oldGet,
+    set: oldSet,
+  },{
+    kind: 'accessor',
+    name: "fieldAcc",
+    static: false,
+    private: false,
+  });
+  Object.defineProperty(x.prototype,αk_x_accessor_fieldAccΞbe817,{
+    get: newGet,
+    set: newSet,
+  });
+  if (init !== undefined) 
+    αk_x_accessor_fieldAccΞbe817_init.push(init);
+  
+})();
+(() => {
+  const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,αk_x_accessor_fieldAccΞbe817);
+  let { get: newGet = oldGet, set: newSet = oldSet, init } = initialize((instance,key,value) => {
+    
+  })({
+    get: oldGet,
+    set: oldSet,
+  },{
+    kind: 'accessor',
+    name: "fieldAcc",
+    static: false,
+    private: false,
+  });
+  Object.defineProperty(x.prototype,αk_x_accessor_fieldAccΞbe817,{
+    get: newGet,
+    set: newSet,
+  });
+  if (init !== undefined) 
+    αk_x_accessor_fieldAccΞbe817_init.push(init);
+  
 })();
 `);
     });

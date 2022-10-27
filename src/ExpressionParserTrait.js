@@ -12,7 +12,7 @@ class ExpressionParserTrait {
                 this._next();
             }
 
-            if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type)) {
+            if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_ARGUMENTS, Lexer.T_ACCESSOR ].includes(this._lexer.token.type)) {
                 this._next();
 
                 return this._lexer.isToken(Lexer.T_ARROW);
@@ -51,7 +51,7 @@ class ExpressionParserTrait {
         }
 
         let args;
-        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type)) {
+        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_ARGUMENTS, Lexer.T_ACCESSOR ].includes(this._lexer.token.type)) {
             const argument = this._parseIdentifier();
             this._skipSpaces();
             if (argumentDocblock) {
@@ -156,7 +156,7 @@ class ExpressionParserTrait {
     }
 
     _parseExpressionStage1(start, maxLevel) {
-        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_OPEN_PARENTHESIS, Lexer.T_ASYNC, Lexer.T_ARGUMENTS ].includes(this._lexer.token.type) && this._isArrowFunctionExpression()) {
+        if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_OPEN_PARENTHESIS, Lexer.T_ASYNC, Lexer.T_ARGUMENTS, Lexer.T_ACCESSOR ].includes(this._lexer.token.type) && this._isArrowFunctionExpression()) {
             return this._parseArrowFunctionExpression();
         }
 
@@ -362,6 +362,7 @@ class ExpressionParserTrait {
                     expression = new AST.MemberExpression(this._makeLocation(start), expression, property, true, optional);
                 } break;
 
+                case Lexer.T_ACCESSOR:
                 case Lexer.T_KEYWORD:
                 case Lexer.T_THIS:
                 case Lexer.T_SUPER:

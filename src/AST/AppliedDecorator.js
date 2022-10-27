@@ -5,6 +5,7 @@ const BinaryExpression = require('./BinaryExpression');
 const BlockStatement = require('./BlockStatement');
 const BooleanLiteral = require('./BooleanLiteral');
 const CallExpression = require('./CallExpression');
+const ClassAccessor = require('./ClassAccessor');
 const ClassMethod = require('./ClassMethod');
 const ClassProperty = require('./ClassProperty');
 const ExpressionStatement = require('./ExpressionStatement');
@@ -124,6 +125,58 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                 null,
                 new MemberExpression(null, new MemberExpression(null, class_.id, privateSymbol, true), new Identifier(null, 'call')),
                 [ new Identifier(null, 'this'), target.value ? target.value : new Identifier(null, 'undefined') ]
+            );
+        } else if (target instanceof ClassAccessor) {
+            target.prepare(compiler, class_);
+            const callDecorator = new CallExpression(null, this._expression, [
+                new ObjectExpression(null, [
+                    new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'oldGet')),
+                    new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'oldSet')),
+                ]),
+                new ObjectExpression(null, [
+                    new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '\'accessor\'')),
+                    new ObjectProperty(null, new Identifier(null, 'name'), new StringLiteral(null, target.key instanceof Identifier ? JSON.stringify(target.key.name) : target.key)),
+                    new ObjectProperty(null, new Identifier(null, 'static'), new StringLiteral(null, target.static ? 'true' : 'false')),
+                    new ObjectProperty(null, new Identifier(null, 'private'), new StringLiteral(null, target.private ? 'true' : 'false')),
+                ]),
+            ]);
+
+            tail.push(
+                new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
+                    // Code: let { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(C.prototype, "x");
+                    new VariableDeclaration(null, 'const', [
+                        new VariableDeclarator(null, new ObjectPattern(null, [
+                            new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'oldGet')),
+                            new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'oldSet')),
+                        ]), new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
+                            (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))), target.privateSymbolIdentifier,
+                        ])),
+                    ]),
+                    // Code: let { get: newGet = oldGet, set: newSet = oldSet, init } = logged({ get: oldGet, set: oldSet }, { ... }) ?? {};
+                    new VariableDeclaration(null, 'let', [
+                        new VariableDeclarator(null, new ObjectPattern(null, [
+                            new ObjectProperty(null, new Identifier(null, 'get'), new AssignmentExpression(null, '=', new Identifier(null, 'newGet'), new Identifier(null, 'oldGet'))),
+                            new ObjectProperty(null, new Identifier(null, 'set'), new AssignmentExpression(null, '=', new Identifier(null, 'newSet'), new Identifier(null, 'oldSet'))),
+                            new ObjectProperty(null, new Identifier(null, 'init'), null),
+                        ]), callDecorator),
+                    ]),
+                    // Code: Object.defineProperty(C.prototype, "x", { get: newGet, set: newSet });
+                    new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty')), [
+                        (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))),
+                        target.privateSymbolIdentifier,
+                        new ObjectExpression(null, [
+                            new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'newGet')),
+                            new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'newSet')),
+                        ]),
+                    ]),
+                    // Code: if (init !== undefined) { initializers.push(init); }
+                    new IfStatement(null,
+                        new BinaryExpression(null, '!==', new Identifier(null, 'init'), new Identifier(null, 'undefined')),
+                        new CallExpression(null, new MemberExpression(null, target.initializerIdentifier, new Identifier(null, 'push')), [
+                            new Identifier(null, 'init'),
+                        ]),
+                    ),
+                ]))))
             );
         } else if (target instanceof ClassMethod) {
             if ('constructor' === targetKind) {

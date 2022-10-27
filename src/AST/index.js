@@ -15,6 +15,7 @@ module.exports = {
     CallExpression: require('./CallExpression'),
     CatchClause: require('./CatchClause'),
     Class: require('./Class'),
+    ClassAccessor: require('./ClassAccessor'),
     ClassBody: require('./ClassBody'),
     ClassDeclaration: require('./ClassDeclaration'),
     ClassExpression: require('./ClassExpression'),
