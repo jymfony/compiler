@@ -1,3 +1,4 @@
+const { Iife, Undefined, Variable } = require('../Generator');
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
 const AssignmentProperty = require('./AssignmentProperty');
@@ -18,11 +19,8 @@ const ObjectExpression = require('./ObjectExpression');
 const ObjectMethod = require('./ObjectMethod');
 const ObjectPattern = require('./ObjectPattern');
 const ObjectProperty = require('./ObjectProperty');
-const ParenthesizedExpression = require('./ParenthesizedExpression');
 const ReturnStatement = require('./ReturnStatement');
 const StringLiteral = require('./StringLiteral');
-const VariableDeclaration = require('./VariableDeclaration');
-const VariableDeclarator = require('./VariableDeclarator');
 
 class AppliedDecorator extends implementationOf(NodeInterface) {
     /**
@@ -77,35 +75,33 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
 
             const initializer = new FunctionExpression(null, new BlockStatement(null, [
                 // Let xy = logged(undefined, { ... })
-                new VariableDeclaration(null, 'let', [
-                    new VariableDeclarator(null, variable, new CallExpression(null, this._expression, [
-                        new Identifier(null, 'undefined'),
-                        new ObjectExpression(null, [
-                            new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '\'field\'')),
-                            new ObjectProperty(null, new Identifier(null, 'name'), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : null),
-                            new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
-                                new ObjectMethod(null, new BlockStatement(null, [
-                                    new ReturnStatement(null, new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier))),
-                                ]), new Identifier(null, 'get'), 'method'),
-                                new ObjectMethod(null, new BlockStatement(null, [
-                                    new ExpressionStatement(null, new AssignmentExpression(
-                                        null,
-                                        '=',
-                                        new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier)),
-                                        new Identifier(null, 'value')
-                                    )),
-                                ]), new Identifier(null, 'set'), 'method', [ new Identifier(null, 'value') ]),
-                            ])),
-                            new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
-                            new ObjectProperty(null, new Identifier(null, 'private'), new BooleanLiteral(null, target.private)),
-                        ]),
-                    ])),
-                ]),
+                Variable.create('let', variable, new CallExpression(null, this._expression, [
+                    Undefined.create(),
+                    new ObjectExpression(null, [
+                        new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '\'field\'')),
+                        new ObjectProperty(null, new Identifier(null, 'name'), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : null),
+                        new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
+                            new ObjectMethod(null, new BlockStatement(null, [
+                                new ReturnStatement(null, new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier))),
+                            ]), new Identifier(null, 'get'), 'method'),
+                            new ObjectMethod(null, new BlockStatement(null, [
+                                new ExpressionStatement(null, new AssignmentExpression(
+                                    null,
+                                    '=',
+                                    new MemberExpression(null, new Identifier(null, 'this'), target.key, ! (target.key instanceof Identifier)),
+                                    new Identifier(null, 'value')
+                                )),
+                            ]), new Identifier(null, 'set'), 'method', [ new Identifier(null, 'value') ]),
+                        ])),
+                        new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
+                        new ObjectProperty(null, new Identifier(null, 'private'), new BooleanLiteral(null, target.private)),
+                    ]),
+                ])),
 
                 // If (xy === undefined) xy = (initial) => initial;
                 new IfStatement(
                     null,
-                    new BinaryExpression(null, '===', variable, new Identifier(null, 'undefined')),
+                    new BinaryExpression(null, '===', variable, Undefined.create()),
                     new ExpressionStatement(null, new AssignmentExpression(
                         null,
                         '=',
@@ -124,7 +120,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
             target._value = new CallExpression(
                 null,
                 new MemberExpression(null, new MemberExpression(null, class_.id, privateSymbol, true), new Identifier(null, 'call')),
-                [ new Identifier(null, 'this'), target.value ? target.value : new Identifier(null, 'undefined') ]
+                [ new Identifier(null, 'this'), target.value ? target.value : Undefined.create() ]
             );
         } else if (target instanceof ClassAccessor) {
             target.prepare(compiler, class_);
@@ -142,33 +138,27 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
             ]);
 
             tail.push(
-                new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
+                Iife.create(new BlockStatement(null, [
                     // Code: let { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(C.prototype, "x");
-                    new VariableDeclaration(null, 'const', [
-                        new VariableDeclarator(null, new ObjectPattern(null, [
-                            new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'oldGet')),
-                            new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'oldSet')),
-                        ]), new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
-                            (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : target.key,
-                        ])),
-                    ]),
+                    Variable.create('const', new ObjectPattern(null, [
+                        new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'oldGet')),
+                        new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'oldSet')),
+                    ]), new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
+                        (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : target.key,
+                    ])),
                     // Code: let { get: newGet = oldGet, set: newSet = oldSet, init } = logged({ get: oldGet, set: oldSet }, { ... }) ?? {};
-                    new VariableDeclaration(null, 'let', [
-                        new VariableDeclarator(null, new ObjectPattern(null, [
-                            new ObjectProperty(null, new Identifier(null, 'get'), new AssignmentExpression(null, '=', new Identifier(null, 'newGet'), new Identifier(null, 'oldGet'))),
-                            new ObjectProperty(null, new Identifier(null, 'set'), new AssignmentExpression(null, '=', new Identifier(null, 'newSet'), new Identifier(null, 'oldSet'))),
-                            new ObjectProperty(null, new Identifier(null, 'init'), null),
-                        ]), new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
-                            new VariableDeclaration(null, 'const', [
-                                new VariableDeclarator(null, new Identifier(null, 's'), callDecorator),
-                            ]),
-                            new IfStatement(null,
-                                new BinaryExpression(null, '===', new Identifier(null, 's'), new Identifier(null, 'undefined')),
-                                new ReturnStatement(null, new ObjectExpression(null, [])),
-                            ),
-                            new ReturnStatement(null, new Identifier(null, 's')),
-                        ]))))),
-                    ]),
+                    Variable.create('let', new ObjectPattern(null, [
+                        new ObjectProperty(null, new Identifier(null, 'get'), new AssignmentExpression(null, '=', new Identifier(null, 'newGet'), new Identifier(null, 'oldGet'))),
+                        new ObjectProperty(null, new Identifier(null, 'set'), new AssignmentExpression(null, '=', new Identifier(null, 'newSet'), new Identifier(null, 'oldSet'))),
+                        new ObjectProperty(null, new Identifier(null, 'init'), null),
+                    ]), Iife.create(new BlockStatement(null, [
+                        Variable.create('const', 's', callDecorator),
+                        new IfStatement(null,
+                            new BinaryExpression(null, '===', new Identifier(null, 's'), Undefined.create()),
+                            new ReturnStatement(null, new ObjectExpression(null, [])),
+                        ),
+                        new ReturnStatement(null, new Identifier(null, 's')),
+                    ]))),
                     // Code: Object.defineProperty(C.prototype, "x", { get: newGet, set: newSet });
                     new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty')), [
                         (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))),
@@ -180,12 +170,12 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                     ]),
                     // Code: if (init !== undefined) { initializers.push(init); }
                     new IfStatement(null,
-                        new BinaryExpression(null, '!==', new Identifier(null, 'init'), new Identifier(null, 'undefined')),
+                        new BinaryExpression(null, '!==', new Identifier(null, 'init'), Undefined.create()),
                         new CallExpression(null, new MemberExpression(null, target.initializerIdentifier, new Identifier(null, 'push')), [
                             new Identifier(null, 'init'),
                         ]),
                     ),
-                ]))))
+                ]))
             );
         } else if (target instanceof ClassMethod) {
             if ('constructor' === targetKind) {
@@ -204,48 +194,45 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
             const variableName = compiler.generateVariableName();
             const variable = new Identifier(null, variableName);
 
-            const initializer = new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
+            const initializer = Iife.create(new BlockStatement(null, [
                 // Let xy = logged(() => { ... }, { ... })
                 ...('get' === targetKind || 'set' === targetKind ? [
-                    new VariableDeclaration(null, 'let', [
-                        new VariableDeclarator(null,
-                            new ObjectPattern(null, [
-                                new AssignmentProperty(null, new Identifier(null, targetKind), null),
-                            ]),
-                            new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
-                                currentTarget.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype')),
-                                currentTarget.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(currentTarget.key.name)) : currentTarget.key,
-                            ])
-                        ),
-                    ]),
-                ] : []),
-                new VariableDeclaration(null, 'let', [
-                    new VariableDeclarator(null, variable, new CallExpression(null, this._expression, [
-                        targetFetcher,
-                        new ObjectExpression(null, [
-                            new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, JSON.stringify(kind))),
-                            new ObjectProperty(null, new Identifier(null, 'name'), originalName instanceof Identifier ? new StringLiteral(null, JSON.stringify(originalName.name)) : null),
-                            new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
-                                new ObjectMethod(null, new BlockStatement(null, [
-                                    new ReturnStatement(null, targetFetcher),
-                                ]), new Identifier(null, 'get'), 'method'),
-                            ])),
-                            new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
-                            new ObjectProperty(null, new Identifier(null, 'private'), new BooleanLiteral(null, target.private)),
+                    Variable.create(
+                        'let',
+                        new ObjectPattern(null, [
+                            new AssignmentProperty(null, new Identifier(null, targetKind), null),
                         ]),
-                    ])),
-                ]),
+                        new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
+                            currentTarget.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype')),
+                            currentTarget.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(currentTarget.key.name)) : currentTarget.key,
+                        ])
+                    ),
+                ] : []),
+                Variable.create('let', variable, new CallExpression(null, this._expression, [
+                    targetFetcher,
+                    new ObjectExpression(null, [
+                        new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, JSON.stringify(kind))),
+                        new ObjectProperty(null, new Identifier(null, 'name'), originalName instanceof Identifier ? new StringLiteral(null, JSON.stringify(originalName.name)) : null),
+                        new ObjectProperty(null, new Identifier(null, 'access'), new ObjectExpression(null, [
+                            new ObjectMethod(null, new BlockStatement(null, [
+                                new ReturnStatement(null, targetFetcher),
+                            ]), new Identifier(null, 'get'), 'method'),
+                        ])),
+                        new ObjectProperty(null, new Identifier(null, 'static'), new BooleanLiteral(null, target.static)),
+                        new ObjectProperty(null, new Identifier(null, 'private'), new BooleanLiteral(null, target.private)),
+                    ]),
+                ])),
 
                 // If (xy === undefined) xy = (initial) => initial;
                 new IfStatement(
                     null,
-                    new BinaryExpression(null, '===', variable, new Identifier(null, 'undefined')),
+                    new BinaryExpression(null, '===', variable, Undefined.create()),
                     new ExpressionStatement(null, new AssignmentExpression(null, '=', variable, targetFetcher)),
                 ),
 
                 // Return xy;
                 new ReturnStatement(null, variable),
-            ]))), []);
+            ]));
 
             targetRef.value = new ClassProperty(null, new StringLiteral(null, privateSymbol.name), initializer, true, false);
         } else if (target instanceof Class) {
@@ -265,14 +252,14 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                 null,
                 '=',
                 identifier,
-                new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
-                    new VariableDeclaration(null, 'const', [ new VariableDeclarator(null, variable, callDecorator) ]),
+                Iife.create(new BlockStatement(null, [
+                    Variable.create('const', variable, callDecorator),
                     new IfStatement(null,
-                        new BinaryExpression(null, '===', variable, new Identifier(null, 'undefined')),
+                        new BinaryExpression(null, '===', variable, Undefined.create()),
                         new ReturnStatement(null, identifier),
                     ),
                     new ReturnStatement(null, variable),
-                ]))), [])
+                ]))
             ));
         } else {
             debugger;

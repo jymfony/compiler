@@ -1,8 +1,7 @@
 const ClassExpression = require('./ClassExpression');
 const FunctionExpression = require('./FunctionExpression');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
-const VariableDeclaration = require('./VariableDeclaration');
-const VariableDeclarator = require('./VariableDeclarator');
+const { Variable } = require('../Generator');
 
 class ExportDefaultDeclaration extends implementationOf(ModuleDeclarationInterface) {
     /**
@@ -60,9 +59,7 @@ class ExportDefaultDeclaration extends implementationOf(ModuleDeclarationInterfa
         }
 
         if ((this._expression instanceof ClassExpression || this._expression instanceof FunctionExpression) && null !== this._expression.id) {
-            const declaration = new VariableDeclaration(null, 'const', [
-                new VariableDeclarator(null, this._expression.id, this._expression),
-            ]);
+            const declaration = Variable.create('const', this._expression.id, this._expression);
             declaration.docblock = this.docblock || this._expression.docblock;
 
             compiler.compileNode(declaration);

@@ -1,3 +1,4 @@
+const { Undefined, Variable } = require('../Generator');
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
 const BinaryExpression = require('./BinaryExpression');
@@ -17,8 +18,6 @@ const ObjectProperty = require('./ObjectProperty');
 const ReturnStatement = require('./ReturnStatement');
 const StringLiteral = require('./StringLiteral');
 const ValueHolder = require('../ValueHolder');
-const VariableDeclaration = require('./VariableDeclaration');
-const VariableDeclarator = require('./VariableDeclarator');
 const UnaryExpression = require('./UnaryExpression');
 
 /**
@@ -209,7 +208,7 @@ class Class extends implementationOf(NodeInterface) {
                         new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'true')),
                         new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'true')),
                         new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
-                        new ObjectProperty(null, new Identifier(null, 'value'), null !== p.value ? p.value : new Identifier(null, 'undefined')),
+                        new ObjectProperty(null, new Identifier(null, 'value'), null !== p.value ? p.value : Undefined.create()),
                     ]),
                 ]
             ));
@@ -276,7 +275,7 @@ class Class extends implementationOf(NodeInterface) {
                     for (const [ idx, param ] of __jymfony.getEntries(member.params)) {
                         for (/** @type {AppliedDecorator} */ const decorator of param.decorators) {
                             decoratorCalls.push(new CallExpression(null, decorator.expression, [
-                                new Identifier(null, 'undefined'),
+                                Undefined.create(),
                                 new ObjectExpression(null, [
                                     new ObjectProperty(null, new Identifier(null, 'kind'), new StringLiteral(null, '"parameter"')),
                                     new ObjectProperty(null, new Identifier(null, 'target'), new Identifier(null, 'this')),
@@ -366,7 +365,7 @@ class Class extends implementationOf(NodeInterface) {
                         new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'true')),
                         new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'true')),
                         new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
-                        new ObjectProperty(null, new Identifier(null, 'value'), null !== p.value ? p.value : new Identifier(null, 'undefined')),
+                        new ObjectProperty(null, new Identifier(null, 'value'), null !== p.value ? p.value : Undefined.create()),
                     ]),
                 ]
             );
@@ -374,7 +373,7 @@ class Class extends implementationOf(NodeInterface) {
 
         if (fieldsInitializators.length) {
             const parentCall = new IfStatement(null,
-                new BinaryExpression(null, '!==', new Identifier(null, 'undefined'), new MemberExpression(null, new Identifier(null, 'super'), new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false), true)),
+                new BinaryExpression(null, '!==', Undefined.create(), new MemberExpression(null, new Identifier(null, 'super'), new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false), true)),
                 new CallExpression(null, new MemberExpression(null, new Identifier(null, 'super'), new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false), true), []),
             );
 
@@ -480,17 +479,13 @@ class Class extends implementationOf(NodeInterface) {
             for (const [ i, decorator ] of __jymfony.getEntries(decorators)) {
                 const privateSymbol = new Identifier(null, compiler.generateVariableName() + '_' + this.id.name + '_private_' + memberName.name + 'Ξ' + (~~(Math.random() * 1000000)).toString(16));
 
-                compiler.compileNode(new VariableDeclaration(null, 'const', [
-                    new VariableDeclarator(null, privateSymbol, new CallExpression(null, new Identifier(null, 'Symbol'), [])),
-                ]));
+                compiler.compileNode(Variable.create('const', privateSymbol, new CallExpression(null, new Identifier(null, 'Symbol'))));
                 compiler._emit(';');
                 compiler.newLine();
 
                 if (member instanceof ClassMethod) {
                     if (i === decorators.length - 1) {
-                        compiler.compileNode(new VariableDeclaration(null, 'const', [
-                            new VariableDeclarator(null, tempSymbol, new CallExpression(null, new Identifier(null, 'Symbol'), [])),
-                        ]));
+                        compiler.compileNode(Variable.create('const', tempSymbol, new CallExpression(null, new Identifier(null, 'Symbol'))));
                         compiler._emit(';');
                         compiler.newLine();
 

@@ -1,4 +1,4 @@
-const ArrowFunctionExpression = require('./ArrowFunctionExpression');
+const { Iife, Undefined, Variable } = require('../Generator');
 const AssignmentExpression = require('./AssignmentExpression');
 const ArrayExpression = require('./ArrayExpression');
 const BinaryExpression = require('./BinaryExpression');
@@ -11,7 +11,6 @@ const ForOfStatement = require('./ForOfStatement');
 const Identifier = require('./Identifier');
 const IfStatement = require('./IfStatement');
 const MemberExpression = require('./MemberExpression');
-const ParenthesizedExpression = require('./ParenthesizedExpression');
 const ReturnStatement = require('./ReturnStatement');
 const StringLiteral = require('./StringLiteral');
 const VariableDeclaration = require('./VariableDeclaration');
@@ -202,26 +201,22 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
         compiler._emit(']');
 
         compiler._emit(' = ');
-        compiler.compileNode(new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
-            new VariableDeclaration(null, 'let', [
-                new VariableDeclarator(null, new Identifier(null, 'initialValue'), this._value),
-            ]),
+        compiler.compileNode(Iife.create(new BlockStatement(null, [
+            Variable.create('let', 'initialValue', this._value),
             new ForOfStatement(null,
-                new VariableDeclaration(null, 'const', [ new VariableDeclarator(null, new Identifier(null, 'initFn')) ]),
+                Variable.create('const', 'initFn'),
                 this._initializerIdentifier,
                 new BlockStatement(null, [
-                    new VariableDeclaration(null, 'const', [
-                        new VariableDeclarator(null, new Identifier(null, 'v'), new CallExpression(null, new Identifier(null, 'initFn'), [ new Identifier(null, 'initialValue') ])),
-                    ]),
+                    Variable.create('const', 'v', new CallExpression(null, new Identifier(null, 'initFn'), [ new Identifier(null, 'initialValue') ])),
                     new IfStatement(null,
-                        new BinaryExpression(null, '!==', new Identifier(null, 'v'), new Identifier(null, 'undefined')),
+                        new BinaryExpression(null, '!==', new Identifier(null, 'v'), Undefined.create()),
                         new AssignmentExpression(null, '=', new Identifier(null, 'initialValue'), new Identifier(null, 'v'))
                     ),
                 ])
             ),
             new EmptyStatement(null),
             new ReturnStatement(null, new Identifier(null, 'initialValue')),
-        ])))));
+        ])));
 
         compiler._emit(';');
         compiler.newLine();

@@ -6,8 +6,7 @@ const ImportNamespaceSpecifier = require('./ImportNamespaceSpecifier');
 const ImportSpecifier = require('./ImportSpecifier');
 const MemberExpression = require('./MemberExpression');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
-const VariableDeclaration = require('./VariableDeclaration');
-const VariableDeclarator = require('./VariableDeclarator');
+const { Variable } = require('../Generator');
 
 class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
     /**
@@ -116,10 +115,7 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
                 right = new MemberExpression(null, new Identifier(null, variableName), specifier.imported);
             }
 
-            compiler.compileNode(new VariableDeclaration(null, 'const', [
-                new VariableDeclarator(null, specifier.local, right),
-            ]));
-
+            compiler.compileNode(Variable.create('const', specifier.local, right));
             compiler._emit(';');
             compiler.newLine();
         }
