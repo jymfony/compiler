@@ -149,7 +149,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                             new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'oldGet')),
                             new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'oldSet')),
                         ]), new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
-                            (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))), target.privateSymbolIdentifier,
+                            (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : target.key,
                         ])),
                     ]),
                     // Code: let { get: newGet = oldGet, set: newSet = oldSet, init } = logged({ get: oldGet, set: oldSet }, { ... }) ?? {};
@@ -158,12 +158,21 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                             new ObjectProperty(null, new Identifier(null, 'get'), new AssignmentExpression(null, '=', new Identifier(null, 'newGet'), new Identifier(null, 'oldGet'))),
                             new ObjectProperty(null, new Identifier(null, 'set'), new AssignmentExpression(null, '=', new Identifier(null, 'newSet'), new Identifier(null, 'oldSet'))),
                             new ObjectProperty(null, new Identifier(null, 'init'), null),
-                        ]), callDecorator),
+                        ]), new CallExpression(null, new ParenthesizedExpression(null, new ArrowFunctionExpression(null, new BlockStatement(null, [
+                            new VariableDeclaration(null, 'const', [
+                                new VariableDeclarator(null, new Identifier(null, 's'), callDecorator),
+                            ]),
+                            new IfStatement(null,
+                                new BinaryExpression(null, '===', new Identifier(null, 's'), new Identifier(null, 'undefined')),
+                                new ReturnStatement(null, new ObjectExpression(null, [])),
+                            ),
+                            new ReturnStatement(null, new Identifier(null, 's')),
+                        ]))))),
                     ]),
                     // Code: Object.defineProperty(C.prototype, "x", { get: newGet, set: newSet });
                     new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty')), [
                         (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))),
-                        target.privateSymbolIdentifier,
+                        target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : target.key,
                         new ObjectExpression(null, [
                             new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'newGet')),
                             new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'newSet')),
