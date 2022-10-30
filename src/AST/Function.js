@@ -4,6 +4,7 @@ const ExpressionStatement = new __jymfony.ManagedProxy(global.Function, proxy =>
     proxy.initializer = undefined;
 });
 const Identifier = require('./Identifier');
+const { Member } = require('../Generator');
 const MemberExpression = require('./MemberExpression');
 const NodeInterface = require('./NodeInterface');
 const NullLiteral = require('./NullLiteral');
@@ -134,7 +135,7 @@ class Function extends implementationOf(NodeInterface) {
         return [
             new ExpressionStatement(null, new AssignmentExpression(
                 null, '=',
-                new MemberExpression(null, id, new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false), true),
+                new MemberExpression(null, id, Member.create('Symbol', 'docblock'), true),
                 this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
             )),
         ];

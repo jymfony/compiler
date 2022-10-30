@@ -1,4 +1,4 @@
-const { Iife, Undefined, Variable } = require('../Generator');
+const { Iife, Member, Undefined, Variable } = require('../Generator');
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
 const AssignmentProperty = require('./AssignmentProperty');
@@ -119,7 +119,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
 
             target._value = new CallExpression(
                 null,
-                new MemberExpression(null, new MemberExpression(null, class_.id, privateSymbol, true), new Identifier(null, 'call')),
+                Member.create(new MemberExpression(null, class_.id, privateSymbol, true), 'call'),
                 [ new Identifier(null, 'this'), target.value ? target.value : Undefined.create() ]
             );
         } else if (target instanceof ClassAccessor) {
@@ -143,8 +143,8 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                     Variable.create('const', new ObjectPattern(null, [
                         new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'oldGet')),
                         new ObjectProperty(null, new Identifier(null, 'set'), new Identifier(null, 'oldSet')),
-                    ]), new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
-                        (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : target.key,
+                    ]), new CallExpression(null, Member.create('Object', 'getOwnPropertyDescriptor'), [
+                        (target.static ? class_.id : Member.create(class_.id, 'prototype')), target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : target.key,
                     ])),
                     // Code: let { get: newGet = oldGet, set: newSet = oldSet, init } = logged({ get: oldGet, set: oldSet }, { ... }) ?? {};
                     Variable.create('let', new ObjectPattern(null, [
@@ -160,8 +160,8 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                         new ReturnStatement(null, new Identifier(null, 's')),
                     ]))),
                     // Code: Object.defineProperty(C.prototype, "x", { get: newGet, set: newSet });
-                    new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty')), [
-                        (target.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype'))),
+                    new CallExpression(null, Member.create('Object', 'defineProperty'), [
+                        (target.static ? class_.id : Member.create(class_.id, 'prototype')),
                         target.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(target.key.name)) : target.key,
                         new ObjectExpression(null, [
                             new ObjectProperty(null, new Identifier(null, 'get'), new Identifier(null, 'newGet')),
@@ -171,7 +171,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                     // Code: if (init !== undefined) { initializers.push(init); }
                     new IfStatement(null,
                         new BinaryExpression(null, '!==', new Identifier(null, 'init'), Undefined.create()),
-                        new CallExpression(null, new MemberExpression(null, target.initializerIdentifier, new Identifier(null, 'push')), [
+                        new CallExpression(null, Member.create(target.initializerIdentifier, 'push'), [
                             new Identifier(null, 'init'),
                         ]),
                     ),
@@ -188,7 +188,7 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                 new Identifier(null, targetKind) :
                 (currentTarget.static ?
                     new MemberExpression(null, class_.id, currentTarget.key, currentTarget.key !== originalName) :
-                    new MemberExpression(null, new MemberExpression(null, class_.id, new Identifier(null, 'prototype')), currentTarget.key, currentTarget.key !== originalName))
+                    new MemberExpression(null, Member.create(class_.id, 'prototype'), currentTarget.key, currentTarget.key !== originalName))
             );
 
             const variableName = compiler.generateVariableName();
@@ -202,8 +202,8 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                         new ObjectPattern(null, [
                             new AssignmentProperty(null, new Identifier(null, targetKind), null),
                         ]),
-                        new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor')), [
-                            currentTarget.static ? class_.id : new MemberExpression(null, class_.id, new Identifier(null, 'prototype')),
+                        new CallExpression(null, Member.create('Object', 'getOwnPropertyDescriptor'), [
+                            currentTarget.static ? class_.id : Member.create(class_.id, 'prototype'),
                             currentTarget.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(currentTarget.key.name)) : currentTarget.key,
                         ])
                     ),

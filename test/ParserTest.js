@@ -850,6 +850,11 @@ class x extends __jymfony.JObject {
           set: (obj,value) => obj.field = value,
           docblock: null,
         },
+        fieldAcc: {
+          get: (obj) => obj.fieldAcc,
+          set: (obj,value) => obj.fieldAcc = value,
+          docblock: null,
+        },
       },
       staticFields: {
       },

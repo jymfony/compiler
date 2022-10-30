@@ -2,8 +2,7 @@ const AssignmentExpression = require('./AssignmentExpression');
 const Class = require('./Class');
 const ExpressionStatement = require('./ExpressionStatement');
 const Function = require('./Function');
-const Identifier = require('./Identifier');
-const MemberExpression = require('./MemberExpression');
+const { Member } = require('../Generator');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
 const StatementInterface = require('./StatementInterface');
 const VariableDeclaration = require('./VariableDeclaration');
@@ -76,7 +75,7 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
                     new ExpressionStatement(null, new AssignmentExpression(
                         null,
                         '=',
-                        new MemberExpression(null, new Identifier(null, 'exports'), specifier.exported),
+                        Member.create('exports', specifier.exported),
                         specifier.local
                     ))
                 );
@@ -115,7 +114,7 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
                 new ExpressionStatement(null, new AssignmentExpression(
                     null,
                     '=',
-                    new MemberExpression(null, new Identifier(null, 'exports'), this._declarations.id),
+                    Member.create('exports', this._declarations.id),
                     this._declarations.id
                 ))
             );
@@ -136,7 +135,7 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
                 new ExpressionStatement(null, new AssignmentExpression(
                     null,
                     '=',
-                    new MemberExpression(null, new Identifier(null, 'exports'), exportedName),
+                    Member.create('exports', exportedName),
                     exportedName
                 ))
             );

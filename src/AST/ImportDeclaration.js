@@ -1,12 +1,11 @@
+const { Member, Variable } = require('../Generator');
 const BinaryExpression = require('./BinaryExpression');
 const ConditionalExpression = require('./ConditionalExpression');
 const Identifier = require('./Identifier');
 const ImportDefaultSpecifier = require('./ImportDefaultSpecifier');
 const ImportNamespaceSpecifier = require('./ImportNamespaceSpecifier');
 const ImportSpecifier = require('./ImportSpecifier');
-const MemberExpression = require('./MemberExpression');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
-const { Variable } = require('../Generator');
 
 class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
     /**
@@ -104,15 +103,15 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
                     new BinaryExpression(
                         null, '&&',
                         new Identifier(null, variableName),
-                        new MemberExpression(null, new Identifier(null, variableName), new Identifier(null, '__esModule'))
+                        Member.create(variableName, '__esModule')
                     ),
-                    new MemberExpression(null, new Identifier(null, variableName), new Identifier(null, 'default')),
+                    Member.create(variableName, 'default'),
                     new Identifier(null, variableName)
                 );
             } else if (specifier instanceof ImportNamespaceSpecifier) {
                 right = new Identifier(null, variableName);
             } else if (specifier instanceof ImportSpecifier) {
-                right = new MemberExpression(null, new Identifier(null, variableName), specifier.imported);
+                right = Member.create(variableName, specifier.imported);
             }
 
             compiler.compileNode(Variable.create('const', specifier.local, right));

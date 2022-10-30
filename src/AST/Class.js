@@ -1,4 +1,4 @@
-const { Undefined, Variable } = require('../Generator');
+const { Member, Undefined, Variable } = require('../Generator');
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
 const BinaryExpression = require('./BinaryExpression');
@@ -200,9 +200,9 @@ class Class extends implementationOf(NodeInterface) {
 
             compiler.compileNode(new CallExpression(
                 p.location,
-                new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty'), false),
+                Member.create('Object', 'defineProperty'),
                 [
-                    new MemberExpression(null, this._id, new Identifier(null, 'prototype')),
+                    Member.create(this._id, 'prototype'),
                     p.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(p.key.name)) : p.key,
                     new ObjectExpression(null, [
                         new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'true')),
@@ -258,7 +258,7 @@ class Class extends implementationOf(NodeInterface) {
                             continue;
                         }
 
-                        const accessor = new MemberExpression(null, new Identifier(null, 'obj'), declaredField);
+                        const accessor = Member.create('obj', declaredField);
                         const setterBody = new AssignmentExpression(null, '=', accessor, new Identifier(null, 'value'));
 
                         fields.push(
@@ -287,41 +287,46 @@ class Class extends implementationOf(NodeInterface) {
                         }
                     }
                 }
-            }
+            } else {
+                /**
+                 * @param {ClassProperty | ClassAccessor} member
+                 */
+                const initReflection = member => {
+                    const accessor = new MemberExpression(
+                        null,
+                        member.static ? this._id : new Identifier(null, 'obj'),
+                        member.private ? new Identifier(null, '#' + member.key.name) : member.key,
+                        !(member.key instanceof Identifier)
+                    );
+                    const setterBody = new AssignmentExpression(null, '=', accessor, new Identifier(null, 'value'));
 
-            if (member instanceof ClassProperty && ! (member instanceof ClassPrototypeProperty)) {
-                const accessor = new MemberExpression(
-                    null,
-                    member.static ? this._id : new Identifier(null, 'obj'),
-                    member.private ? new Identifier(null, '#' + member.key.name) : member.key,
-                    !(member.key instanceof Identifier)
-                );
-                const setterBody = new AssignmentExpression(null, '=', accessor, new Identifier(null, 'value'));
+                    let key = member.key;
+                    if (member.key instanceof Identifier && member.private) {
+                        key = new StringLiteral(null, JSON.stringify('#' + member.key.name));
+                    }
 
-                let key = member.key;
-                if (member.key instanceof Identifier && member.private) {
-                    key = new StringLiteral(null, JSON.stringify('#' + member.key.name));
+                    const prop = new ObjectProperty(null, key, new ObjectExpression(null, [
+                        new ObjectProperty(null, new Identifier(null, 'get'), new ArrowFunctionExpression(null, accessor, null, [ new Identifier(null, 'obj') ])),
+                        new ObjectProperty(null, new Identifier(null, 'set'), new ArrowFunctionExpression(null, setterBody, null, [ new Identifier(null, 'obj'), new Identifier(null, 'value') ])),
+                        new ObjectProperty(null, new Identifier(null, 'docblock'), member.docblock ? new StringLiteral(null, JSON.stringify(member.docblock)) : new NullLiteral(null)),
+                    ]));
+
+                    if (member.static) {
+                        staticFields.push(prop);
+                    } else {
+                        fields.push(prop);
+                    }
+                };
+
+                if (member instanceof ClassProperty && !(member instanceof ClassPrototypeProperty)) {
+                    initReflection(member);
+                    if (!member.static && !member.private) {
+                        initializableFields.push(member);
+                    }
+                } else if (member instanceof ClassAccessor) {
+                    initReflection(member);
+                    member.prepare(compiler, this);
                 }
-
-                const prop = new ObjectProperty(null, key, new ObjectExpression(null, [
-                    new ObjectProperty(null, new Identifier(null, 'get'), new ArrowFunctionExpression(null, accessor, null, [ new Identifier(null, 'obj') ])),
-                    new ObjectProperty(null, new Identifier(null, 'set'), new ArrowFunctionExpression(null, setterBody, null, [ new Identifier(null, 'obj'), new Identifier(null, 'value') ])),
-                    new ObjectProperty(null, new Identifier(null, 'docblock'), member.docblock ? new StringLiteral(null, JSON.stringify(member.docblock)) : new NullLiteral(null)),
-                ]));
-
-                if (member.static) {
-                    staticFields.push(prop);
-                } else {
-                    fields.push(prop);
-                }
-
-                if (! member.static && ! member.private) {
-                    initializableFields.push(member);
-                }
-            }
-
-            if (member instanceof ClassAccessor) {
-                member.prepare(compiler, this);
             }
         }
 
@@ -334,15 +339,15 @@ class Class extends implementationOf(NodeInterface) {
             null,
             new BlockStatement(null, [
                 ...(0 < decoratorCalls.length ? [ new IfStatement(null,
-                    new UnaryExpression(null, '!', new MemberExpression(null, new Identifier(null, 'this'), new Identifier(null, '__jymfony_parameters_reflection'))),
+                    new UnaryExpression(null, '!', Member.create('this', '__jymfony_parameters_reflection')),
                     new BlockStatement(null, [
                         ...decoratorCalls,
-                        new AssignmentExpression(null, '=', new MemberExpression(null, new Identifier(null, 'this'), new Identifier(null, '__jymfony_parameters_reflection')), new StringLiteral(null, 'true')),
+                        new AssignmentExpression(null, '=', Member.create('this', '__jymfony_parameters_reflection'), new StringLiteral(null, 'true')),
                     ]),
                 ) ] : []),
                 new ReturnStatement(null, new ObjectExpression(null, reflectionFields)),
             ]),
-            new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'reflection'), false),
+            Member.create('Symbol', 'reflection'),
             'get',
             [],
             { Static: true }
@@ -357,7 +362,7 @@ class Class extends implementationOf(NodeInterface) {
 
             return new CallExpression(
                 p.location,
-                new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty'), false),
+                Member.create('Object', 'defineProperty'),
                 [
                     new Identifier(null, 'this'),
                     p.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(p.key.name)) : p.key,
@@ -373,14 +378,14 @@ class Class extends implementationOf(NodeInterface) {
 
         if (fieldsInitializators.length) {
             const parentCall = new IfStatement(null,
-                new BinaryExpression(null, '!==', Undefined.create(), new MemberExpression(null, new Identifier(null, 'super'), new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false), true)),
-                new CallExpression(null, new MemberExpression(null, new Identifier(null, 'super'), new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false), true), []),
+                new BinaryExpression(null, '!==', Undefined.create(), new MemberExpression(null, new Identifier(null, 'super'), Member.create('Symbol', '__jymfony_field_initialization'), true)),
+                new CallExpression(null, new MemberExpression(null, new Identifier(null, 'super'), Member.create('Symbol', '__jymfony_field_initialization'), true)),
             );
 
             members.push(new ClassMethod(
                 null,
                 new BlockStatement(null, [ parentCall, ...(fieldsInitializators.filter(i => !!i)) ]),
-                new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, '__jymfony_field_initialization'), false),
+                Member.create('Symbol', '__jymfony_field_initialization'),
                 'method'
             ));
         }
@@ -396,7 +401,7 @@ class Class extends implementationOf(NodeInterface) {
         const tail = [
             new ExpressionStatement(null, new AssignmentExpression(
                 null, '=',
-                new MemberExpression(null, id, new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false), true),
+                new MemberExpression(null, id, Member.create('Symbol', 'docblock'), true),
                 this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
             )),
         ];
@@ -414,11 +419,11 @@ class Class extends implementationOf(NodeInterface) {
                         null,
                         new MemberExpression(
                             null,
-                            member.static ? id : new MemberExpression(null, id, new Identifier(null, 'prototype')),
+                            member.static ? id : Member.create(id, 'prototype'),
                             member.id,
                             ! (member.id instanceof Identifier)
                         ),
-                        new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false),
+                        Member.create('Symbol', 'docblock'),
                         true,
                     ),
                     member.docblock ? new StringLiteral(null, JSON.stringify(member.docblock)) : new NullLiteral(null)
@@ -429,16 +434,14 @@ class Class extends implementationOf(NodeInterface) {
                     '=',
                     new MemberExpression(
                         null,
-                        new MemberExpression(
-                            null,
-                            new CallExpression(null, new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'getOwnPropertyDescriptor'), false), [
-                                member.static ? id : new MemberExpression(null, id, new Identifier(null, 'prototype'), false),
+                        Member.create(
+                            new CallExpression(null, Member.create('Object', 'getOwnPropertyDescriptor'), [
+                                member.static ? id : Member.create(id, 'prototype'),
                                 member.id instanceof Identifier ? new StringLiteral(null, JSON.stringify(member.id.name)) : member.id,
                             ]),
-                            new Identifier(null, member.kind),
-                            false
+                            member.kind
                         ),
-                        new MemberExpression(null, new Identifier(null, 'Symbol'), new Identifier(null, 'docblock'), false),
+                        Member.create('Symbol', 'docblock'),
                         true,
                     ),
                     member.docblock ? new StringLiteral(null, JSON.stringify(member.docblock)) : new NullLiteral(null)
@@ -491,7 +494,7 @@ class Class extends implementationOf(NodeInterface) {
 
                         tail.unshift(new UnaryExpression(null, 'delete',
                             new MemberExpression(null,
-                                isStatic ? this.id : new MemberExpression(null, this.id, new Identifier(null, 'prototype')),
+                                isStatic ? this.id : Member.create(this.id, 'prototype'),
                                 tempSymbol,
                                 true
                             )
@@ -503,7 +506,7 @@ class Class extends implementationOf(NodeInterface) {
                             this.body.addMember(new ClassMethod(null, new BlockStatement(null, [
                                 // Return C[sym].call(this, ...args)
                                 new ReturnStatement(null, new CallExpression(null,
-                                    new MemberExpression(null, new MemberExpression(null, this.id, privateSymbol, true), new Identifier(null, 'call')),
+                                    Member.create(new MemberExpression(null, this.id, privateSymbol, true), 'call'),
                                     [
                                         new Identifier(null, 'this'),
                                         ...member.params,

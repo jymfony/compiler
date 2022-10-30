@@ -2,7 +2,7 @@ const BooleanLiteral = require('./BooleanLiteral');
 const CallExpression = require('./CallExpression');
 const ExpressionStatement = require('./ExpressionStatement');
 const Identifier = require('./Identifier');
-const MemberExpression = require('./MemberExpression');
+const { Member } = require('../Generator');
 const NodeInterface = require('./NodeInterface');
 const ObjectExpression = require('./ObjectExpression');
 const ObjectProperty = require('./ObjectProperty');
@@ -96,7 +96,7 @@ class Program extends implementationOf(NodeInterface) {
         if (this.esModule) {
             this._body.unshift(
                 new ExpressionStatement(null, new CallExpression(null,
-                    new MemberExpression(null, new Identifier(null, 'Object'), new Identifier(null, 'defineProperty')),
+                    Member.create('Object', 'defineProperty'),
                     [
                         new Identifier(null, 'exports'),
                         new StringLiteral(null, '"__esModule"'),
