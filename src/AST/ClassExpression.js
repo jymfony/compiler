@@ -15,8 +15,7 @@ class ClassExpression extends mix(Class, ExpressionInterface) {
         compiler.indentationLevel++;
         compiler.newLine();
 
-        const tail = this.compileDocblock(compiler, id);
-        tail.push(...this.compileDecorators(compiler));
+        const tail = this.compileDecorators(compiler);
 
         compiler._emit('let ' + id.name + ' = ');
         super.compile(compiler);

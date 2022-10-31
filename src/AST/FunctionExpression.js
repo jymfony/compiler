@@ -1,5 +1,6 @@
 const ExpressionInterface = require('./ExpressionInterface');
 const Function = require('./Function');
+const Identifier = require('./Identifier');
 
 class FunctionExpression extends mix(Function, ExpressionInterface) {
     /**
@@ -20,7 +21,7 @@ class FunctionExpression extends mix(Function, ExpressionInterface) {
             compiler._emit(' *');
         }
 
-        if (null !== this._id) {
+        if (this._id instanceof Identifier) {
             compiler._emit(' ');
             compiler.compileNode(this._id);
         }

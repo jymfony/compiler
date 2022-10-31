@@ -1,5 +1,6 @@
 require('@jymfony/autoloader');
-require('seedrandom');
+const seedrandom = require('seedrandom');
+seedrandom('compiler init', { global: true });
 
 const ClassLoader = Jymfony.Component.Autoloader.ClassLoader;
 ClassLoader.compiler = {

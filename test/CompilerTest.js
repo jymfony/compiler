@@ -80,21 +80,35 @@ export default class ClassA extends ClassB {
             const compiled = compiler.compile(program);
             expect(compiled).to.be.equal(`class ClassB extends __jymfony.JObject {
   #internal;
-  static get [Symbol.reflection]() {
+  static get [Symbol.jymfony_private_accessors]() {
     return {
       fields: {
         "#internal": {
           get: (obj) => obj.#internal,
           set: (obj,value) => obj.#internal = value,
-          docblock: null,
         },
       },
       staticFields: {
       },
+      methods: {
+      },
+      staticMethods: {
+      },
     };
   }
 }
-ClassB[Symbol.docblock] = null;
+Object.defineProperty(ClassB,Symbol.reflection,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: 390831,
+});
+Object.defineProperty(ClassB,Symbol.metadata,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: Symbol(),
+});
 const ClassA = (() => {
   let ClassA = class ClassA extends ClassB {
     #internal;
@@ -103,37 +117,53 @@ const ClassA = (() => {
       this.#internal = 'internal';
       
     }
-    static get [Symbol.reflection]() {
+    static get [Symbol.jymfony_private_accessors]() {
       return {
         fields: {
           "#internal": {
             get: (obj) => obj.#internal,
             set: (obj,value) => obj.#internal = value,
-            docblock: null,
-          },
-          initialized: {
-            get: (obj) => obj.initialized,
-            set: (obj,value) => obj.initialized = value,
-            docblock: null,
           },
         },
         staticFields: {
         },
+        methods: {
+        },
+        staticMethods: {
+        },
       };
     }
-    [Symbol.__jymfony_field_initialization]() {
-      if (undefined !== super[Symbol.__jymfony_field_initialization]) 
-        super[Symbol.__jymfony_field_initialization]();
+  }
+  Object.defineProperty(ClassA,Symbol.reflection,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: 390832,
+  });
+  Object.defineProperty(ClassA.prototype,Symbol.__jymfony_field_initialization,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: function() {
+      const superClass = Object.getPrototypeOf(ClassA.prototype);
+      const superCall = superClass[Symbol.__jymfony_field_initialization];
+      if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+        superCall.apply(this);
       Object.defineProperty(this,"initialized",{
         writable: true,
         enumerable: true,
         configurable: true,
         value: false,
       });
-    }
-  }
+    },
+  });
+  Object.defineProperty(ClassA,Symbol.metadata,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: Symbol(),
+  });
   ;
-  ClassA[Symbol.docblock] = null;
   
   return ClassA;
 })();
@@ -165,7 +195,7 @@ new x(true);
         StackHandler.registerSourceMap('x.js', gen.toJSON().mappings);
 
         try {
-            runInNewContext(compiled, {}, { filename: 'x.js' });
+            runInNewContext(compiled, { Symbol }, { filename: 'x.js' });
             throw new Error('FAIL');
         } catch (e) {
             expect(e.stack.startsWith(`x.js:4
@@ -202,7 +232,7 @@ new x(true);
         StackHandler.registerSourceMap('x.ts', genStep2.toJSON().mappings);
 
         try {
-            runInNewContext(recompiled, {}, { filename: 'x.ts' });
+            runInNewContext(recompiled, { Symbol }, { filename: 'x.ts' });
             throw new Error('FAIL');
         } catch (e) {
             expect(e.stack.startsWith(`x.ts:4
@@ -283,17 +313,26 @@ const x = new class {
     getFoo() {
       
     }
-    static get [Symbol.reflection]() {
-      return {
-        fields: {
-        },
-        staticFields: {
-        },
-      };
-    }
   }
+  Object.defineProperty(_anonymous_xΞ518e6,Symbol.reflection,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: 390836,
+  });
+  Object.defineProperty(_anonymous_xΞ518e6,Symbol.metadata,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: Symbol(),
+  });
+  Object.defineProperty(_anonymous_xΞ518e6.prototype.getFoo,Symbol.metadata,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: Symbol(),
+  });
   ;
-  _anonymous_xΞ518e6[Symbol.docblock] = null;
   
   return _anonymous_xΞ518e6;
 })())();

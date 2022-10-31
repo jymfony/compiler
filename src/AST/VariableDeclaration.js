@@ -55,14 +55,13 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        const tail = [];
         if (1 === this._declarators.length) {
             const declarator = this._declarators[0];
             const init = declarator.init;
 
             if (!! this.docblock) {
                 if (init instanceof Function) {
-                    tail.push(...init.compileDocblock(compiler, declarator.id));
+                    init.docblock = this.docblock;
                 }
             }
         }
@@ -74,12 +73,6 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
             if (i != this._declarators.length - 1) {
                 compiler._emit(', ');
             }
-        }
-
-        for (const statement of tail) {
-            compiler._emit(';');
-            compiler.newLine();
-            compiler.compileNode(statement);
         }
     }
 }

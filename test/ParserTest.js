@@ -442,31 +442,36 @@ class x {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.eq(`class x extends __jymfony.JObject {
-  static get [Symbol.reflection]() {
-    return {
-      fields: {
-        field: {
-          get: (obj) => obj.field,
-          set: (obj,value) => obj.field = value,
-          docblock: null,
-        },
-      },
-      staticFields: {
-      },
-    };
-  }
-  [Symbol.__jymfony_field_initialization]() {
-    if (undefined !== super[Symbol.__jymfony_field_initialization]) 
-      super[Symbol.__jymfony_field_initialization]();
+}
+Object.defineProperty(x,Symbol.reflection,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: 390952,
+});
+Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: function() {
+    const superClass = Object.getPrototypeOf(x.prototype);
+    const superCall = superClass[Symbol.__jymfony_field_initialization];
+    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+      superCall.apply(this);
     Object.defineProperty(this,"field",{
       writable: true,
       enumerable: true,
       configurable: true,
       value: 'foo',
     });
-  }
-}
-x[Symbol.docblock] = null;
+  },
+});
+Object.defineProperty(x,Symbol.metadata,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: Symbol(),
+});
 `);
     });
 
@@ -594,17 +599,20 @@ class x extends __jymfony.JObject {
   [αm_x_temp_testΞde2f4]() {
     const cc = (() => {
       let _anonymous_xΞ5d6ae = class _anonymous_xΞ5d6ae extends __jymfony.JObject {
-        static get [Symbol.reflection]() {
-          return {
-            fields: {
-            },
-            staticFields: {
-            },
-          };
-        }
       }
+      Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390953,
+      });
+      Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
       ;
-      _anonymous_xΞ5d6ae[Symbol.docblock] = null;
       _anonymous_xΞ5d6ae = (() => {
         const α4 = logger.logged(_anonymous_xΞ5d6ae,{
           kind: 'class',
@@ -832,45 +840,30 @@ class x extends __jymfony.JObject {
     
     return α3;
   })();
-  static get [Symbol.reflection]() {
-    if (! this.__jymfony_parameters_reflection) {
-      type(Request)(undefined,{
-        kind: "parameter",
-        target: this,
-        name: "testMethod",
-        private: false,
-        parameterIndex: 0,
-      });
-      this.__jymfony_parameters_reflection = true;
-    }
-    return {
-      fields: {
-        field: {
-          get: (obj) => obj.field,
-          set: (obj,value) => obj.field = value,
-          docblock: null,
-        },
-        fieldAcc: {
-          get: (obj) => obj.fieldAcc,
-          set: (obj,value) => obj.fieldAcc = value,
-          docblock: null,
-        },
-      },
-      staticFields: {
-      },
-    };
-  }
-  [Symbol.__jymfony_field_initialization]() {
-    if (undefined !== super[Symbol.__jymfony_field_initialization]) 
-      super[Symbol.__jymfony_field_initialization]();
+}
+Object.defineProperty(x,Symbol.reflection,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: 390954,
+});
+Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: function() {
+    const superClass = Object.getPrototypeOf(x.prototype);
+    const superCall = superClass[Symbol.__jymfony_field_initialization];
+    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+      superCall.apply(this);
     Object.defineProperty(this,"field",{
       writable: true,
       enumerable: true,
       configurable: true,
       value: x[αg_x_private_fieldΞ6e2d3].call(this,x[αe_x_private_fieldΞe9a02].call(this,x[αc_x_private_fieldΞ9502d].call(this,'foo'))),
     });
-  }
-}
+  },
+});
 Object.defineProperty(x.prototype,"test",{
   writable: true,
   enumerable: true,
@@ -883,7 +876,29 @@ Object.defineProperty(x.prototype,"testMethod",{
   configurable: true,
   value: x[α2_x_private_testMethodΞea7a1],
 });
-x[Symbol.docblock] = null;
+Object.defineProperty(x,Symbol.metadata,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: Symbol(),
+});
+Object.defineProperty(x.prototype.testMethod,Symbol.metadata,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: Symbol(),
+});
+type(Request)(undefined,{
+  kind: "parameter",
+  name: x.prototype.testMethod,
+  private: false,
+  parameterIndex: 0,
+  metadataKey: x.prototype.testMethod[Symbol.metadata],
+  class: {
+    name: "x",
+    metadataKey: x[Symbol.metadata],
+  },
+});
 delete x.prototype[α1_x_temp_testMethodΞd40c0];
 delete x.prototype[αw_x_temp_test_setterΞ5732f];
 delete x.prototype[αr_x_temp_test_getterΞ897cb];
@@ -1030,16 +1045,19 @@ const Annotation = αa.Annotation;
 const ANNOTATION_TARGET_CLASS = αa.ANNOTATION_TARGET_CLASS;
 const ANNOTATION_TARGET_FUNCTION = αa.ANNOTATION_TARGET_FUNCTION;
 class TestAnnotation extends __jymfony.JObject {
-  static get [Symbol.reflection]() {
-    return {
-      fields: {
-      },
-      staticFields: {
-      },
-    };
-  }
 }
-TestAnnotation[Symbol.docblock] = null;
+Object.defineProperty(TestAnnotation,Symbol.reflection,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: 390955,
+});
+Object.defineProperty(TestAnnotation,Symbol.metadata,{
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: Symbol(),
+});
 TestAnnotation = (() => {
   const αb = Annotation(ANNOTATION_TARGET_CLASS)(TestAnnotation,{
     kind: 'class',
@@ -1052,17 +1070,20 @@ TestAnnotation = (() => {
 exports.TestAnnotation = TestAnnotation;
 const TestConstClassAnnotation = (() => {
   let _anonymous_xΞ96888 = class _anonymous_xΞ96888 extends __jymfony.JObject {
-    static get [Symbol.reflection]() {
-      return {
-        fields: {
-        },
-        staticFields: {
-        },
-      };
-    }
   }
+  Object.defineProperty(_anonymous_xΞ96888,Symbol.reflection,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: 390956,
+  });
+  Object.defineProperty(_anonymous_xΞ96888,Symbol.metadata,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: Symbol(),
+  });
   ;
-  _anonymous_xΞ96888[Symbol.docblock] = null;
   _anonymous_xΞ96888 = (() => {
     const αc = Annotation(ANNOTATION_TARGET_CLASS)(_anonymous_xΞ96888,{
       kind: 'class',
@@ -1081,7 +1102,7 @@ exports.TestConstClassAnnotation = TestConstClassAnnotation;
 
     it ('should correctly compile classes with decorated methods on export default', () => {
         seedrandom('decorators', { global: true });
-        const program = parser.parse(`import { Delete, Get, Patch, Post, Put, Route } from '../src';
+        const program = parser.parse(`import { Get, Route } from '../src';
 
 @Route({ path: '/foobar' })
 @Route('/barbar')
@@ -1094,11 +1115,7 @@ export default class RoutableClass {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.eq(`const αa = require('../src');
-const Delete = αa.Delete;
 const Get = αa.Get;
-const Patch = αa.Patch;
-const Post = αa.Post;
-const Put = αa.Put;
 const Route = αa.Route;
 const RoutableClass = (() => {
   const αe_RoutableClass_private_getActionΞ11ea6 = Symbol();
@@ -1125,23 +1142,32 @@ const RoutableClass = (() => {
       
       return αf;
     })();
-    static get [Symbol.reflection]() {
-      return {
-        fields: {
-        },
-        staticFields: {
-        },
-      };
-    }
   }
+  Object.defineProperty(RoutableClass,Symbol.reflection,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: 390957,
+  });
   Object.defineProperty(RoutableClass.prototype,"getAction",{
     writable: true,
     enumerable: true,
     configurable: true,
     value: RoutableClass[αe_RoutableClass_private_getActionΞ11ea6],
   });
+  Object.defineProperty(RoutableClass,Symbol.metadata,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: Symbol(),
+  });
+  Object.defineProperty(RoutableClass.prototype.getAction,Symbol.metadata,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: Symbol(),
+  });
   ;
-  RoutableClass[Symbol.docblock] = null;
   delete RoutableClass.prototype[αd_RoutableClass_temp_getActionΞaa291];
   RoutableClass = (() => {
     const αb = Route({
@@ -1193,34 +1219,68 @@ const TypedPrivateMethodClass = (() => {
     #getAction(param1,param2,param3) {
       
     }
-    static get [Symbol.reflection]() {
-      if (! this.__jymfony_parameters_reflection) {
-        Type('FooType')(undefined,{
-          kind: "parameter",
-          target: this,
-          name: "#getAction",
-          private: true,
-          parameterIndex: 0,
-        });
-        Type(Object)(undefined,{
-          kind: "parameter",
-          target: this,
-          name: "#getAction",
-          private: true,
-          parameterIndex: 1,
-        });
-        this.__jymfony_parameters_reflection = true;
-      }
+    static get [Symbol.jymfony_private_accessors]() {
       return {
         fields: {
         },
         staticFields: {
         },
+        methods: {
+          getAction: {
+            call: (obj,...args) => obj.#getAction(...args),
+            metadataKey: () => {
+              const αc = Object.getOwnPropertyDescriptor(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata);
+              if (undefined === αc) 
+                Object.defineProperty(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata,{
+                writable: false,
+                enumerable: false,
+                configurable: true,
+                value: Symbol(),
+              });
+              return TypedPrivateMethodClass.prototype.#getAction[Symbol.metadata];
+            },
+          },
+        },
+        staticMethods: {
+        },
       };
     }
   }
+  Object.defineProperty(TypedPrivateMethodClass,Symbol.reflection,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: 390958,
+  });
+  Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
+    writable: false,
+    enumerable: false,
+    configurable: true,
+    value: Symbol(),
+  });
+  Type('FooType')(undefined,{
+    kind: "parameter",
+    name: "#getAction",
+    private: true,
+    parameterIndex: 0,
+    metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
+    class: {
+      name: "TypedPrivateMethodClass",
+      metadataKey: TypedPrivateMethodClass[Symbol.metadata],
+    },
+  });
+  Type(Object)(undefined,{
+    kind: "parameter",
+    name: "#getAction",
+    private: true,
+    parameterIndex: 1,
+    metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
+    class: {
+      name: "TypedPrivateMethodClass",
+      metadataKey: TypedPrivateMethodClass[Symbol.metadata],
+    },
+  });
   ;
-  TypedPrivateMethodClass[Symbol.docblock] = null;
   
   return TypedPrivateMethodClass;
 })();

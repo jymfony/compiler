@@ -1,14 +1,5 @@
-const AssignmentExpression = require('./AssignmentExpression');
-const ExpressionStatement = new __jymfony.ManagedProxy(global.Function, proxy => {
-    proxy.target = require('./ExpressionStatement');
-    proxy.initializer = undefined;
-});
 const Identifier = require('./Identifier');
-const { Member } = require('../Generator');
-const MemberExpression = require('./MemberExpression');
 const NodeInterface = require('./NodeInterface');
-const NullLiteral = require('./NullLiteral');
-const StringLiteral = require('./StringLiteral');
 
 class Function extends implementationOf(NodeInterface) {
     /**
@@ -123,22 +114,6 @@ class Function extends implementationOf(NodeInterface) {
      */
     get async() {
         return this._async;
-    }
-
-    /**
-     * Compiles the docblock registration code.
-     *
-     * @param {Compiler} compiler
-     * @param {Identifier} id
-     */
-    compileDocblock(compiler, id) {
-        return [
-            new ExpressionStatement(null, new AssignmentExpression(
-                null, '=',
-                new MemberExpression(null, id, Member.create('Symbol', 'docblock'), true),
-                this.docblock ? new StringLiteral(null, JSON.stringify(this.docblock)) : new NullLiteral(null)
-            )),
-        ];
     }
 
     static compileParams(compiler, params) {
