@@ -16,8 +16,9 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, kind: 'const' | 'let' | 'var', declarators: VariableDeclarator[]): void;
-
             constructor(location: SourceLocation, kind: 'const' | 'let' | 'var', declarators: VariableDeclarator[]);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

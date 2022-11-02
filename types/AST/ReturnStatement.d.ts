@@ -8,8 +8,9 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, argument?: null | ExpressionInterface): void;
-
             constructor(location: SourceLocation, argument?: null | ExpressionInterface);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

@@ -1,9 +1,9 @@
 const Class = require('./Class');
-const ExpressionInterface = require('./ExpressionInterface');
-const StatementInterface = require('./StatementInterface');
-const {Variable} = require('../Generator');
 const CallExpression = require('./CallExpression');
+const ExpressionInterface = require('./ExpressionInterface');
 const Identifier = require('./Identifier');
+const StatementInterface = require('./StatementInterface');
+const { Variable } = require('../Generator');
 
 class ClassExpression extends mix(Class, ExpressionInterface) {
     compile(compiler) {

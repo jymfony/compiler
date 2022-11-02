@@ -1,15 +1,15 @@
 const AssignmentExpression = require('./AssignmentExpression');
 const Class = require('./Class');
+const ClassDeclaration = require('./ClassDeclaration');
+const ClassExpression = require('./ClassExpression');
 const ExpressionStatement = require('./ExpressionStatement');
 const Function = require('./Function');
+const FunctionExpression = require('./FunctionExpression');
+const FunctionStatement = require('./FunctionStatement');
 const { Member } = require('../Generator');
 const ModuleDeclarationInterface = require('./ModuleDeclarationInterface');
 const StatementInterface = require('./StatementInterface');
 const VariableDeclaration = require('./VariableDeclaration');
-const ClassDeclaration = require('./ClassDeclaration');
-const ClassExpression = require('./ClassExpression');
-const FunctionExpression = require('./FunctionExpression');
-const FunctionStatement = require('./FunctionStatement');
 
 class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface) {
     /**

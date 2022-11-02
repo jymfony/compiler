@@ -8,8 +8,9 @@ declare module "@jymfony/compiler" {
              */
             // @ts-ignore
             __construct(location: SourceLocation, left: VariableDeclaration | ExpressionInterface, right: ExpressionInterface, body: StatementInterface, _await: boolean): void;
-
             constructor(location: SourceLocation, left: VariableDeclaration | ExpressionInterface, right: ExpressionInterface, body: StatementInterface, _await: boolean);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

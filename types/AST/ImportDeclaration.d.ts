@@ -10,8 +10,9 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, specifiers: ImportSpecifierInterface[], source: Literal): void;
-
             constructor(location: SourceLocation, specifiers: ImportSpecifierInterface[], source: Literal);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

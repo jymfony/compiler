@@ -10,8 +10,9 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, discriminant: ExpressionInterface, cases: SwitchCase[]): void;
-
             constructor(location: SourceLocation, discriminant: ExpressionInterface, cases: SwitchCase[]);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

@@ -15,8 +15,9 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, expression: ExpressionInterface): void;
-
             constructor(location: SourceLocation, expression: ExpressionInterface);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

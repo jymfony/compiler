@@ -5,9 +5,13 @@ declare module "@jymfony/compiler" {
             public docblock: null | string;
             public decorators: null | AppliedDecorator[];
 
+            private _typeId: number;
             private _body: ClassBody;
             private _id: Identifier;
             private _superClass: ExpressionInterface | null;
+            private _fieldInitializer: ExpressionInterface | null;
+            private _initialization: ExpressionInterface[];
+            private _initializableFields: ClassProperty[];
 
             /**
              * Gets the class name.
@@ -41,26 +45,26 @@ declare module "@jymfony/compiler" {
             constructor(location: SourceLocation, body: ClassBody, id?: Identifier | null, superClass?: ExpressionInterface | null);
 
             /**
-             * Class has constructor.
+             * Returns the class constructor or null.
              */
             getConstructor(): null | ClassMethod;
 
             /**
-             * @inheritdoc
+             * Returns the class member with given name or null.
              */
-            compile(compiler: Compiler): void;
+            getMember(name: string): ClassMemberInterface | null;
 
             /**
-             * Compiles the docblock registration code.
+             * @inheritdoc
              */
-            compileDocblock(compiler: Compiler, id: Identifier): void;
+            compile(compiler: Compiler, initialization?: string): void;
 
             /**
              * Compiles the decorators upon this class.
              */
             compileDecorators(compiler: Compiler): StatementInterface[];
 
-            private _prepare(): void;
+            private _prepare(compiler: Compiler, initializationSymbol: string): void;
         }
     }
 }

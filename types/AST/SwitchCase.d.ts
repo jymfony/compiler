@@ -9,7 +9,6 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, test: null | ExpressionInterface, consequent: StatementInterface[]): void;
-
             constructor(location: SourceLocation, test: null | ExpressionInterface, consequent: StatementInterface[]);
 
             /**

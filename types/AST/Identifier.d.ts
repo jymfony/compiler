@@ -19,7 +19,6 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, name: string): void;
-
             constructor(location: SourceLocation, name: string);
 
             /**

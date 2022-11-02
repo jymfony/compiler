@@ -46,5 +46,12 @@ declare module "@jymfony/compiler" {
          * @internal
          */
         generateVariableName(): string;
+
+        /**
+         * Get data for reflection.
+         */
+        static getReflectionData(value: any): any;
+        static setExtraReflectionData(value: any, data: any): void;
+        private static pushReflectionData(typeId: number, data: AST.NodeInterface): void;
     }
 }

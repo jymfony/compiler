@@ -7,7 +7,6 @@ const BlockStatement = require('./BlockStatement');
 const CallExpression = require('./CallExpression');
 const ClassMemberInterface = require('./ClassMemberInterface');
 const ClassMethod = require('./ClassMethod');
-const EmptyStatement = require('./EmptyStatement');
 const ForOfStatement = require('./ForOfStatement');
 const Identifier = require('./Identifier');
 const IfStatement = require('./IfStatement');
@@ -16,6 +15,7 @@ const ReturnStatement = require('./ReturnStatement');
 const StringLiteral = require('./StringLiteral');
 const VariableDeclaration = require('./VariableDeclaration');
 const VariableDeclarator = require('./VariableDeclarator');
+const ExpressionStatement = require('./ExpressionStatement');
 
 class ClassAccessor extends implementationOf(ClassMemberInterface) {
     /**
@@ -214,11 +214,10 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
                     Variable.create('const', 'v', new CallExpression(null, new Identifier(null, 'initFn'), [ new Identifier(null, 'initialValue') ])),
                     new IfStatement(null,
                         new BinaryExpression(null, '!==', new Identifier(null, 'v'), Undefined.create()),
-                        new AssignmentExpression(null, '=', new Identifier(null, 'initialValue'), new Identifier(null, 'v'))
+                        new ExpressionStatement(null, new AssignmentExpression(null, '=', new Identifier(null, 'initialValue'), new Identifier(null, 'v')))
                     ),
                 ])
             ),
-            new EmptyStatement(null),
             new ReturnStatement(null, new Identifier(null, 'initialValue')),
         ])));
 

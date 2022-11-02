@@ -7,13 +7,8 @@ declare module "@jymfony/compiler" {
             /**
              * Constructor.
              */
-            __construct(location: SourceLocation, decorator: DecoratorDescriptor, args: ExpressionInterface[]): void;
-            constructor(location: SourceLocation, decorator: DecoratorDescriptor, args: ExpressionInterface[]);
-
-            /**
-             * Gets the decorator descriptor.
-             */
-            public readonly decorator: DecoratorDescriptor;
+            __construct(location: SourceLocation, expression: ExpressionInterface): void;
+            constructor(location: SourceLocation, expression: ExpressionInterface);
 
             /**
              * Gets the decorator expression.

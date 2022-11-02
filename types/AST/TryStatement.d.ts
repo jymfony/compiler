@@ -11,8 +11,9 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, block: BlockStatement, handler: CatchClause, finalizer: BlockStatement): void;
-
             constructor(location: SourceLocation, block: BlockStatement, handler: CatchClause, finalizer: BlockStatement);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

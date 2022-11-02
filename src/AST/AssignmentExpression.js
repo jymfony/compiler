@@ -40,13 +40,6 @@ class AssignmentExpression extends implementationOf(ExpressionInterface) {
     /**
      * @inheritdoc
      */
-    get shouldBeClosed() {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     compile(compiler) {
         compiler.compileNode(this._left);
         compiler._emit(' ' + this._operator + ' ');

@@ -7,12 +7,6 @@ declare module "@jymfony/compiler" {
              * The name of the class member.
              */
             public readonly key: ExpressionInterface;
-
-            /**
-             * Compiles the decorators.
-             * Code to be appended should be returned as an array of statements.
-             */
-            compileDecorators(compiler: Compiler, target: Class): StatementInterface[];
         }
     }
 }

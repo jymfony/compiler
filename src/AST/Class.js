@@ -18,6 +18,7 @@ const ReturnStatement = require('./ReturnStatement');
 const SpreadElement = require('./SpreadElement');
 const StringLiteral = require('./StringLiteral');
 const { getNextTypeId } = require('../TypeId');
+const ExpressionStatement = require('./ExpressionStatement');
 
 /**
  * @abstract
@@ -333,14 +334,17 @@ class Class extends implementationOf(NodeInterface) {
                                         Member.create(this._id, ...(member.static ? [] : [ 'prototype' ]), '#' + member.key.name),
                                         Member.create('Symbol', 'metadata'),
                                     ])),
-                                    new IfStatement(null, new BinaryExpression(null, '===', Undefined.create(), new Identifier(null, varName)), new CallExpression(null, Member.create('Object', 'defineProperty'), [
-                                        Member.create(this._id, ...(member.static ? [] : [ 'prototype' ]), '#' + member.key.name), Member.create('Symbol', 'metadata'), new ObjectExpression(null, [
-                                            new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'false')),
-                                            new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'false')),
-                                            new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
-                                            new ObjectProperty(null, new Identifier(null, 'value'), new CallExpression(null, new Identifier(null, 'Symbol'))),
-                                        ]) ]
-                                    )),
+                                    new IfStatement(null,
+                                        new BinaryExpression(null, '===', Undefined.create(), new Identifier(null, varName)),
+                                        new ExpressionStatement(null, new CallExpression(null, Member.create('Object', 'defineProperty'), [
+                                            Member.create(this._id, ...(member.static ? [] : [ 'prototype' ]), '#' + member.key.name), Member.create('Symbol', 'metadata'), new ObjectExpression(null, [
+                                                new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'false')),
+                                                new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'false')),
+                                                new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
+                                                new ObjectProperty(null, new Identifier(null, 'value'), new CallExpression(null, new Identifier(null, 'Symbol'))),
+                                            ]),
+                                        ]))
+                                    ),
                                     new ReturnStatement(null, new MemberExpression(null, Member.create(this._id, ...(member.static ? [] : [ 'prototype' ]), '#' + member.key.name), Member.create('Symbol', 'metadata'), true)),
                                 ]),
                             )
@@ -489,7 +493,7 @@ class Class extends implementationOf(NodeInterface) {
                 Variable.create('const', 'superCall', new MemberExpression(null, new Identifier(null, 'superClass'), Member.create('Symbol', '__jymfony_field_initialization'), true)),
                 new IfStatement(null,
                     new BinaryExpression(null, '!==', Undefined.create(), new MemberExpression(null, new Identifier(null, 'superClass'), Member.create('Symbol', '__jymfony_field_initialization'), true)),
-                    new CallExpression(null, Member.create('superCall', 'apply'), [ new Identifier(null, 'this') ]),
+                    new ExpressionStatement(null, new CallExpression(null, Member.create('superCall', 'apply'), [ new Identifier(null, 'this') ])),
                 ),
             ];
 

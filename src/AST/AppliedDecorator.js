@@ -182,9 +182,9 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
                     // Code: if (init !== undefined) { initializers.push(init); }
                     new IfStatement(null,
                         new BinaryExpression(null, '!==', new Identifier(null, 'init'), Undefined.create()),
-                        new CallExpression(null, Member.create(target.initializerIdentifier, 'push'), [
+                        new ExpressionStatement(null, new CallExpression(null, Member.create(target.initializerIdentifier, 'push'), [
                             new Identifier(null, 'init'),
-                        ]),
+                        ])),
                     ),
                 ])
             );

@@ -16,12 +16,12 @@ declare module "@jymfony/compiler" {
             constructor(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'constructor' | 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async, Private, Static }?: { generator?: boolean, async?: boolean, Private?: boolean, Static?: boolean });
 
             /**
-             * Gets the identifier.
+             * Gets the name of the method.
              */
-            public readonly id: any;
+            public readonly id: Identifier;
 
             /**
-             * Gets the identifier.
+             * Gets the method kind.
              */
             public readonly kind: 'constructor' | 'method' | 'get' | 'set';
 
@@ -34,11 +34,6 @@ declare module "@jymfony/compiler" {
              * Whether this method is private.
              */
             public readonly private: boolean;
-
-            /**
-             * @inheritdoc
-             */
-            compileDecorators(compiler: Compiler, target: Class): StatementInterface[];
 
             /**
              * @inheritdoc

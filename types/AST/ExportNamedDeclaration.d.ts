@@ -13,7 +13,6 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, declarations: VariableDeclaration, specifiers: ExportSpecifier[], source: Literal): void;
-
             constructor(location: SourceLocation, declarations: VariableDeclaration, specifiers: ExportSpecifier[], source: Literal);
 
             /**

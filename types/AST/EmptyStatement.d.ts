@@ -7,8 +7,9 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation): void;
-
             constructor(location: SourceLocation);
+
+            public readonly shouldBeClosed: boolean;
 
             /**
              * @inheritdoc

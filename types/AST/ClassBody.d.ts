@@ -32,6 +32,11 @@ declare module "@jymfony/compiler" {
              * @inheritdoc
              */
             compile(compiler: Compiler): void;
+
+            /**
+             * Returns a cloned body with excluded members.
+             */
+            withExcluded(...members: ClassMemberInterface[]): ClassBody;
         }
     }
 }

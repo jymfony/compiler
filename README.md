@@ -43,12 +43,7 @@ export default MyClass;
 
 ECMAScript decorators are supported.
 
-`@register` and `@initialize` builtin decorators are implemented and supported.
-
-##### ! TODO `@wrap` decorator needs to be implemented.
-
-You can build your own decorators composing builtin and imported decorators.  
-You can find some examples in `@jymfony/decorators` package.
+##### ! TODO support to decorator onto private instance fields/methods is missing.
 
 Resources
 ---------
