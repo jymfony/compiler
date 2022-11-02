@@ -353,7 +353,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                         const [ , mime, , base64, data ] = matchDataURI;
 
                         if (base64) {
-                            mapping = new Buffer(data, 'base64').toString('utf-8');
+                            mapping = Buffer.from(data, 'base64').toString('utf-8');
                         } else {
                             mapping = decodeURIComponent(data);
                         }

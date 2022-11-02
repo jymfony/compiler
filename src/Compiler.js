@@ -19,6 +19,8 @@ if (undefined === Object.getOwnPropertyDescriptor(Symbol, 'jymfony_private_acces
 }
 
 const nonFirstChars = 'abcdefghijklmnopqrstuvwxyz0123456789_';
+const reflectionData = new Map();
+const extraReflectionData = new Map();
 
 class Compiler {
     /**
@@ -73,13 +75,6 @@ class Compiler {
          * @type {int}
          */
         this.indentationLevel = 0;
-
-        /**
-         * @type {Map<int, *>}
-         *
-         * @private
-         */
-        this._reflectionData = new Map();
     }
 
     /**
@@ -204,12 +199,12 @@ class Compiler {
      *
      * @return {*}
      */
-    getReflectionData(value) {
+    static getReflectionData(value) {
         const typeId = value[Symbol.reflection];
-        const astObject = this._reflectionData.get(typeId);
+        const astObject = reflectionData.get(typeId);
 
         if (astObject instanceof AST.Class) {
-            const propertyNames = members
+            const propertyNames = astObject.body.members
                 .filter(m => m instanceof AST.ClassProperty)
                 .filter(m => m.key instanceof AST.Identifier)
                 .map(m => (m.private ? '#' : '') + m.key.name);
@@ -217,13 +212,38 @@ class Compiler {
             const methods = [];
             const fields = [];
 
-            for (const member of astObject.members) {
+            for (const member of astObject.body.members) {
                 if (member instanceof AST.ClassMethod) {
+                    if (!(member.key instanceof AST.Identifier)) {
+                        continue;
+                    }
+
+                    if ('constructor' === member.key.name || '__construct' === member.key.name) {
+                        continue;
+                    }
+
+                    const funcValue = (() => {
+                        if (member.private) {
+                            const accessors = value[Symbol.jymfony_private_accessors];
+                            const type = member.static ? 'staticMethods' : 'methods';
+
+                            return accessors && accessors[type] && accessors[type][member.key.name] ?
+                                accessors[type][member.key.name].call : undefined;
+                        }
+
+                        const obj = member.static ? value : value.prototype;
+                        const descriptor = Object.getOwnPropertyDescriptor(obj, member.key.name);
+
+                        return 'method' === (member.kind || 'method') ? descriptor.value : descriptor[member.kind];
+                    })();
+
                     methods.push({
-                        name: member.id instanceof AST.Identifier ? member.id.name : undefined,
-                        kind: member.kind,
+                        name: (member.private ? '#' : '') + member.key.name,
+                        kind: member.kind || 'method',
                         static: member.static,
                         private: member.private,
+                        value: funcValue,
+                        ownClass: value,
                     });
 
                     if ('constructor' === member.name || '__construct' === member.name) {
@@ -241,19 +261,21 @@ class Compiler {
                                 continue;
                             }
 
-                            const Private = declaredField.name.startsWith('#');
+                            if (declaredField.name.startsWith('#')) {
+                                continue;
+                            }
+
                             fields.push({
-                                name: Private ? declaredField.name.substring(1) : declaredField.name,
+                                name: declaredField.name,
                                 static: false,
-                                private: Private,
+                                private: false,
+                                get: (obj) => (member.static ? value : obj)[member.key.name],
+                                set: (obj, vv) => (member.static ? value : obj)[member.key.name] = vv,
+                                ownClass: value,
                             });
                         }
                     }
                 } else if (member instanceof AST.ClassProperty) {
-                    if (member instanceof AST.ClassPrototypeProperty) {
-                        continue;
-                    }
-
                     if (!(member.key instanceof AST.Identifier)) {
                         continue;
                     }
@@ -261,7 +283,8 @@ class Compiler {
                     const accessors = value[Symbol.jymfony_private_accessors];
                     const type = member.static ? 'staticFields' : 'fields';
                     fields.push({
-                        name: member.key.name,
+                        name: (member.private ? '#' : '') + member.key.name,
+                        kind: 'field',
                         static: member.static,
                         private: member.private,
                         get: member.private ?
@@ -269,19 +292,53 @@ class Compiler {
                             (obj) => (member.static ? value : obj)[member.key.name],
                         set: member.private ?
                             (accessors && accessors[type] && accessors[type]['#' + member.key.name] ? accessors[type]['#' + member.key.name].set : undefined) :
-                            (obj, value) => (member.static ? value : obj)[member.key.name] = value,
+                            (obj, vv) => (member.static ? value : obj)[member.key.name] = vv,
+                        ownClass: value,
+                    });
+                } else if (member instanceof AST.ClassAccessor) {
+                    if (!(member.key instanceof AST.Identifier)) {
+                        continue;
+                    }
+
+                    const accessors = value[Symbol.jymfony_private_accessors];
+                    const type = member.static ? 'staticFields' : 'fields';
+
+                    const descriptor = !member.private ? Object.getOwnPropertyDescriptor(member.static ? value : value.prototype, member.key.name) : {
+                        get: accessors && accessors[type] && accessors[type]['#' + member.key.name] ? accessors[type]['#' + member.key.name].get : undefined,
+                        set: accessors && accessors[type] && accessors[type]['#' + member.key.name] ? accessors[type]['#' + member.key.name].set : undefined,
+                    };
+
+                    fields.push({
+                        name: (member.private ? '#' : '') + member.key.name,
+                        kind: 'accessor',
+                        static: member.static,
+                        private: member.private,
+                        get: descriptor.get,
+                        set: descriptor.set,
+                        ownClass: value,
                     });
                 } else {
-                    debugger;
+                    throw new Error('Unexpected. Err: reflection_class_body_1');
                 }
             }
 
             return {
+                ...(extraReflectionData.get(typeId) || {}),
+                constructor: value.definition ? null : value,
                 methods,
                 fields,
             };
         }
-        debugger;
+
+        throw new Error('Unexpected. Err: reflection_ast_1');
+    }
+
+    static setExtraReflectionData(value, data) {
+        extraReflectionData.set(value[Symbol.reflection], data);
+    }
+
+    static pushReflectionData(typeId, data) {
+        reflectionData.set(typeId, data);
     }
 }
 

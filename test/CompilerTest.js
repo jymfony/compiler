@@ -6,6 +6,7 @@ const Parser = require('../src/Parser');
 const { expect } = require('chai');
 const { runInNewContext } = require('vm');
 const seedrandom = require('seedrandom');
+const {getNextTypeId} = require('../src/TypeId');
 
 describe('[Compiler] Compiler', function () {
     const parser = new Parser();
@@ -78,7 +79,8 @@ export default class ClassA extends ClassB {
 
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`class ClassB extends __jymfony.JObject {
+            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
+class ClassB extends __jymfony.JObject {
   #internal;
   static get [Symbol.jymfony_private_accessors]() {
     return {
@@ -96,22 +98,27 @@ export default class ClassA extends ClassB {
       },
     };
   }
+  static [αa_initialize_class_fields]() {
+    Object.defineProperty(ClassB,Symbol.reflection,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: 390831,
+    });
+    Object.defineProperty(ClassB,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+  }
 }
-Object.defineProperty(ClassB,Symbol.reflection,{
-  writable: false,
-  enumerable: false,
-  configurable: true,
-  value: 390831,
-});
-Object.defineProperty(ClassB,Symbol.metadata,{
-  writable: false,
-  enumerable: false,
-  configurable: true,
-  value: Symbol(),
-});
+ClassB[αa_initialize_class_fields]();
 const ClassA = (() => {
+  const αb_initialize_class_fields = Symbol();
   let ClassA = class ClassA extends ClassB {
     #internal;
+    initialized = false;
     constructor() {
       super();
       this.#internal = 'internal';
@@ -133,13 +140,21 @@ const ClassA = (() => {
         },
       };
     }
+    static [αb_initialize_class_fields]() {
+      Object.defineProperty(ClassA,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390832,
+      });
+      Object.defineProperty(ClassA,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+    }
   }
-  Object.defineProperty(ClassA,Symbol.reflection,{
-    writable: false,
-    enumerable: false,
-    configurable: true,
-    value: 390832,
-  });
   Object.defineProperty(ClassA.prototype,Symbol.__jymfony_field_initialization,{
     writable: false,
     enumerable: false,
@@ -157,12 +172,7 @@ const ClassA = (() => {
       });
     },
   });
-  Object.defineProperty(ClassA,Symbol.metadata,{
-    writable: false,
-    enumerable: false,
-    configurable: true,
-    value: Symbol(),
-  });
+  ClassA[αb_initialize_class_fields]();
   ;
   
   return ClassA;
@@ -174,7 +184,7 @@ exports.default = ClassA;
         }
     });
 
-    it ('should handle error stack correctly', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
+    it ('should handle error stack correctly', __jymfony.version_compare(process.versions.node, '12', '<') ? (getNextTypeId(), undefined) : () => {
         const program = parser.parse(`
 class x {
     constructor(shouldThrow = false) {
@@ -198,7 +208,7 @@ new x(true);
             runInNewContext(compiled, { Symbol }, { filename: 'x.js' });
             throw new Error('FAIL');
         } catch (e) {
-            expect(e.stack.startsWith(`x.js:4
+            expect(e.stack.startsWith(`x.js:5
       throw new Error('Has to be thrown');
       ^
 
@@ -210,11 +220,10 @@ Has to be thrown
     });
 
     it ('should read and adapt multiple source map', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
-        const program = parser.parse(`class x {
-    constructor(shouldThrow = false) {
-        if (shouldThrow) {
-            throw new Error('Has to be thrown');
-        }
+        const program = parser.parse(`
+function x(shouldThrow = false) {
+    if (shouldThrow) {
+        throw new Error('Has to be thrown');
     }
 }
 
@@ -235,14 +244,14 @@ new x(true);
             runInNewContext(recompiled, { Symbol }, { filename: 'x.ts' });
             throw new Error('FAIL');
         } catch (e) {
-            expect(e.stack.startsWith(`x.ts:4
-      throw new Error('Has to be thrown');
-      ^
+            expect(e.stack.startsWith(`x.ts:3
+    throw new Error('Has to be thrown');
+    ^
 
 Has to be thrown
 
-    at new x (x.ts:4:18)
-    at x.ts:10:0`)).to.be.true;
+    at new x (x.ts:4:14)
+    at x.ts:9:0`)).to.be.true;
         }
     });
 
@@ -309,29 +318,33 @@ const x = new class {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const x = new ((() => {
+  const αa_initialize_class_fields = Symbol();
   let _anonymous_xΞ518e6 = class _anonymous_xΞ518e6 extends __jymfony.JObject {
     getFoo() {
       
     }
+    static [αa_initialize_class_fields]() {
+      Object.defineProperty(_anonymous_xΞ518e6,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390834,
+      });
+      Object.defineProperty(_anonymous_xΞ518e6,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      Object.defineProperty(_anonymous_xΞ518e6.prototype.getFoo,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+    }
   }
-  Object.defineProperty(_anonymous_xΞ518e6,Symbol.reflection,{
-    writable: false,
-    enumerable: false,
-    configurable: true,
-    value: 390836,
-  });
-  Object.defineProperty(_anonymous_xΞ518e6,Symbol.metadata,{
-    writable: false,
-    enumerable: false,
-    configurable: true,
-    value: Symbol(),
-  });
-  Object.defineProperty(_anonymous_xΞ518e6.prototype.getFoo,Symbol.metadata,{
-    writable: false,
-    enumerable: false,
-    configurable: true,
-    value: Symbol(),
-  });
+  _anonymous_xΞ518e6[αa_initialize_class_fields]();
   ;
   
   return _anonymous_xΞ518e6;

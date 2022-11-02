@@ -1,5 +1,6 @@
 const { Iife, Undefined, Variable } = require('../Generator');
 const AssignmentExpression = require('./AssignmentExpression');
+const Argument = require('./Argument');
 const ArrayExpression = require('./ArrayExpression');
 const BinaryExpression = require('./BinaryExpression');
 const BlockStatement = require('./BlockStatement');
@@ -174,15 +175,18 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
         compiler._emit(';');
         compiler.newLine();
 
-        const getter = new ClassMethod(null, new BlockStatement(null, [
+        const getter = new ClassMethod(this.location, new BlockStatement(null, [
             new ReturnStatement(null, new MemberExpression(null, new Identifier(null, 'this'), new StringLiteral(null, this._privateSymbolIdentifier.name), true)),
         ]), this.key, 'get', [], { Static: this.static });
-        const setter = new ClassMethod(null, new BlockStatement(null, [
+
+        const arg = new Argument(null, new Identifier(null, 'value'));
+        arg.decorators = [];
+        const setter = new ClassMethod(this.location, new BlockStatement(null, [
             new AssignmentExpression(null, '=',
                 new MemberExpression(null, new Identifier(null, 'this'), new StringLiteral(null, this._privateSymbolIdentifier.name), true),
                 new Identifier(null, 'value')
             ),
-        ]), this.key, 'set', [ new Identifier(null, 'value') ], { Static: this.static });
+        ]), this.key, 'set', [ arg ], { Static: this.static });
 
         class_.body.addMember(getter);
         class_.body.addMember(setter);

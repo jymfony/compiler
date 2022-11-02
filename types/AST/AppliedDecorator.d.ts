@@ -23,7 +23,7 @@ declare module "@jymfony/compiler" {
             /**
              * Compiles a decorator.
              */
-            compile(compiler: Compiler, class_?: Class, target?: Class | ClassMemberInterface, targetRef: ValueHolder<Class|ClassMemberInterface>, privateSymbol: Identifier, originalName: ExpressionInterface, targetKind: 'constructor' | 'method' | 'get' | 'set'): StatementInterface[];
+            compile(compiler: Compiler, class_: Class, target: Class | ClassMemberInterface | Argument, parameterIndex?: number): StatementInterface[];
         }
     }
 }

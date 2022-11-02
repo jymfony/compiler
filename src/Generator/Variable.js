@@ -17,6 +17,10 @@ class Variable {
             id = new Identifier(null, id);
         }
 
+        if ('string' === typeof init) {
+            init = new Identifier(null, init);
+        }
+
         return new VariableDeclaration(null, kind, [
             new VariableDeclarator(null, id, init),
         ]);

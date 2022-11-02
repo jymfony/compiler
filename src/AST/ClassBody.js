@@ -65,6 +65,21 @@ class ClassBody extends implementationOf(NodeInterface) {
             compiler.compileNode(member);
         }
     }
+
+    /**
+     * Returns a cloned body with excluded members.
+     *
+     * @param {ClassMemberInterface} members
+     *
+     * @return {ClassBody}
+     */
+    withExcluded(...members) {
+        const cloned = new ClassBody();
+        cloned.location = this.location;
+        cloned._body = [ ...this._body ].filter(m => !members.includes(m));
+
+        return cloned;
+    }
 }
 
 module.exports = ClassBody;

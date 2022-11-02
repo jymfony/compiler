@@ -1,6 +1,9 @@
 const Class = require('./Class');
 const ExpressionInterface = require('./ExpressionInterface');
 const StatementInterface = require('./StatementInterface');
+const {Variable} = require('../Generator');
+const CallExpression = require('./CallExpression');
+const Identifier = require('./Identifier');
 
 class ClassExpression extends mix(Class, ExpressionInterface) {
     compile(compiler) {
@@ -17,8 +20,13 @@ class ClassExpression extends mix(Class, ExpressionInterface) {
 
         const tail = this.compileDecorators(compiler);
 
+        const initialization = compiler.generateVariableName() + '_initialize_class_fields';
+        compiler.compileNode(Variable.create('const', initialization, new CallExpression(null, new Identifier(null, 'Symbol'))));
+        compiler._emit(';');
+        compiler.newLine();
+
         compiler._emit('let ' + id.name + ' = ');
-        super.compile(compiler);
+        super.compile(compiler, initialization);
         compiler._emit(';');
         compiler.newLine();
 

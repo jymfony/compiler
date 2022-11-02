@@ -21,7 +21,6 @@ module.exports = {
     ClassExpression: require('./ClassExpression'),
     ClassMethod: require('./ClassMethod'),
     ClassProperty: require('./ClassProperty'),
-    ClassPrototypeProperty: require('./ClassPrototypeProperty'),
     Comment: require('./Comment'),
     ConditionalExpression: require('./ConditionalExpression'),
     ContinueStatement: require('./ContinueStatement'),
