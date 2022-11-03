@@ -213,7 +213,7 @@ class Class extends implementationOf(NodeInterface) {
 
         compiler.indentationLevel++;
         compiler._emit(' {');
-        compiler.compileNode(this._body.withExcluded(this._initializableFields));
+        compiler.compileNode(this._body.withExcluded(...(this._initializableFields.filter(p => !p.static && !p.private))));
         compiler.indentationLevel--;
         compiler.newLine();
         compiler._emit('}');
@@ -444,31 +444,28 @@ class Class extends implementationOf(NodeInterface) {
             ));
         }
 
-        const fieldsInitializers = this._initializableFields.map(p => {
-            __assert(!p.static);
+        this.body.addMember(LazyNode.create(() => {
+            const fieldsInitializers = this._initializableFields.map(p => {
+                __assert(!p.static);
+                if (p.private) {
+                    return null;
+                }
 
-            const value = p.value;
-            p.clearValue();
-            if (p.private) {
-                __assert(p.key instanceof Identifier);
+                const value = p.value;
+                p.clearValue();
 
                 return new AssignmentExpression(
                     p.location,
                     '=',
-                    Member.create('this', '#' + p.key.name),
+                    new MemberExpression(null, new Identifier(null, 'this'), p.key, !(p.key instanceof Identifier)),
                     null !== value ? value : Undefined.create()
                 );
+            }).filter(i => !!i);
+
+            if (0 === fieldsInitializers.length) {
+                return null;
             }
 
-            return new AssignmentExpression(
-                p.location,
-                '=',
-                new MemberExpression(null, new Identifier(null, 'this'), p.key, !(p.key instanceof Identifier)),
-                null !== value ? value : Undefined.create()
-            );
-        }).filter(i => !!i);
-
-        if (fieldsInitializers.length) {
             const parentCall = [
                 Variable.create('const', 'superClass', new CallExpression(null, Member.create('Object', 'getPrototypeOf'), [ Member.create(this._id, 'prototype') ])),
                 Variable.create('const', 'superCall', new MemberExpression(null, new Identifier(null, 'superClass'), Member.create('Symbol', '__jymfony_field_initialization'), true)),
@@ -477,13 +474,6 @@ class Class extends implementationOf(NodeInterface) {
                     new ExpressionStatement(null, new CallExpression(null, Member.create('superCall', 'apply'), [ new Identifier(null, 'this') ])),
                 ),
             ];
-
-            this.body.addMember(new ClassMethod(
-                null,
-                new BlockStatement(null, [ ...parentCall, ...fieldsInitializers ]),
-                Member.create('Symbol', '__jymfony_field_initialization'),
-                'method',
-            ));
 
             this._initialization.push(new CallExpression(
                 this.location,
@@ -499,7 +489,14 @@ class Class extends implementationOf(NodeInterface) {
                     ]),
                 ]
             ));
-        }
+
+            return new ClassMethod(
+                null,
+                new BlockStatement(null, [ ...parentCall, ...fieldsInitializers ]),
+                Member.create('Symbol', '__jymfony_field_initialization'),
+                'method',
+            );
+        }));
 
         this.body.addMember(
             LazyNode.create(() => {

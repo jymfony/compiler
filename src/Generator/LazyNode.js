@@ -14,8 +14,16 @@ class LazyNode {
                 return null;
             }
 
+            get lazyNode() {
+                return true;
+            }
+
             compile(compiler) {
                 const node = callback();
+                if (node === null) {
+                    return;
+                }
+
                 node.compile(compiler);
             }
         }();

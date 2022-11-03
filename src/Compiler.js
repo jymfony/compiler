@@ -202,19 +202,26 @@ class Compiler {
     static getReflectionData(value) {
         const typeId = value[Symbol.reflection];
         const astObject = reflectionData.get(typeId);
+        let name;
 
         if (astObject instanceof AST.Class) {
+            const accessors = astObject.body.members.filter(m => m instanceof AST.ClassAccessor);
             const propertyNames = astObject.body.members
-                .filter(m => m instanceof AST.ClassProperty)
+                .filter(m => (m instanceof AST.ClassProperty || m instanceof AST.ClassAccessor))
                 .filter(m => m.key instanceof AST.Identifier)
                 .map(m => (m.private ? '#' : '') + m.key.name);
 
             const methods = [];
             const fields = [];
+            name = astObject.name;
 
             for (const member of astObject.body.members) {
                 if (member instanceof AST.ClassMethod) {
                     if (!(member.key instanceof AST.Identifier)) {
+                        continue;
+                    }
+
+                    if (member.origin && accessors.includes(member.origin)) {
                         continue;
                     }
 
@@ -265,8 +272,8 @@ class Compiler {
                                 name: declaredField.name,
                                 static: false,
                                 private: false,
-                                get: (obj) => (member.static ? value : obj)[member.key.name],
-                                set: (obj, vv) => (member.static ? value : obj)[member.key.name] = vv,
+                                get: (obj) => obj[declaredField.name],
+                                set: (obj, vv) => obj[declaredField.name] = vv,
                                 ownClass: value,
                             });
                         }
@@ -299,7 +306,18 @@ class Compiler {
                     const accessors = value[Symbol.jymfony_private_accessors];
                     const type = member.static ? 'staticFields' : 'fields';
 
-                    const descriptor = !member.private ? Object.getOwnPropertyDescriptor(member.static ? value : value.prototype, member.key.name) : {
+                    const descriptor = !member.private ? (() => {
+                        const desc = Object.getOwnPropertyDescriptor(member.static ? value : value.prototype, member.key.name);
+                        const ret = {
+                            get: obj => desc.get.call(obj),
+                            set: (obj, vv) => desc.set.call(obj, vv),
+                        };
+
+                        ret.get[Symbol.metadata] = desc.get[Symbol.metadata];
+                        ret.set[Symbol.metadata] = desc.set[Symbol.metadata];
+
+                        return ret;
+                    })() : {
                         get: accessors && accessors[type] && accessors[type]['#' + member.key.name] ? accessors[type]['#' + member.key.name].get : undefined,
                         set: accessors && accessors[type] && accessors[type]['#' + member.key.name] ? accessors[type]['#' + member.key.name].set : undefined,
                     };
@@ -313,13 +331,17 @@ class Compiler {
                         set: descriptor.set,
                         ownClass: value,
                     });
+                } else if (member.lazyNode) {
+                    // Do nothing
                 } else {
                     throw new Error('Unexpected. Err: reflection_class_body_1');
                 }
             }
 
             return {
-                ...(extraReflectionData.get(typeId) || {}),
+                ...(extraReflectionData.get(typeId) || {
+                    fqcn: name,
+                }),
                 constructor: value.definition ? null : value,
                 methods,
                 fields,

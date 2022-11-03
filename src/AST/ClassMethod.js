@@ -41,6 +41,11 @@ class ClassMethod extends mix(Function, ClassMemberInterface) {
         this._private = Private;
 
         /**
+         * @type {NodeInterface}
+         */
+        this.origin = null;
+
+        /**
          * @type {null|string}
          */
         this.docblock = null;

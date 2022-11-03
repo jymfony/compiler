@@ -7,6 +7,7 @@ const BlockStatement = require('./BlockStatement');
 const CallExpression = require('./CallExpression');
 const ClassMemberInterface = require('./ClassMemberInterface');
 const ClassMethod = require('./ClassMethod');
+const ClassProperty = require('./ClassProperty');
 const ForOfStatement = require('./ForOfStatement');
 const Identifier = require('./Identifier');
 const IfStatement = require('./IfStatement');
@@ -178,6 +179,7 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
         const getter = new ClassMethod(this.location, new BlockStatement(null, [
             new ReturnStatement(null, new MemberExpression(null, new Identifier(null, 'this'), new StringLiteral(null, this._privateSymbolIdentifier.name), true)),
         ]), this.key, 'get', [], { Static: this.static });
+        getter.origin = this;
 
         const arg = new Argument(null, new Identifier(null, 'value'));
         arg.decorators = [];
@@ -187,16 +189,23 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
                 new Identifier(null, 'value')
             ),
         ]), this.key, 'set', [ arg ], { Static: this.static });
+        setter.origin = this;
 
         class_.body.addMember(getter);
         class_.body.addMember(setter);
+
+        if (!this._static) {
+            class_._initializableFields.push(new ClassProperty(null,
+                new StringLiteral(null, this._privateSymbolIdentifier.name),
+                this._getIife(),
+                false,
+                false,
+            ));
+        }
     }
 
-    /**
-     * @inheritdoc
-     */
-    compile(compiler) {
-        const initIife = Iife.create(new BlockStatement(null, [
+    _getIife() {
+        return Iife.create(new BlockStatement(null, [
             Variable.create('let', 'initialValue', null === this._value ? Undefined.create() : this._value),
             new ForOfStatement(null,
                 Variable.create('const', 'initFn'),
@@ -211,25 +220,19 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
             ),
             new ReturnStatement(null, new Identifier(null, 'initialValue')),
         ]));
+    }
 
+    /**
+     * @inheritdoc
+     */
+    compile(compiler) {
         if (this._static) {
-            compiler._emit('static ');
-
-            compiler._emit('[');
-            compiler.compileNode(this._privateSymbolIdentifier);
-            compiler._emit(']');
-
-            compiler._emit(' = ');
-            compiler.compileNode(initIife);
-
-            compiler._emit(';');
-            compiler.newLine();
-        } else {
-            this._class._initialization.push(new AssignmentExpression(null,
-                '=',
-                new MemberExpression(null, new Identifier(null, 'this'), this._privateSymbolIdentifier, true),
-                initIife
-            ));
+            new ClassProperty(null,
+                new StringLiteral(null, this._privateSymbolIdentifier.name),
+                this._getIife(),
+                true,
+                false,
+            ).compile(compiler);
         }
 
     }

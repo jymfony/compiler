@@ -443,7 +443,6 @@ class x {
         const compiled = compiler.compile(program);
         expect(compiled).to.be.eq(`const αa_initialize_class_fields = Symbol();
 class x extends __jymfony.JObject {
-  field;
   [Symbol.__jymfony_field_initialization]() {
     const superClass = Object.getPrototypeOf(x.prototype);
     const superCall = superClass[Symbol.__jymfony_field_initialization];
@@ -574,12 +573,12 @@ const logger = {
 const αe_x_accessor_fieldAccΞa85de = Symbol(), αe_x_accessor_fieldAccΞa85de_init = [  ];
 const αm_initialize_class_fields = Symbol();
 class x extends __jymfony.JObject {
-  field;
   
   test() {
     const cc = (() => {
       const αo_initialize_class_fields = Symbol();
       let _anonymous_xΞ5d6ae = class _anonymous_xΞ5d6ae extends __jymfony.JObject {
+        
         static [αo_initialize_class_fields]() {
           Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.reflection,{
             writable: false,
@@ -634,6 +633,17 @@ class x extends __jymfony.JObject {
     if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
       superCall.apply(this);
     
+    this[αe_x_accessor_fieldAccΞa85de] = (() => {
+      let initialValue = 'foobar';
+      for (const initFn of αe_x_accessor_fieldAccΞa85de_init){
+        const v = initFn(initialValue);
+        if (v !== undefined) 
+          initialValue = v;
+        
+        
+      }
+      return initialValue;
+    })();
     this.field = (() => {
       let αd = initialize((instance,key,value) => {
         
@@ -765,17 +775,6 @@ class x extends __jymfony.JObject {
       configurable: true,
       value: x.prototype[Symbol.__jymfony_field_initialization],
     });
-    this[αe_x_accessor_fieldAccΞa85de] = (() => {
-      let initialValue = 'foobar';
-      for (const initFn of αe_x_accessor_fieldAccΞa85de_init){
-        const v = initFn(initialValue);
-        if (v !== undefined) 
-          initialValue = v;
-        
-        
-      }
-      return initialValue;
-    })();
     {
       const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc");
       let { get: newGet = oldGet, set: newSet = oldSet, init } = (() => {
@@ -1093,6 +1092,7 @@ const ANNOTATION_TARGET_CLASS = αa.ANNOTATION_TARGET_CLASS;
 const ANNOTATION_TARGET_FUNCTION = αa.ANNOTATION_TARGET_FUNCTION;
 const αc_initialize_class_fields = Symbol();
 class TestAnnotation extends __jymfony.JObject {
+  
   static [αc_initialize_class_fields]() {
     Object.defineProperty(TestAnnotation,Symbol.reflection,{
       writable: false,
@@ -1124,6 +1124,7 @@ exports.TestAnnotation = TestAnnotation;
 const TestConstClassAnnotation = (() => {
   const αe_initialize_class_fields = Symbol();
   let _anonymous_xΞ96888 = class _anonymous_xΞ96888 extends __jymfony.JObject {
+    
     static [αe_initialize_class_fields]() {
       Object.defineProperty(_anonymous_xΞ96888,Symbol.reflection,{
         writable: false,
@@ -1182,6 +1183,7 @@ const RoutableClass = (() => {
     getAction() {
       
     }
+    
     static [αe_initialize_class_fields]() {
       Object.defineProperty(RoutableClass,Symbol.reflection,{
         writable: false,
@@ -1307,6 +1309,7 @@ const TypedPrivateMethodClass = (() => {
         },
       };
     }
+    
     static [αb_initialize_class_fields]() {
       Object.defineProperty(TypedPrivateMethodClass,Symbol.reflection,{
         writable: false,
