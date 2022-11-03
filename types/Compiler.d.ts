@@ -1,6 +1,8 @@
 declare module "@jymfony/compiler" {
     export class Compiler {
         public readonly code: string;
+        public readonly currentFilename: string;
+        public readonly currentNamespace: string;
         public indentationLevel: number;
 
         private _code: string;
@@ -9,6 +11,8 @@ declare module "@jymfony/compiler" {
         private _line: number;
         private _column: number;
         private _variableCount: number;
+        private _filename: string;
+        private _namespace: string;
 
         /**
          * Constructor.
@@ -30,7 +34,7 @@ declare module "@jymfony/compiler" {
          */
         popLocation(): void;
 
-        compile(program: AST.Program): string;
+        compile(program: AST.Program, data?: { filename?: string, namespace?: string }): string;
 
         /**
          * Emits a code string.

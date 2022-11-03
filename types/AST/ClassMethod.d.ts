@@ -3,6 +3,7 @@ declare module "@jymfony/compiler" {
         class ClassMethod extends mix(Function, ClassMemberInterface) {
             public location: SourceLocation;
             public docblock: null | string;
+            public origin: NodeInterface;
 
             private _kind: 'constructor' | 'method' | 'get' | 'set';
             private _static: boolean;

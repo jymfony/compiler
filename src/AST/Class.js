@@ -1,4 +1,4 @@
-const { Member, Undefined, Variable, LazyNode} = require('../Generator');
+const { LazyNode, Member, Undefined, Variable } = require('../Generator');
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
 const BinaryExpression = require('./BinaryExpression');

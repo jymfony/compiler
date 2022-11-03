@@ -9,7 +9,6 @@ declare module "@jymfony/compiler" {
             private _body: ClassBody;
             private _id: Identifier;
             private _superClass: ExpressionInterface | null;
-            private _fieldInitializer: ExpressionInterface | null;
             private _initialization: ExpressionInterface[];
             private _initializableFields: ClassProperty[];
 
