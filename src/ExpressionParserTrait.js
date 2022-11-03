@@ -173,9 +173,11 @@ class ExpressionParserTrait {
             } break;
 
             case Lexer.T_CLASS: {
-                expression = new AST.ClassExpression(...this._parseClass());
-                expression.decorators = this._pendingDecorators;
+                const decorators = this._pendingDecorators;
                 this._pendingDecorators = [];
+
+                expression = new AST.ClassExpression(...this._parseClass());
+                expression.decorators = decorators;
             } break;
 
             case Lexer.T_ASYNC: {

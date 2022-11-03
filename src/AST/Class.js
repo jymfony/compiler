@@ -520,7 +520,7 @@ class Class extends implementationOf(NodeInterface) {
     /**
      * Compiles the decorators upon this class.
      *
-     * @param {Jymfony.Component.Autoloader.Parser.Compiler} compiler
+     * @param {Compiler} compiler
      *
      * @returns {StatementInterface[]}
      */

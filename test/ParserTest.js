@@ -2,7 +2,6 @@ const { dirname, sep } = require('path');
 const { readdirSync, readFileSync } = require('fs');
 const ClassLoader = Jymfony.Component.Autoloader.ClassLoader;
 const Compiler = require('../src/Compiler');
-const DescriptorStorage = Jymfony.Component.Autoloader.DescriptorStorage;
 const Generator = require('../src/SourceMap/Generator');
 const Parser = require('../src/Parser');
 const { expect } = require('chai');
@@ -87,7 +86,6 @@ describe('[Compiler] Parser', function () {
 
         it ('should pass ' + filename + ' test', ignored.includes(filename) ? undefined : () => {
             const fn = folder + sep + 'pass' + sep + filename;
-            parser._descriptorStorage = new DescriptorStorage(new ClassLoader(__jymfony.autoload.finder, require('path'), require('vm')), fn);
 
             const content = readFileSync(fn, { encoding: 'utf-8' });
             const program = parser.parse(content);
@@ -1164,9 +1162,10 @@ exports.TestConstClassAnnotation = TestConstClassAnnotation;
         seedrandom('decorators', { global: true });
         const program = parser.parse(`import { Get, Route } from '../src';
 
+export default
 @Route({ path: '/foobar' })
 @Route('/barbar')
-export default class RoutableClass {
+class RoutableClass {
     @Get('/get')
     getAction() {}
 }

@@ -381,6 +381,7 @@ class Compiler {
                 constructor: value.definition ? null : value,
                 methods,
                 fields,
+                docblock: astObject.docblock,
             };
         }
 
