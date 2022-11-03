@@ -6,7 +6,6 @@ const Parser = require('../src/Parser');
 const { expect } = require('chai');
 const { runInNewContext } = require('vm');
 const seedrandom = require('seedrandom');
-const {getNextTypeId} = require('../src/TypeId');
 
 describe('[Compiler] Compiler', function () {
     const parser = new Parser();
@@ -183,7 +182,7 @@ exports.default = ClassA;
         }
     });
 
-    it ('should handle error stack correctly', __jymfony.version_compare(process.versions.node, '12', '<') ? (getNextTypeId(), undefined) : () => {
+    it ('should handle error stack correctly', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
         const program = parser.parse(`
 class x {
     constructor(shouldThrow = false) {

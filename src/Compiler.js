@@ -27,8 +27,11 @@ class Compiler {
      * Constructor.
      *
      * @param {Generator} sourceMapGenerator
+     * @param {{filename?: string, namespace?: string}} data
      */
-    constructor(sourceMapGenerator) {
+    constructor(sourceMapGenerator, data = undefined) {
+        const { filename = '/program.js', namespace = '' } = data || {};
+
         /**
          * @type {string}
          *
@@ -72,9 +75,41 @@ class Compiler {
         this._variableCount = 1;
 
         /**
+         * @type {string}
+         *
+         * @private
+         */
+        this._filename = filename;
+
+        /**
+         * @type {string}
+         *
+         * @private
+         */
+        this._namespace = namespace;
+
+        /**
          * @type {int}
          */
         this.indentationLevel = 0;
+    }
+
+    /**
+     * Gets the current filename.
+     *
+     * @return {string}
+     */
+    get currentFilename() {
+        return this._filename;
+    }
+
+    /**
+     * Gets the current namespace.
+     *
+     * @return {string}
+     */
+    get currentNamespace() {
+        return this._namespace;
     }
 
     /**
@@ -201,7 +236,7 @@ class Compiler {
      */
     static getReflectionData(value) {
         const typeId = value[Symbol.reflection];
-        const astObject = reflectionData.get(typeId);
+        const { ast: astObject, filename, namespace } = reflectionData.get(typeId);
         let name;
 
         if (astObject instanceof AST.Class) {
@@ -339,9 +374,10 @@ class Compiler {
             }
 
             return {
-                ...(extraReflectionData.get(typeId) || {
-                    fqcn: name,
-                }),
+                ...(extraReflectionData.get(typeId) || {}),
+                fqcn: (namespace ? namespace + '.' : '') + name,
+                namespace: namespace,
+                filename,
                 constructor: value.definition ? null : value,
                 methods,
                 fields,

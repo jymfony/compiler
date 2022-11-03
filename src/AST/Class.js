@@ -266,7 +266,11 @@ class Class extends implementationOf(NodeInterface) {
             )
         );
 
-        compiler.constructor.pushReflectionData(this._typeId, this);
+        compiler.constructor.pushReflectionData(this._typeId, {
+            ast: this,
+            filename: compiler.currentFilename,
+            namespace: compiler.currentNamespace,
+        });
 
         const members = this._body.members;
         const fields = [];

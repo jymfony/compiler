@@ -20,7 +20,7 @@ class LazyNode {
 
             compile(compiler) {
                 const node = callback();
-                if (node === null) {
+                if (null === node) {
                     return;
                 }
 
