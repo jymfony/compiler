@@ -5,6 +5,7 @@ const req = module => new __jymfony.ManagedProxy(global.Function, proxy => {
 
 module.exports = {
     Iife: req('./Iife'),
+    LazyNode: req('./LazyNode'),
     Member: req('./Member'),
     New: req('./New'),
     Null: req('./Null'),

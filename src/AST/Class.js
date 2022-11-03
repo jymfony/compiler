@@ -1,4 +1,4 @@
-const { Member, Undefined, Variable } = require('../Generator');
+const { Member, Undefined, Variable, LazyNode} = require('../Generator');
 const ArrowFunctionExpression = require('./ArrowFunctionExpression');
 const AssignmentExpression = require('./AssignmentExpression');
 const BinaryExpression = require('./BinaryExpression');
@@ -6,7 +6,7 @@ const BlockStatement = require('./BlockStatement');
 const CallExpression = require('./CallExpression');
 const ClassMethod = require('./ClassMethod');
 const ClassProperty = require('./ClassProperty');
-const FunctionExpression = require('./FunctionExpression');
+const ExpressionStatement = require('./ExpressionStatement');
 const Identifier = require('./Identifier');
 const IfStatement = require('./IfStatement');
 const MemberExpression = require('./MemberExpression');
@@ -16,9 +16,9 @@ const ObjectExpression = require('./ObjectExpression');
 const ObjectProperty = require('./ObjectProperty');
 const ReturnStatement = require('./ReturnStatement');
 const SpreadElement = require('./SpreadElement');
+const StatementInterface = require('./StatementInterface');
 const StringLiteral = require('./StringLiteral');
 const { getNextTypeId } = require('../TypeId');
-const ExpressionStatement = require('./ExpressionStatement');
 
 /**
  * @abstract
@@ -75,13 +75,6 @@ class Class extends implementationOf(NodeInterface) {
          * @private
          */
         this._typeId = getNextTypeId();
-
-        /**
-         * @type {ExpressionInterface | null}
-         *
-         * @private
-         */
-        this._fieldInitializer = null;
 
         /**
          * @type {ExpressionInterface[]}
@@ -225,25 +218,6 @@ class Class extends implementationOf(NodeInterface) {
         compiler.newLine();
         compiler._emit('}');
         compiler.newLine();
-
-        if (null !== this._fieldInitializer) {
-            compiler.compileNode(new CallExpression(
-                this.location,
-                Member.create('Object', 'defineProperty'),
-                [
-                    Member.create(this._id, 'prototype'),
-                    this._fieldInitializer.id,
-                    new ObjectExpression(null, [
-                        new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'false')),
-                        new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'false')),
-                        new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
-                        new ObjectProperty(null, new Identifier(null, 'value'), this._fieldInitializer),
-                    ]),
-                ]
-            ));
-            compiler._emit(';');
-            compiler.newLine();
-        }
 
         compiler.compileNode(new CallExpression(null, new MemberExpression(null, this._id, new StringLiteral(null, initialization), true)));
         compiler._emit(';');
@@ -440,7 +414,7 @@ class Class extends implementationOf(NodeInterface) {
 
                 if (member instanceof ClassProperty) {
                     initReflection(member);
-                    if (!member.static && !member.private) {
+                    if (!member.static) {
                         this._initializableFields.push(member);
                     }
                 } else if (member instanceof ClassAccessor) {
@@ -471,19 +445,26 @@ class Class extends implementationOf(NodeInterface) {
         }
 
         const fieldsInitializers = this._initializableFields.map(p => {
-            return new CallExpression(
+            __assert(!p.static);
+
+            const value = p.value;
+            p.clearValue();
+            if (p.private) {
+                __assert(p.key instanceof Identifier);
+
+                return new AssignmentExpression(
+                    p.location,
+                    '=',
+                    Member.create('this', '#' + p.key.name),
+                    null !== value ? value : Undefined.create()
+                );
+            }
+
+            return new AssignmentExpression(
                 p.location,
-                Member.create('Object', 'defineProperty'),
-                [
-                    new Identifier(null, 'this'),
-                    p.key instanceof Identifier ? new StringLiteral(null, JSON.stringify(p.key.name)) : p.key,
-                    new ObjectExpression(null, [
-                        new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'true')),
-                        new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'true')),
-                        new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
-                        new ObjectProperty(null, new Identifier(null, 'value'), null !== p.value ? p.value : Undefined.create()),
-                    ]),
-                ]
+                '=',
+                new MemberExpression(null, new Identifier(null, 'this'), p.key, !(p.key instanceof Identifier)),
+                null !== value ? value : Undefined.create()
             );
         }).filter(i => !!i);
 
@@ -497,15 +478,41 @@ class Class extends implementationOf(NodeInterface) {
                 ),
             ];
 
-            this._fieldInitializer = new FunctionExpression(
+            this.body.addMember(new ClassMethod(
                 null,
                 new BlockStatement(null, [ ...parentCall, ...fieldsInitializers ]),
                 Member.create('Symbol', '__jymfony_field_initialization'),
-            );
+                'method',
+            ));
+
+            this._initialization.push(new CallExpression(
+                this.location,
+                Member.create('Object', 'defineProperty'),
+                [
+                    Member.create(this._id, 'prototype'),
+                    Member.create('Symbol', '__jymfony_field_initialization'),
+                    new ObjectExpression(null, [
+                        new ObjectProperty(null, new Identifier(null, 'writable'), new StringLiteral(null, 'false')),
+                        new ObjectProperty(null, new Identifier(null, 'enumerable'), new StringLiteral(null, 'false')),
+                        new ObjectProperty(null, new Identifier(null, 'configurable'), new StringLiteral(null, 'true')),
+                        new ObjectProperty(null, new Identifier(null, 'value'), new MemberExpression(null, Member.create(this._id, 'prototype'), Member.create('Symbol', '__jymfony_field_initialization'), true)),
+                    ]),
+                ]
+            ));
         }
 
         this.body.addMember(
-            new ClassMethod(null, new BlockStatement(null, [ ...this._initialization, ...initialization ]), new StringLiteral(null, initializationSymbol), 'method', [], { Static: true })
+            LazyNode.create(() => {
+                const stmts = [ ...this._initialization, ...initialization ].map(s => {
+                    if (s instanceof StatementInterface) {
+                        return s;
+                    }
+
+                    return new ExpressionStatement(null, s);
+                });
+
+                return new ClassMethod(null, new BlockStatement(null, stmts), new StringLiteral(null, initializationSymbol), 'method', [], { Static: true });
+            })
         );
     }
 

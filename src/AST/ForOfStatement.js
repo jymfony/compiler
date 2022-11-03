@@ -37,6 +37,7 @@ class ForOfStatement extends ForInStatement {
         compiler._emit(')');
 
         compiler.compileNode(this._body);
+        compiler.newLine();
     }
 }
 

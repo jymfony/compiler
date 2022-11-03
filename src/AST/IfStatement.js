@@ -1,4 +1,6 @@
 const BlockStatement = require('./BlockStatement');
+const ExpressionInterface = require('./ExpressionInterface');
+const ExpressionStatement = require('./ExpressionStatement');
 const StatementInterface = require('./StatementInterface');
 
 class IfStatement extends implementationOf(StatementInterface) {
@@ -28,14 +30,14 @@ class IfStatement extends implementationOf(StatementInterface) {
          *
          * @private
          */
-        this._consequent = consequent;
+        this._consequent = consequent instanceof ExpressionInterface ? new ExpressionStatement(null, consequent) : consequent;
 
         /**
          * @type {StatementInterface}
          *
          * @private
          */
-        this._alternate = alternate;
+        this._alternate = alternate instanceof ExpressionInterface ? new ExpressionStatement(null, alternate) : alternate;
     }
 
     /**

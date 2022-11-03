@@ -98,6 +98,14 @@ class ClassB extends __jymfony.JObject {
       },
     };
   }
+  [Symbol.__jymfony_field_initialization]() {
+    const superClass = Object.getPrototypeOf(ClassB.prototype);
+    const superCall = superClass[Symbol.__jymfony_field_initialization];
+    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+      superCall.apply(this);
+    
+    this.#internal = undefined;
+  }
   static [αa_initialize_class_fields]() {
     Object.defineProperty(ClassB,Symbol.reflection,{
       writable: false,
@@ -111,6 +119,13 @@ class ClassB extends __jymfony.JObject {
       configurable: true,
       value: Symbol(),
     });
+    Object.defineProperty(ClassB.prototype,Symbol.__jymfony_field_initialization,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: ClassB.prototype[Symbol.__jymfony_field_initialization],
+    });
+    
   }
 }
 ClassB[αa_initialize_class_fields]();
@@ -118,7 +133,7 @@ const ClassA = (() => {
   const αb_initialize_class_fields = Symbol();
   let ClassA = class ClassA extends ClassB {
     #internal;
-    initialized = false;
+    initialized;
     constructor() {
       super();
       this.#internal = 'internal';
@@ -140,6 +155,15 @@ const ClassA = (() => {
         },
       };
     }
+    [Symbol.__jymfony_field_initialization]() {
+      const superClass = Object.getPrototypeOf(ClassA.prototype);
+      const superCall = superClass[Symbol.__jymfony_field_initialization];
+      if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+        superCall.apply(this);
+      
+      this.#internal = undefined;
+      this.initialized = false;
+    }
     static [αb_initialize_class_fields]() {
       Object.defineProperty(ClassA,Symbol.reflection,{
         writable: false,
@@ -153,25 +177,15 @@ const ClassA = (() => {
         configurable: true,
         value: Symbol(),
       });
+      Object.defineProperty(ClassA.prototype,Symbol.__jymfony_field_initialization,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: ClassA.prototype[Symbol.__jymfony_field_initialization],
+      });
+      
     }
   }
-  Object.defineProperty(ClassA.prototype,Symbol.__jymfony_field_initialization,{
-    writable: false,
-    enumerable: false,
-    configurable: true,
-    value: function() {
-      const superClass = Object.getPrototypeOf(ClassA.prototype);
-      const superCall = superClass[Symbol.__jymfony_field_initialization];
-      if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
-        superCall.apply(this);
-      Object.defineProperty(this,"initialized",{
-        writable: true,
-        enumerable: true,
-        configurable: true,
-        value: false,
-      });
-    },
-  });
   ClassA[αb_initialize_class_fields]();
   ;
   
@@ -342,6 +356,7 @@ const x = new class {
         configurable: true,
         value: Symbol(),
       });
+      
     }
   }
   _anonymous_xΞ518e6[αa_initialize_class_fields]();

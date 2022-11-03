@@ -196,17 +196,8 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        if (this._static) {
-            compiler._emit('static ');
-        }
-
-        compiler._emit('[');
-        compiler.compileNode(this._privateSymbolIdentifier);
-        compiler._emit(']');
-
-        compiler._emit(' = ');
-        compiler.compileNode(Iife.create(new BlockStatement(null, [
-            Variable.create('let', 'initialValue', this._value),
+        const initIife = Iife.create(new BlockStatement(null, [
+            Variable.create('let', 'initialValue', null === this._value ? Undefined.create() : this._value),
             new ForOfStatement(null,
                 Variable.create('const', 'initFn'),
                 this._initializerIdentifier,
@@ -219,10 +210,28 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
                 ])
             ),
             new ReturnStatement(null, new Identifier(null, 'initialValue')),
-        ])));
+        ]));
 
-        compiler._emit(';');
-        compiler.newLine();
+        if (this._static) {
+            compiler._emit('static ');
+
+            compiler._emit('[');
+            compiler.compileNode(this._privateSymbolIdentifier);
+            compiler._emit(']');
+
+            compiler._emit(' = ');
+            compiler.compileNode(initIife);
+
+            compiler._emit(';');
+            compiler.newLine();
+        } else {
+            this._class._initialization.push(new AssignmentExpression(null,
+                '=',
+                new MemberExpression(null, new Identifier(null, 'this'), this._privateSymbolIdentifier, true),
+                initIife
+            ));
+        }
+
     }
 }
 

@@ -218,35 +218,31 @@ class Compiler {
                         continue;
                     }
 
-                    if ('constructor' === member.key.name || '__construct' === member.key.name) {
-                        continue;
-                    }
+                    if ('constructor' !== member.key.name && '__construct' !== member.key.name) {
+                        const funcValue = (() => {
+                            if (member.private) {
+                                const accessors = value[Symbol.jymfony_private_accessors];
+                                const type = member.static ? 'staticMethods' : 'methods';
 
-                    const funcValue = (() => {
-                        if (member.private) {
-                            const accessors = value[Symbol.jymfony_private_accessors];
-                            const type = member.static ? 'staticMethods' : 'methods';
+                                return accessors && accessors[type] && accessors[type][member.key.name] ?
+                                    accessors[type][member.key.name].call : undefined;
+                            }
 
-                            return accessors && accessors[type] && accessors[type][member.key.name] ?
-                                accessors[type][member.key.name].call : undefined;
-                        }
+                            const obj = member.static ? value : value.prototype;
+                            const descriptor = Object.getOwnPropertyDescriptor(obj, member.key.name);
 
-                        const obj = member.static ? value : value.prototype;
-                        const descriptor = Object.getOwnPropertyDescriptor(obj, member.key.name);
+                            return 'method' === (member.kind || 'method') ? descriptor.value : descriptor[member.kind];
+                        })();
 
-                        return 'method' === (member.kind || 'method') ? descriptor.value : descriptor[member.kind];
-                    })();
-
-                    methods.push({
-                        name: (member.private ? '#' : '') + member.key.name,
-                        kind: member.kind || 'method',
-                        static: member.static,
-                        private: member.private,
-                        value: funcValue,
-                        ownClass: value,
-                    });
-
-                    if ('constructor' === member.name || '__construct' === member.name) {
+                        methods.push({
+                            name: (member.private ? '#' : '') + member.key.name,
+                            kind: member.kind || 'method',
+                            static: member.static,
+                            private: member.private,
+                            value: funcValue,
+                            ownClass: value,
+                        });
+                    } else {
                         for (const statement of member.body.statements) {
                             if (!statement.isFieldDeclaration) {
                                 continue;
