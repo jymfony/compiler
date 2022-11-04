@@ -248,6 +248,16 @@ export default () => {
         expect(compiled).to.match(/true === a\?\.prop1\?\.\('test'\)/);
     });
 
+    it ('should parse js null-coalescing opeartor', () => {
+        const program = parser.parse(`
+    const enabled = obj?.response?.html?.enabled ?? retval.response.html.enabled;
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq('const enabled = obj?.response?.html?.enabled ?? retval.response.html.enabled;\n');
+    });
+
     it ('should parse js optional chaining. case #2', () => {
         const program = parser.parse(`
     true === a?.prop1?.('test');

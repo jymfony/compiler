@@ -596,7 +596,7 @@ class ExpressionParserTrait {
         }
 
         // Level 5
-        if ('||' === this._lexer.token.value) {
+        if ('||' === this._lexer.token.value || '??' === this._lexer.token.value) {
             _binaryExpression(5);
         }
 
