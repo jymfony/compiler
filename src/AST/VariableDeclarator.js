@@ -48,6 +48,17 @@ class VariableDeclarator extends implementationOf(NodeInterface) {
     }
 
     /**
+     * Execute preliminary work for node compilation.
+     *
+     * @param {Compiler} compiler
+     */
+    prepare(compiler) {
+        if (null !== this._init && 'function' === typeof this._init.prepare) {
+            this._init.prepare(compiler);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     compile(compiler) {

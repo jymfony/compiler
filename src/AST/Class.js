@@ -89,6 +89,13 @@ class Class extends implementationOf(NodeInterface) {
          * @private
          */
         this._initializableFields = [];
+
+        /**
+         * @type {NodeInterface[]}
+         *
+         * @private
+         */
+        this._tail = [];
     }
 
     /**
@@ -193,15 +200,12 @@ class Class extends implementationOf(NodeInterface) {
     /**
      * @inheritdoc
      */
-    compile(compiler, initialization) {
-        if (initialization === undefined) {
-            initialization = compiler.generateVariableName() + '_initialize_class_fields';
-            compiler.compileNode(Variable.create('const', initialization, new CallExpression(null, new Identifier(null, 'Symbol'))));
-            compiler._emit(';');
-            compiler.newLine();
-        }
+    compile(compiler, initialization, expression = false) {
+        this.prepare(compiler, initialization);
 
-        this._prepare(compiler, initialization);
+        if (expression) {
+            compiler._emit('let ' + this.name + ' = ');
+        }
 
         compiler._emit('class ');
         compiler.compileNode(this._id);
@@ -217,17 +221,37 @@ class Class extends implementationOf(NodeInterface) {
         compiler.indentationLevel--;
         compiler.newLine();
         compiler._emit('}');
+        if (expression) {
+            compiler._emit(';');
+        }
         compiler.newLine();
 
-        compiler.compileNode(new CallExpression(null, new MemberExpression(null, this._id, new StringLiteral(null, initialization), true)));
-        compiler._emit(';');
-        compiler.newLine();
+        for (const node of this._tail) {
+            if (node instanceof StatementInterface) {
+                compiler.compileNode(node);
+            } else {
+                compiler.compileNode(new ExpressionStatement(null, node));
+            }
+        }
     }
 
-    _prepare(compiler, initializationSymbol) {
+    prepare(compiler, initializationSymbol = undefined) {
         if (this._prepared) {
             return;
         }
+
+        if (null === this.superClass && !this.hasConstructor) {
+            this.superClass = new Identifier(null, '__jymfony.JObject');
+        }
+
+        if (initializationSymbol === undefined) {
+            initializationSymbol = compiler.generateVariableName() + '_initialize_class_fields';
+            compiler.compileNode(Variable.create('const', initializationSymbol, new CallExpression(null, new Identifier(null, 'Symbol'))));
+            compiler._emit(';');
+            compiler.newLine();
+        }
+
+        this._tail.push(new CallExpression(null, new MemberExpression(null, this._id, new StringLiteral(null, initializationSymbol), true)));
 
         const ClassAccessor = require('./ClassAccessor');
         this._prepared = true;

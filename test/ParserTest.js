@@ -192,7 +192,10 @@ export default () => {
 `);
 
         const compiler = new Compiler(generator);
-        expect(compiler.compile(program)).to.be.eq(`const αa = require('@jymfony/decorators');
+        expect(compiler.compile(program)).to.be.eq(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require('@jymfony/decorators');
 const Inject = αa.Inject;
 const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
 const Client = αb.Client;
@@ -454,7 +457,7 @@ class x extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390950,
+      value: 390951,
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -568,21 +571,22 @@ const logger = {
     
   },
 };
-const αe_x_accessor_fieldAccΞa85de = Symbol(), αe_x_accessor_fieldAccΞa85de_init = [  ];
-const αm_initialize_class_fields = Symbol();
+const αa_initialize_class_fields = Symbol();
+const αb_x_accessor_fieldAccΞe3230 = Symbol(), αb_x_accessor_fieldAccΞe3230_init = [  ];
 class x extends __jymfony.JObject {
   
   test() {
+    const αn_initialize_class_fields = Symbol();
     const cc = (() => {
-      const αo_initialize_class_fields = Symbol();
+      const αp_initialize_class_fields = Symbol();
       let _anonymous_xΞ5d6ae = class _anonymous_xΞ5d6ae extends __jymfony.JObject {
         
-        static [αo_initialize_class_fields]() {
+        static [αn_initialize_class_fields]() {
           Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.reflection,{
             writable: false,
             enumerable: false,
             configurable: true,
-            value: 390951,
+            value: 390952,
           });
           Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.metadata,{
             writable: false,
@@ -592,18 +596,17 @@ class x extends __jymfony.JObject {
           });
           
         }
-      }
-      _anonymous_xΞ5d6ae[αo_initialize_class_fields]();
-      ;
+      };
+      _anonymous_xΞ5d6ae[αn_initialize_class_fields]();
       _anonymous_xΞ5d6ae = (() => {
-        const αn = logger.logged(_anonymous_xΞ5d6ae,{
+        const αo = logger.logged(_anonymous_xΞ5d6ae,{
           kind: 'class',
           name: "_anonymous_xΞ5d6ae",
           metadataKey: _anonymous_xΞ5d6ae[Symbol.metadata],
         });
-        if (αn === undefined) 
+        if (αo === undefined) 
           return _anonymous_xΞ5d6ae;
-        return αn;
+        return αo;
       })();
       
       return _anonymous_xΞ5d6ae;
@@ -620,10 +623,10 @@ class x extends __jymfony.JObject {
     
   }
   get fieldAcc() {
-    return this[αe_x_accessor_fieldAccΞa85de];
+    return this[αb_x_accessor_fieldAccΞe3230];
   }
   set fieldAcc(value) {
-    this[αe_x_accessor_fieldAccΞa85de] = value;
+    this[αb_x_accessor_fieldAccΞe3230] = value;
   }
   [Symbol.__jymfony_field_initialization]() {
     const superClass = Object.getPrototypeOf(x.prototype);
@@ -631,21 +634,52 @@ class x extends __jymfony.JObject {
     if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
       superCall.apply(this);
     
-    this[αe_x_accessor_fieldAccΞa85de] = (() => {
-      let initialValue = 'foobar';
-      for (const initFn of αe_x_accessor_fieldAccΞa85de_init){
-        const v = initFn(initialValue);
-        if (v !== undefined) 
-          initialValue = v;
-        
-        
-      }
-      return initialValue;
-    })();
     this.field = (() => {
-      let αd = initialize((instance,key,value) => {
+      let αf = initialize((instance,key,value) => {
         
       })(undefined,{
+        kind: 'field',
+        name: "field",
+        access: {
+          get() {
+            return this.field;
+          },
+          set(value) {
+            this.field = value;
+            
+          },
+        },
+        static: false,
+        private: false,
+      });
+      if (αf === undefined) 
+        αf = (initialValue) => initialValue;
+      
+      return αf;
+    }).call(this,(() => {
+      let αe = register((target,prop,parameterIndex = null) => {
+        
+      })(undefined,{
+        kind: 'field',
+        name: "field",
+        access: {
+          get() {
+            return this.field;
+          },
+          set(value) {
+            this.field = value;
+            
+          },
+        },
+        static: false,
+        private: false,
+      });
+      if (αe === undefined) 
+        αe = (initialValue) => initialValue;
+      
+      return αe;
+    }).call(this,(() => {
+      let αd = logger.logged(undefined,{
         kind: 'field',
         name: "field",
         access: {
@@ -664,56 +698,25 @@ class x extends __jymfony.JObject {
         αd = (initialValue) => initialValue;
       
       return αd;
-    }).call(this,(() => {
-      let αc = register((target,prop,parameterIndex = null) => {
-        
-      })(undefined,{
-        kind: 'field',
-        name: "field",
-        access: {
-          get() {
-            return this.field;
-          },
-          set(value) {
-            this.field = value;
-            
-          },
-        },
-        static: false,
-        private: false,
-      });
-      if (αc === undefined) 
-        αc = (initialValue) => initialValue;
-      
-      return αc;
-    }).call(this,(() => {
-      let αb = logger.logged(undefined,{
-        kind: 'field',
-        name: "field",
-        access: {
-          get() {
-            return this.field;
-          },
-          set(value) {
-            this.field = value;
-            
-          },
-        },
-        static: false,
-        private: false,
-      });
-      if (αb === undefined) 
-        αb = (initialValue) => initialValue;
-      
-      return αb;
     }).call(this,'foo')));
+    this[αb_x_accessor_fieldAccΞe3230] = (() => {
+      let initialValue = 'foobar';
+      for (const initFn of αb_x_accessor_fieldAccΞe3230_init){
+        const v = initFn(initialValue);
+        if (v !== undefined) 
+          initialValue = v;
+        
+        
+      }
+      return initialValue;
+    })();
   }
-  static [αm_initialize_class_fields]() {
+  static [αa_initialize_class_fields]() {
     Object.defineProperty(x,Symbol.reflection,{
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390952,
+      value: 390953,
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -767,12 +770,6 @@ class x extends __jymfony.JObject {
       configurable: true,
       value: Symbol(),
     });
-    Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: x.prototype[Symbol.__jymfony_field_initialization],
-    });
     {
       const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc");
       let { get: newGet = oldGet, set: newSet = oldSet, init } = (() => {
@@ -800,7 +797,7 @@ class x extends __jymfony.JObject {
         set: newSet,
       });
       if (init !== undefined) 
-        αe_x_accessor_fieldAccΞa85de_init.push(init);
+        αb_x_accessor_fieldAccΞe3230_init.push(init);
       
       
     }{
@@ -832,32 +829,11 @@ class x extends __jymfony.JObject {
         set: newSet,
       });
       if (init !== undefined) 
-        αe_x_accessor_fieldAccΞa85de_init.push(init);
+        αb_x_accessor_fieldAccΞe3230_init.push(init);
       
       
     }{
-      let αf = logger.logged(x.prototype.test,{
-        kind: "method",
-        name: "test",
-        access: {
-          get() {
-            return x.prototype.test;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: x.prototype.test[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αf === undefined) 
-        αf = x.prototype.test;
-      
-      x.prototype.test = αf;
-    }{
-      let αg = secondary('great')(x.prototype.test,{
+      let αg = logger.logged(x.prototype.test,{
         kind: "method",
         name: "test",
         access: {
@@ -878,33 +854,30 @@ class x extends __jymfony.JObject {
       
       x.prototype.test = αg;
     }{
-      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_getter");
-      let { get } = descriptor;
-      let αh = logger.logged(get,{
-        kind: "getter",
-        name: "test_getter",
+      let αh = secondary('great')(x.prototype.test,{
+        kind: "method",
+        name: "test",
         access: {
           get() {
-            return get;
+            return x.prototype.test;
           },
         },
         static: false,
         private: false,
-        metadataKey: get[Symbol.metadata],
+        metadataKey: x.prototype.test[Symbol.metadata],
         class: {
           name: "x",
           metadataKey: x[Symbol.metadata],
         },
       });
       if (αh === undefined) 
-        αh = get;
+        αh = x.prototype.test;
       
-      descriptor.get = αh;
-      Object.defineProperty(x.prototype,"test_getter",descriptor);
+      x.prototype.test = αh;
     }{
       const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_getter");
       let { get } = descriptor;
-      let αi = secondary('great')(get,{
+      let αi = logger.logged(get,{
         kind: "getter",
         name: "test_getter",
         access: {
@@ -926,33 +899,33 @@ class x extends __jymfony.JObject {
       descriptor.get = αi;
       Object.defineProperty(x.prototype,"test_getter",descriptor);
     }{
-      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_setter");
-      let { set } = descriptor;
-      let αj = logger.logged(set,{
-        kind: "setter",
-        name: "test_setter",
+      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_getter");
+      let { get } = descriptor;
+      let αj = secondary('great')(get,{
+        kind: "getter",
+        name: "test_getter",
         access: {
           get() {
-            return set;
+            return get;
           },
         },
         static: false,
         private: false,
-        metadataKey: set[Symbol.metadata],
+        metadataKey: get[Symbol.metadata],
         class: {
           name: "x",
           metadataKey: x[Symbol.metadata],
         },
       });
       if (αj === undefined) 
-        αj = set;
+        αj = get;
       
-      descriptor.set = αj;
-      Object.defineProperty(x.prototype,"test_setter",descriptor);
+      descriptor.get = αj;
+      Object.defineProperty(x.prototype,"test_getter",descriptor);
     }{
       const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_setter");
       let { set } = descriptor;
-      let αk = secondary('great')(set,{
+      let αk = logger.logged(set,{
         kind: "setter",
         name: "test_setter",
         access: {
@@ -974,7 +947,31 @@ class x extends __jymfony.JObject {
       descriptor.set = αk;
       Object.defineProperty(x.prototype,"test_setter",descriptor);
     }{
-      let αl = logger.logged(x.prototype.testMethod,{
+      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_setter");
+      let { set } = descriptor;
+      let αl = secondary('great')(set,{
+        kind: "setter",
+        name: "test_setter",
+        access: {
+          get() {
+            return set;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: set[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αl === undefined) 
+        αl = set;
+      
+      descriptor.set = αl;
+      Object.defineProperty(x.prototype,"test_setter",descriptor);
+    }{
+      let αm = logger.logged(x.prototype.testMethod,{
         kind: "method",
         name: "testMethod",
         access: {
@@ -990,23 +987,29 @@ class x extends __jymfony.JObject {
           metadataKey: x[Symbol.metadata],
         },
       });
-      if (αl === undefined) 
-        αl = x.prototype.testMethod;
+      if (αm === undefined) 
+        αm = x.prototype.testMethod;
       
-      x.prototype.testMethod = αl;
-    }
+      x.prototype.testMethod = αm;
+    }Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: x.prototype[Symbol.__jymfony_field_initialization],
+    });
+    
   }
 }
-x[αm_initialize_class_fields]();
+x[αa_initialize_class_fields]();
 x = (() => {
-  const αa = logger.logged(x,{
+  const αc = logger.logged(x,{
     kind: 'class',
     name: "x",
     metadataKey: x[Symbol.metadata],
   });
-  if (αa === undefined) 
+  if (αc === undefined) 
     return x;
-  return αa;
+  return αc;
 })();
 `);
     });
@@ -1043,7 +1046,14 @@ export async function named() {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('async function named() {\n  \n}\nexports.named = named;\n');
+        expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+async function named() {
+  
+}
+exports.named = named;
+`);
     });
 
     it ('should correctly parse keywords in incorrect context', () => {
@@ -1084,19 +1094,22 @@ export const TestConstClassAnnotation = class {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const αa = require('../src');
+        expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require('../src');
 const Annotation = αa.Annotation;
 const ANNOTATION_TARGET_CLASS = αa.ANNOTATION_TARGET_CLASS;
 const ANNOTATION_TARGET_FUNCTION = αa.ANNOTATION_TARGET_FUNCTION;
-const αc_initialize_class_fields = Symbol();
+const αb_initialize_class_fields = Symbol();
 class TestAnnotation extends __jymfony.JObject {
   
-  static [αc_initialize_class_fields]() {
+  static [αb_initialize_class_fields]() {
     Object.defineProperty(TestAnnotation,Symbol.reflection,{
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390953,
+      value: 390954,
     });
     Object.defineProperty(TestAnnotation,Symbol.metadata,{
       writable: false,
@@ -1107,28 +1120,29 @@ class TestAnnotation extends __jymfony.JObject {
     
   }
 }
-TestAnnotation[αc_initialize_class_fields]();
+TestAnnotation[αb_initialize_class_fields]();
 TestAnnotation = (() => {
-  const αb = Annotation(ANNOTATION_TARGET_CLASS)(TestAnnotation,{
+  const αc = Annotation(ANNOTATION_TARGET_CLASS)(TestAnnotation,{
     kind: 'class',
     name: "TestAnnotation",
     metadataKey: TestAnnotation[Symbol.metadata],
   });
-  if (αb === undefined) 
+  if (αc === undefined) 
     return TestAnnotation;
-  return αb;
+  return αc;
 })();
 exports.TestAnnotation = TestAnnotation;
+const αd_initialize_class_fields = Symbol();
 const TestConstClassAnnotation = (() => {
-  const αe_initialize_class_fields = Symbol();
+  const αf_initialize_class_fields = Symbol();
   let _anonymous_xΞ96888 = class _anonymous_xΞ96888 extends __jymfony.JObject {
     
-    static [αe_initialize_class_fields]() {
+    static [αd_initialize_class_fields]() {
       Object.defineProperty(_anonymous_xΞ96888,Symbol.reflection,{
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390954,
+        value: 390955,
       });
       Object.defineProperty(_anonymous_xΞ96888,Symbol.metadata,{
         writable: false,
@@ -1138,18 +1152,17 @@ const TestConstClassAnnotation = (() => {
       });
       
     }
-  }
-  _anonymous_xΞ96888[αe_initialize_class_fields]();
-  ;
+  };
+  _anonymous_xΞ96888[αd_initialize_class_fields]();
   _anonymous_xΞ96888 = (() => {
-    const αd = Annotation(ANNOTATION_TARGET_CLASS)(_anonymous_xΞ96888,{
+    const αe = Annotation(ANNOTATION_TARGET_CLASS)(_anonymous_xΞ96888,{
       kind: 'class',
       name: "_anonymous_xΞ96888",
       metadataKey: _anonymous_xΞ96888[Symbol.metadata],
     });
-    if (αd === undefined) 
+    if (αe === undefined) 
       return _anonymous_xΞ96888;
-    return αd;
+    return αe;
   })();
   
   return _anonymous_xΞ96888;
@@ -1173,22 +1186,26 @@ class RoutableClass {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`const αa = require('../src');
+        expect(compiled).to.be.eq(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require('../src');
 const Get = αa.Get;
 const Route = αa.Route;
+const αb_initialize_class_fields = Symbol();
 const RoutableClass = (() => {
-  const αe_initialize_class_fields = Symbol();
+  const αf_initialize_class_fields = Symbol();
   let RoutableClass = class RoutableClass extends __jymfony.JObject {
     getAction() {
       
     }
     
-    static [αe_initialize_class_fields]() {
+    static [αb_initialize_class_fields]() {
       Object.defineProperty(RoutableClass,Symbol.reflection,{
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390955,
+        value: 390956,
       });
       Object.defineProperty(RoutableClass,Symbol.metadata,{
         writable: false,
@@ -1203,7 +1220,7 @@ const RoutableClass = (() => {
         value: Symbol(),
       });
       {
-        let αd = Get('/get')(RoutableClass.prototype.getAction,{
+        let αe = Get('/get')(RoutableClass.prototype.getAction,{
           kind: "method",
           name: "getAction",
           access: {
@@ -1219,29 +1236,18 @@ const RoutableClass = (() => {
             metadataKey: RoutableClass[Symbol.metadata],
           },
         });
-        if (αd === undefined) 
-          αd = RoutableClass.prototype.getAction;
+        if (αe === undefined) 
+          αe = RoutableClass.prototype.getAction;
         
-        RoutableClass.prototype.getAction = αd;
+        RoutableClass.prototype.getAction = αe;
       }
     }
-  }
-  RoutableClass[αe_initialize_class_fields]();
-  ;
+  };
+  RoutableClass[αb_initialize_class_fields]();
   RoutableClass = (() => {
-    const αb = Route({
+    const αc = Route({
       path: '/foobar',
     })(RoutableClass,{
-      kind: 'class',
-      name: "RoutableClass",
-      metadataKey: RoutableClass[Symbol.metadata],
-    });
-    if (αb === undefined) 
-      return RoutableClass;
-    return αb;
-  })();
-  RoutableClass = (() => {
-    const αc = Route('/barbar')(RoutableClass,{
       kind: 'class',
       name: "RoutableClass",
       metadataKey: RoutableClass[Symbol.metadata],
@@ -1249,6 +1255,16 @@ const RoutableClass = (() => {
     if (αc === undefined) 
       return RoutableClass;
     return αc;
+  })();
+  RoutableClass = (() => {
+    const αd = Route('/barbar')(RoutableClass,{
+      kind: 'class',
+      name: "RoutableClass",
+      metadataKey: RoutableClass[Symbol.metadata],
+    });
+    if (αd === undefined) 
+      return RoutableClass;
+    return αd;
   })();
   
   return RoutableClass;
@@ -1273,83 +1289,82 @@ export default class TypedPrivateMethodClass {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`const αa = require("../src");
+        expect(compiled).to.be.eq(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require("../src");
 const Type = αa.Type;
-const TypedPrivateMethodClass = (() => {
-  const αb_initialize_class_fields = Symbol();
-  let TypedPrivateMethodClass = class TypedPrivateMethodClass extends __jymfony.JObject {
-    #getAction(param1,param2,param3) {
-      
-    }
-    static get [Symbol.jymfony_private_accessors]() {
-      return {
-        fields: {
-        },
-        staticFields: {
-        },
-        methods: {
-          getAction: {
-            call: (obj,...args) => obj.#getAction(...args),
-            metadataKey: () => {
-              const αc = Object.getOwnPropertyDescriptor(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata);
-              if (undefined === αc) 
-                Object.defineProperty(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata,{
-                writable: false,
-                enumerable: false,
-                configurable: true,
-                value: Symbol(),
-              });
-              
-              return TypedPrivateMethodClass.prototype.#getAction[Symbol.metadata];
-            },
+const αb_initialize_class_fields = Symbol();
+const TypedPrivateMethodClass = class TypedPrivateMethodClass extends __jymfony.JObject {
+  #getAction(param1,param2,param3) {
+    
+  }
+  static get [Symbol.jymfony_private_accessors]() {
+    return {
+      fields: {
+      },
+      staticFields: {
+      },
+      methods: {
+        getAction: {
+          call: (obj,...args) => obj.#getAction(...args),
+          metadataKey: () => {
+            const αc = Object.getOwnPropertyDescriptor(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata);
+            if (undefined === αc) 
+              Object.defineProperty(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata,{
+              writable: false,
+              enumerable: false,
+              configurable: true,
+              value: Symbol(),
+            });
+            
+            return TypedPrivateMethodClass.prototype.#getAction[Symbol.metadata];
           },
         },
-        staticMethods: {
-        },
-      };
-    }
-    
-    static [αb_initialize_class_fields]() {
-      Object.defineProperty(TypedPrivateMethodClass,Symbol.reflection,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: 390956,
-      });
-      Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: Symbol(),
-      });
-      Type('FooType')(undefined,{
-        kind: "parameter",
-        name: "param1",
-        parameterIndex: 0,
-        metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
-        class: {
-          name: "TypedPrivateMethodClass",
-          metadataKey: TypedPrivateMethodClass[Symbol.metadata],
-        },
-      });
-      Type(Object)(undefined,{
-        kind: "parameter",
-        name: "param2",
-        parameterIndex: 1,
-        metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
-        class: {
-          name: "TypedPrivateMethodClass",
-          metadataKey: TypedPrivateMethodClass[Symbol.metadata],
-        },
-      });
-      
-    }
+      },
+      staticMethods: {
+      },
+    };
   }
-  TypedPrivateMethodClass[αb_initialize_class_fields]();
-  ;
   
-  return TypedPrivateMethodClass;
-})();
+  static [αb_initialize_class_fields]() {
+    Object.defineProperty(TypedPrivateMethodClass,Symbol.reflection,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: 390957,
+    });
+    Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Type('FooType')(undefined,{
+      kind: "parameter",
+      name: "param1",
+      parameterIndex: 0,
+      metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
+      class: {
+        name: "TypedPrivateMethodClass",
+        metadataKey: TypedPrivateMethodClass[Symbol.metadata],
+      },
+    });
+    Type(Object)(undefined,{
+      kind: "parameter",
+      name: "param2",
+      parameterIndex: 1,
+      metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
+      class: {
+        name: "TypedPrivateMethodClass",
+        metadataKey: TypedPrivateMethodClass[Symbol.metadata],
+      },
+    });
+    
+  }
+}
+TypedPrivateMethodClass[αb_initialize_class_fields]();
+;
 exports.default = TypedPrivateMethodClass;
 `);
     })

@@ -120,8 +120,8 @@ class Compiler {
     compileNode(node) {
         this.pushLocation(node);
 
-        if (node instanceof AST.Class && null === node.superClass && ! node.hasConstructor) {
-            node.superClass = new AST.Identifier(null, '__jymfony.JObject');
+        if ('function' === typeof node.prepare) {
+            node.prepare(this);
         }
 
         node.compile(this);

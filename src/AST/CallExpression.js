@@ -1,5 +1,11 @@
+const { Iife, Variable } = require('../Generator');
+const BlockStatement = require('./BlockStatement');
 const ExpressionInterface = require('./ExpressionInterface');
+const Identifier = require('./Identifier');
 const Function = require('./Function');
+const ParenthesizedExpression = require('./ParenthesizedExpression');
+const ReturnStatement = require('./ReturnStatement');
+let Class;
 
 class CallExpression extends implementationOf(ExpressionInterface) {
     /**
@@ -54,6 +60,39 @@ class CallExpression extends implementationOf(ExpressionInterface) {
      */
     get args() {
         return this._args;
+    }
+
+    prepareArg(arg, compiler) {
+        if (undefined === Class) {
+            Class = require('./Class');
+        }
+
+        if (arg instanceof Class) {
+            return new ParenthesizedExpression(null, Iife.create(new BlockStatement(null, [
+                Variable.create('const', arg.name, arg),
+                new ReturnStatement(null, new Identifier(null, arg.name)),
+            ])));
+        } else if ('function' === typeof arg.prepare) {
+            arg.prepare(compiler);
+        }
+
+        return null;
+    }
+
+    prepare(compiler) {
+        const id = this.prepareArg(this._callee, compiler);
+        if (null !== id) {
+            this._callee = id;
+        }
+
+        for (const [ idx, arg ] of __jymfony.getEntries(this._args || [])) {
+            if ('function' === typeof arg.prepare) {
+                const id = this.prepareArg(arg, compiler);
+                if (null !== id) {
+                    this._args[idx] = id;
+                }
+            }
+        }
     }
 
     /**

@@ -7,7 +7,7 @@ const { Variable } = require('../Generator');
 
 class ClassExpression extends mix(Class, ExpressionInterface) {
     compile(compiler) {
-        if (! this.docblock && ! this.decorators) {
+        if (! this.docblock && 0 === (this.decorators || []).length) {
             return super.compile(compiler);
         }
 
@@ -25,10 +25,7 @@ class ClassExpression extends mix(Class, ExpressionInterface) {
         compiler._emit(';');
         compiler.newLine();
 
-        compiler._emit('let ' + id.name + ' = ');
-        super.compile(compiler, initialization);
-        compiler._emit(';');
-        compiler.newLine();
+        super.compile(compiler, initialization, true);
 
         for (const statement of tail) {
             compiler.compileNode(statement);

@@ -52,6 +52,17 @@ class VariableDeclaration extends implementationOf(DeclarationInterface) {
     }
 
     /**
+     * Execute preliminary work for node compilation.
+     *
+     * @param {Compiler} compiler
+     */
+    prepare(compiler) {
+        for (const declarator of this._declarators) {
+            declarator.prepare(compiler);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     compile(compiler) {

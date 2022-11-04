@@ -205,6 +205,10 @@ class ClassAccessor extends implementationOf(ClassMemberInterface) {
     }
 
     _getIife() {
+        if (0 === (this.decorators || []).length) {
+            return Iife.create(null !== this.value ? this.value : Undefined.create());
+        }
+
         return Iife.create(new BlockStatement(null, [
             Variable.create('let', 'initialValue', null === this._value ? Undefined.create() : this._value),
             new ForOfStatement(null,
