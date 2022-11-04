@@ -429,4 +429,60 @@ exports.default = Foo;
             __jymfony.autoload.debug = debug;
         }
     });
+
+    it ('should correctly compile anonymous classes in parenthesized expression', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+const x = new (class extends GenericRetryStrategy {
+    methodX() {
+    }
+})(0);
+
+module.exports = x;
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            expect(compiled).to.be.equal(`const x = new ((() => {
+  const αa_initialize_class_fields = Symbol();
+  const _anonymous_xΞa7eea = class _anonymous_xΞa7eea extends GenericRetryStrategy {
+    methodX() {
+      
+    }
+    
+    static [αa_initialize_class_fields]() {
+      Object.defineProperty(_anonymous_xΞa7eea,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390836,
+      });
+      Object.defineProperty(_anonymous_xΞa7eea,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      Object.defineProperty(_anonymous_xΞa7eea.prototype.methodX,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      
+    }
+  }
+  _anonymous_xΞa7eea[αa_initialize_class_fields]();
+  ;
+  return _anonymous_xΞa7eea;
+})())(0);
+module.exports = x;
+`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
 });
