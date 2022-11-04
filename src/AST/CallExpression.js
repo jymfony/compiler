@@ -62,7 +62,7 @@ class CallExpression extends implementationOf(ExpressionInterface) {
         return this._args;
     }
 
-    prepareArg(arg, compiler) {
+    _prepareArg(arg, compiler) {
         if (undefined === Class) {
             Class = require('./Class');
         }
@@ -80,14 +80,14 @@ class CallExpression extends implementationOf(ExpressionInterface) {
     }
 
     prepare(compiler) {
-        const id = this.prepareArg(this._callee, compiler);
+        const id = this._prepareArg(this._callee, compiler);
         if (null !== id) {
             this._callee = id;
         }
 
         for (const [ idx, arg ] of __jymfony.getEntries(this._args || [])) {
             if ('function' === typeof arg.prepare) {
-                const id = this.prepareArg(arg, compiler);
+                const id = this._prepareArg(arg, compiler);
                 if (null !== id) {
                     this._args[idx] = id;
                 }

@@ -11,6 +11,7 @@ declare module "@jymfony/compiler" {
             private _superClass: ExpressionInterface | null;
             private _initialization: ExpressionInterface[];
             private _initializableFields: ClassProperty[];
+            private _tail: NodeInterface[];
 
             /**
              * Gets the class name.
@@ -56,14 +57,14 @@ declare module "@jymfony/compiler" {
             /**
              * @inheritdoc
              */
-            compile(compiler: Compiler, initialization?: string): void;
+            compile(compiler: Compiler, initialization?: string, expression?: boolean): void;
 
             /**
              * Compiles the decorators upon this class.
              */
             compileDecorators(compiler: Compiler): StatementInterface[];
 
-            private _prepare(compiler: Compiler, initializationSymbol: string): void;
+            prepare(compiler: Compiler, initializationSymbol?: string): void;
         }
     }
 }

@@ -1,8 +1,8 @@
-const ExpressionInterface = require('./ExpressionInterface');
-const {Iife, Variable} = require('../Generator');
+const { Iife, Variable } = require('../Generator');
 const BlockStatement = require('./BlockStatement');
-const ReturnStatement = require('./ReturnStatement');
+const ExpressionInterface = require('./ExpressionInterface');
 const Identifier = require('./Identifier');
+const ReturnStatement = require('./ReturnStatement');
 let Class;
 
 class ParenthesizedExpression extends implementationOf(ExpressionInterface) {

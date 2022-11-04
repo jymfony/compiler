@@ -10,7 +10,6 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, callee: ExpressionInterface, args: (ExpressionInterface | SpreadElement)[], optional?: boolean): void;
-
             constructor(location: SourceLocation, callee: ExpressionInterface, args: (ExpressionInterface | SpreadElement)[], optional?: boolean);
 
             /**
@@ -22,6 +21,9 @@ declare module "@jymfony/compiler" {
              * Gets the arguments.
              */
             public readonly args: (ExpressionInterface | SpreadElement)[];
+
+            private _prepareArg(arg: NodeInterface, compiler: Compiler): NodeInterface | null;
+            prepare(compiler: Compiler): void;
 
             /**
              * @inheritdoc

@@ -22,6 +22,11 @@ declare module "@jymfony/compiler" {
             constructor(location: SourceLocation, id: PatternInterface, init?: null | ExpressionInterface);
 
             /**
+             * Execute preliminary work for node compilation.
+             */
+            prepare(compiler: Compiler): void;
+
+            /**
              * @inheritdoc
              */
             compile(compiler: Compiler): void;

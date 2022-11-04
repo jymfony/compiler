@@ -21,6 +21,11 @@ declare module "@jymfony/compiler" {
             public readonly shouldBeClosed: boolean;
 
             /**
+             * Execute preliminary work for node compilation.
+             */
+            prepare(compiler: Compiler): void;
+
+            /**
              * @inheritdoc
              */
             compile(compiler: Compiler): void;
