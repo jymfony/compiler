@@ -540,4 +540,45 @@ module.exports = x;
             __jymfony.autoload.debug = debug;
         }
     });
+
+    it ('should correctly compile anonymous classes on assignment expressions', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+module.exports = class extends mix(superClass, ...ifaces) {};
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
+module.exports = (() => {
+  const _anonymous_xΞb5a98 = class _anonymous_xΞb5a98 extends mix(superClass,...ifaces) {
+    
+    static [αa_initialize_class_fields]() {
+      Object.defineProperty(_anonymous_xΞb5a98,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390838,
+      });
+      Object.defineProperty(_anonymous_xΞb5a98,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      
+    }
+  }
+  _anonymous_xΞb5a98[αa_initialize_class_fields]();
+  ;
+  return _anonymous_xΞb5a98;
+})();
+`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
 });

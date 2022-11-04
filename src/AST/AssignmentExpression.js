@@ -1,4 +1,9 @@
 const ExpressionInterface = require('./ExpressionInterface');
+const {Variable, Iife} = require('../Generator');
+const BlockStatement = require('./BlockStatement');
+const ReturnStatement = require('./ReturnStatement');
+const Identifier = require('./Identifier');
+let Class;
 
 class AssignmentExpression extends implementationOf(ExpressionInterface) {
     /**
@@ -35,6 +40,26 @@ class AssignmentExpression extends implementationOf(ExpressionInterface) {
          * @private
          */
         this._right = right;
+    }
+
+    prepare(compiler) {
+        if (undefined === Class) {
+            Class = require('./Class');
+        }
+
+        if ('function' === typeof this._right.prepare) {
+            this._right.prepare(compiler);
+        }
+
+        if (this._right instanceof Class) {
+            const varDecl = Variable.create('const', this._right.name, this._right);
+            varDecl.declarators[0].prepare = () => {};
+
+            this._right = Iife.create(new BlockStatement(null, [
+                varDecl,
+                new ReturnStatement(null, new Identifier(null, this._right.name)),
+            ]));
+        }
     }
 
     /**

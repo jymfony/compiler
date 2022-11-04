@@ -457,7 +457,7 @@ class x extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390953,
+      value: 390954,
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -587,7 +587,7 @@ class x extends __jymfony.JObject {
               writable: false,
               enumerable: false,
               configurable: true,
-              value: 390954,
+              value: 390955,
             });
             Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.metadata,{
               writable: false,
@@ -719,7 +719,7 @@ class x extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390955,
+      value: 390956,
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -1112,7 +1112,7 @@ class TestAnnotation extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390956,
+      value: 390957,
     });
     Object.defineProperty(TestAnnotation,Symbol.metadata,{
       writable: false,
@@ -1146,7 +1146,7 @@ const TestConstClassAnnotation = (() => {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390957,
+          value: 390958,
         });
         Object.defineProperty(_anonymous_xΞ96888,Symbol.metadata,{
           writable: false,
@@ -1212,7 +1212,7 @@ const RoutableClass = (() => {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390958,
+          value: 390959,
         });
         Object.defineProperty(RoutableClass,Symbol.metadata,{
           writable: false,
@@ -1342,7 +1342,7 @@ const TypedPrivateMethodClass = (() => {
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390959,
+        value: 390960,
       });
       Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
         writable: false,
