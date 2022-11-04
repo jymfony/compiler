@@ -504,78 +504,77 @@ module.exports = x;
 
         try {
             const program = parser.parse(`
-const x = class extends mix(superClass, ...ifaces) {};
-module.exports = x;
+export default class ScopingHttpClientTest extends TestCase {
+    @dataProvider('provideMatchingUrls')
+    async testMatchingUrls(regexp, url, options) {
+    }
+}
 `);
 
             const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
-const x = (() => {
-  const _anonymous_xΞ6e4f9 = class _anonymous_xΞ6e4f9 extends mix(superClass,...ifaces) {
-    
-    static [αa_initialize_class_fields]() {
-      Object.defineProperty(_anonymous_xΞ6e4f9,Symbol.reflection,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: 390837,
-      });
-      Object.defineProperty(_anonymous_xΞ6e4f9,Symbol.metadata,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: Symbol(),
-      });
+            expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa_initialize_class_fields = Symbol();
+const ScopingHttpClientTest = (() => {
+  const ScopingHttpClientTest = (() => {
+    const αc_initialize_class_fields = Symbol();
+    let ScopingHttpClientTest = class ScopingHttpClientTest extends TestCase {
+      async testMatchingUrls(regexp,url,options) {
+        
+      }
       
-    }
-  }
-  _anonymous_xΞ6e4f9[αa_initialize_class_fields]();
-  ;
-  return _anonymous_xΞ6e4f9;
-})();
-module.exports = x;
-`);
-        } finally {
-            __jymfony.autoload.debug = debug;
+      static [αa_initialize_class_fields]() {
+        Object.defineProperty(ScopingHttpClientTest,Symbol.reflection,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: 390837,
+        });
+        Object.defineProperty(ScopingHttpClientTest,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        Object.defineProperty(ScopingHttpClientTest.prototype.testMatchingUrls,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        {
+          let αb = dataProvider('provideMatchingUrls')(ScopingHttpClientTest.prototype.testMatchingUrls,{
+            kind: "method",
+            name: "testMatchingUrls",
+            access: {
+              get() {
+                return ScopingHttpClientTest.prototype.testMatchingUrls;
+              },
+            },
+            static: false,
+            private: false,
+            metadataKey: ScopingHttpClientTest.prototype.testMatchingUrls[Symbol.metadata],
+            class: {
+              name: "ScopingHttpClientTest",
+              metadataKey: ScopingHttpClientTest[Symbol.metadata],
+            },
+          });
+          if (αb === undefined) 
+            αb = ScopingHttpClientTest.prototype.testMatchingUrls;
+          
+          ScopingHttpClientTest.prototype.testMatchingUrls = αb;
         }
-    });
-
-    it ('should correctly compile anonymous classes on assignment expressions', () => {
-        const debug = __jymfony.autoload.debug;
-        __jymfony.autoload.debug = false;
-
-        try {
-            const program = parser.parse(`
-module.exports = class extends mix(superClass, ...ifaces) {};
-`);
-
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
-module.exports = (() => {
-  const _anonymous_xΞb5a98 = class _anonymous_xΞb5a98 extends mix(superClass,...ifaces) {
+      }
+    };
+    ScopingHttpClientTest[αa_initialize_class_fields]();
     
-    static [αa_initialize_class_fields]() {
-      Object.defineProperty(_anonymous_xΞb5a98,Symbol.reflection,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: 390838,
-      });
-      Object.defineProperty(_anonymous_xΞb5a98,Symbol.metadata,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: Symbol(),
-      });
-      
-    }
-  }
-  _anonymous_xΞb5a98[αa_initialize_class_fields]();
-  ;
-  return _anonymous_xΞb5a98;
+    return ScopingHttpClientTest;
+  })();
+  return ScopingHttpClientTest;
 })();
+exports.default = ScopingHttpClientTest;
 `);
         } finally {
             __jymfony.autoload.debug = debug;

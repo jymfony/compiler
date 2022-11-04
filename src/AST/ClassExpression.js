@@ -7,7 +7,10 @@ const { Variable } = require('../Generator');
 
 class ClassExpression extends mix(Class, ExpressionInterface) {
     compile(compiler) {
-        if (! this.docblock && 0 === (this.decorators || []).length) {
+        const hasDecorators = (this.decorators && 0 < this.decorators.length) ||
+            this._body.members.find(m => m.decorators && 0 < m.decorators.length) !== undefined;
+
+        if (!this.docblock && !hasDecorators) {
             return super.compile(compiler);
         }
 
