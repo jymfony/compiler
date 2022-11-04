@@ -119,61 +119,64 @@ class ClassB extends __jymfony.JObject {
 }
 ClassB[αa_initialize_class_fields]();
 const αb_initialize_class_fields = Symbol();
-const ClassA = class ClassA extends ClassB {
-  #internal;
-  constructor() {
-    super();
-    this.#internal = 'internal';
-    
-  }
-  static get [Symbol.jymfony_private_accessors]() {
-    return {
-      fields: {
-        "#internal": {
-          get: (obj) => obj.#internal,
-          set: (obj,value) => obj.#internal = value,
+const ClassA = (() => {
+  const ClassA = class ClassA extends ClassB {
+    #internal;
+    constructor() {
+      super();
+      this.#internal = 'internal';
+      
+    }
+    static get [Symbol.jymfony_private_accessors]() {
+      return {
+        fields: {
+          "#internal": {
+            get: (obj) => obj.#internal,
+            set: (obj,value) => obj.#internal = value,
+          },
         },
-      },
-      staticFields: {
-      },
-      methods: {
-      },
-      staticMethods: {
-      },
-    };
+        staticFields: {
+        },
+        methods: {
+        },
+        staticMethods: {
+        },
+      };
+    }
+    [Symbol.__jymfony_field_initialization]() {
+      const superClass = Object.getPrototypeOf(ClassA.prototype);
+      const superCall = superClass[Symbol.__jymfony_field_initialization];
+      if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+        superCall.apply(this);
+      
+      this.initialized = false;
+    }
+    static [αb_initialize_class_fields]() {
+      Object.defineProperty(ClassA,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390832,
+      });
+      Object.defineProperty(ClassA,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      Object.defineProperty(ClassA.prototype,Symbol.__jymfony_field_initialization,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: ClassA.prototype[Symbol.__jymfony_field_initialization],
+      });
+      
+    }
   }
-  [Symbol.__jymfony_field_initialization]() {
-    const superClass = Object.getPrototypeOf(ClassA.prototype);
-    const superCall = superClass[Symbol.__jymfony_field_initialization];
-    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
-      superCall.apply(this);
-    
-    this.initialized = false;
-  }
-  static [αb_initialize_class_fields]() {
-    Object.defineProperty(ClassA,Symbol.reflection,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: 390832,
-    });
-    Object.defineProperty(ClassA,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(ClassA.prototype,Symbol.__jymfony_field_initialization,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: ClassA.prototype[Symbol.__jymfony_field_initialization],
-    });
-    
-  }
-}
-ClassA[αb_initialize_class_fields]();
-;
+  ClassA[αb_initialize_class_fields]();
+  ;
+  return ClassA;
+})();
 exports.default = ClassA;
 `);
         } finally {
@@ -319,35 +322,38 @@ const x = new class {
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`const x = new ((() => {
   const αa_initialize_class_fields = Symbol();
-  const _anonymous_xΞ518e6 = class _anonymous_xΞ518e6 extends __jymfony.JObject {
-    getFoo() {
+  const _anonymous_xΞ518e6 = (() => {
+    const _anonymous_xΞ518e6 = class _anonymous_xΞ518e6 extends __jymfony.JObject {
+      getFoo() {
+        
+      }
       
+      static [αa_initialize_class_fields]() {
+        Object.defineProperty(_anonymous_xΞ518e6,Symbol.reflection,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: 390834,
+        });
+        Object.defineProperty(_anonymous_xΞ518e6,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        Object.defineProperty(_anonymous_xΞ518e6.prototype.getFoo,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        
+      }
     }
-    
-    static [αa_initialize_class_fields]() {
-      Object.defineProperty(_anonymous_xΞ518e6,Symbol.reflection,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: 390834,
-      });
-      Object.defineProperty(_anonymous_xΞ518e6,Symbol.metadata,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: Symbol(),
-      });
-      Object.defineProperty(_anonymous_xΞ518e6.prototype.getFoo,Symbol.metadata,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: Symbol(),
-      });
-      
-    }
-  }
-  _anonymous_xΞ518e6[αa_initialize_class_fields]();
-  ;
+    _anonymous_xΞ518e6[αa_initialize_class_fields]();
+    ;
+    return _anonymous_xΞ518e6;
+  })();
   return _anonymous_xΞ518e6;
 })())();
 `);
@@ -370,59 +376,62 @@ export default class Foo {
   value: true,
 });
 const αa_initialize_class_fields = Symbol();
-const αb_Foo_accessor_internalΞ8319b = Symbol(), αb_Foo_accessor_internalΞ8319b_init = [  ];
-const Foo = class Foo extends __jymfony.JObject {
-  
-  get internal() {
-    return this[αb_Foo_accessor_internalΞ8319b];
-  }
-  set internal(value) {
-    this[αb_Foo_accessor_internalΞ8319b] = value;
-  }
-  [Symbol.__jymfony_field_initialization]() {
-    const superClass = Object.getPrototypeOf(Foo.prototype);
-    const superCall = superClass[Symbol.__jymfony_field_initialization];
-    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
-      superCall.apply(this);
+const αb_Foo_accessor_internalΞ9b38b = Symbol(), αb_Foo_accessor_internalΞ9b38b_init = [  ];
+const Foo = (() => {
+  const Foo = class Foo extends __jymfony.JObject {
     
-    this[αb_Foo_accessor_internalΞ8319b] = (() => undefined)();
+    get internal() {
+      return this[αb_Foo_accessor_internalΞ9b38b];
+    }
+    set internal(value) {
+      this[αb_Foo_accessor_internalΞ9b38b] = value;
+    }
+    [Symbol.__jymfony_field_initialization]() {
+      const superClass = Object.getPrototypeOf(Foo.prototype);
+      const superCall = superClass[Symbol.__jymfony_field_initialization];
+      if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+        superCall.apply(this);
+      
+      this[αb_Foo_accessor_internalΞ9b38b] = (() => undefined)();
+    }
+    static [αa_initialize_class_fields]() {
+      Object.defineProperty(Foo,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390835,
+      });
+      Object.defineProperty(Foo,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      Object.defineProperty(Object.getOwnPropertyDescriptor(Foo.prototype,"internal").get,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      Object.defineProperty(Object.getOwnPropertyDescriptor(Foo.prototype,"internal").set,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      Object.defineProperty(Foo.prototype,Symbol.__jymfony_field_initialization,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Foo.prototype[Symbol.__jymfony_field_initialization],
+      });
+      
+    }
   }
-  static [αa_initialize_class_fields]() {
-    Object.defineProperty(Foo,Symbol.reflection,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: 390835,
-    });
-    Object.defineProperty(Foo,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(Object.getOwnPropertyDescriptor(Foo.prototype,"internal").get,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(Object.getOwnPropertyDescriptor(Foo.prototype,"internal").set,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(Foo.prototype,Symbol.__jymfony_field_initialization,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Foo.prototype[Symbol.__jymfony_field_initialization],
-    });
-    
-  }
-}
-Foo[αa_initialize_class_fields]();
-;
+  Foo[αa_initialize_class_fields]();
+  ;
+  return Foo;
+})();
 exports.default = Foo;
 `);
         } finally {
@@ -448,25 +457,71 @@ module.exports = x;
             const compiled = compiler.compile(program);
             expect(compiled).to.be.equal(`const x = new ((() => {
   const αa_initialize_class_fields = Symbol();
-  const _anonymous_xΞa7eea = class _anonymous_xΞa7eea extends GenericRetryStrategy {
-    methodX() {
+  const _anonymous_xΞ5c6f0 = (() => {
+    const _anonymous_xΞ5c6f0 = class _anonymous_xΞ5c6f0 extends GenericRetryStrategy {
+      methodX() {
+        
+      }
       
+      static [αa_initialize_class_fields]() {
+        Object.defineProperty(_anonymous_xΞ5c6f0,Symbol.reflection,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: 390836,
+        });
+        Object.defineProperty(_anonymous_xΞ5c6f0,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        Object.defineProperty(_anonymous_xΞ5c6f0.prototype.methodX,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        
+      }
     }
+    _anonymous_xΞ5c6f0[αa_initialize_class_fields]();
+    ;
+    return _anonymous_xΞ5c6f0;
+  })();
+  return _anonymous_xΞ5c6f0;
+})())(0);
+module.exports = x;
+`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
+
+    it ('should correctly compile anonymous classes in variable declarators', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+const x = class extends mix(superClass, ...ifaces) {};
+module.exports = x;
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
+const x = (() => {
+  const _anonymous_xΞ6e4f9 = class _anonymous_xΞ6e4f9 extends mix(superClass,...ifaces) {
     
     static [αa_initialize_class_fields]() {
-      Object.defineProperty(_anonymous_xΞa7eea,Symbol.reflection,{
+      Object.defineProperty(_anonymous_xΞ6e4f9,Symbol.reflection,{
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390836,
+        value: 390837,
       });
-      Object.defineProperty(_anonymous_xΞa7eea,Symbol.metadata,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: Symbol(),
-      });
-      Object.defineProperty(_anonymous_xΞa7eea.prototype.methodX,Symbol.metadata,{
+      Object.defineProperty(_anonymous_xΞ6e4f9,Symbol.metadata,{
         writable: false,
         enumerable: false,
         configurable: true,
@@ -475,10 +530,10 @@ module.exports = x;
       
     }
   }
-  _anonymous_xΞa7eea[αa_initialize_class_fields]();
+  _anonymous_xΞ6e4f9[αa_initialize_class_fields]();
   ;
-  return _anonymous_xΞa7eea;
-})())(0);
+  return _anonymous_xΞ6e4f9;
+})();
 module.exports = x;
 `);
         } finally {

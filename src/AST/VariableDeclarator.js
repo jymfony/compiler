@@ -1,4 +1,9 @@
+const { Iife, Variable } = require('../Generator');
+const BlockStatement = require('./BlockStatement');
+const Identifier = require('./Identifier');
 const NodeInterface = require('./NodeInterface');
+const ReturnStatement = require('./ReturnStatement');
+let Class;
 
 class VariableDeclarator extends implementationOf(NodeInterface) {
     /**
@@ -53,8 +58,26 @@ class VariableDeclarator extends implementationOf(NodeInterface) {
      * @param {Compiler} compiler
      */
     prepare(compiler) {
-        if (null !== this._init && 'function' === typeof this._init.prepare) {
+        if (null === this._init) {
+            return;
+        }
+
+        if (undefined === Class) {
+            Class = require('./Class');
+        }
+
+        if ('function' === typeof this._init.prepare) {
             this._init.prepare(compiler);
+        }
+
+        if (this._init instanceof Class) {
+            const varDecl = Variable.create('const', this._init.name, this._init);
+            varDecl.declarators[0].prepare = () => {};
+
+            this._init = Iife.create(new BlockStatement(null, [
+                varDecl,
+                new ReturnStatement(null, new Identifier(null, this._init.name)),
+            ]));
         }
     }
 
