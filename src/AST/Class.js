@@ -240,8 +240,12 @@ class Class extends implementationOf(NodeInterface) {
             return;
         }
 
-        if (null === this.superClass && !this.hasConstructor) {
+        if (null === this.superClass) {
             this.superClass = new Identifier(null, '__jymfony.JObject');
+            const constructor = this.getConstructor();
+            if (null !== constructor) {
+                constructor.body.statements.unshift(new CallExpression(null, new Identifier(null, 'super')));
+            }
         }
 
         if (initializationSymbol === undefined) {

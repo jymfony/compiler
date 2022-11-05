@@ -205,10 +205,10 @@ new x(true);
         StackHandler.registerSourceMap('x.js', gen.toJSON().mappings);
 
         try {
-            runInNewContext(compiled, { Symbol }, { filename: 'x.js' });
+            runInNewContext(compiled, { Symbol, __jymfony }, { filename: 'x.js' });
             throw new Error('FAIL');
         } catch (e) {
-            expect(e.stack.startsWith(`x.js:5
+            expect(e.stack.startsWith(`x.js:6
       throw new Error('Has to be thrown');
       ^
 
