@@ -1428,4 +1428,17 @@ val =
         const compiled = compiler.compile(program);
         expect(compiled).to.be.eq("val = val === 0 && 1 / val === - Infinity ? '-0' : val.toString();\n");
     });
+
+    it ('should correctly parse member expressions with a comment in the middle #3', () => {
+        const program = parser.parse(`
+  x = false
+
+  // this is a comment
+  var n = this.length
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq("x = false;\nvar n = this.length;\n");
+    });
 });

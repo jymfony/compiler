@@ -407,6 +407,7 @@ class ExpressionParserTrait {
                     this._next();
 
                     const args = this._lexer.isToken(Lexer.T_CLOSED_PARENTHESIS) ? [] : this._parseExpression();
+                    this._skipSpaces();
                     this._expect(Lexer.T_CLOSED_PARENTHESIS);
                     this._next(false);
 
@@ -464,7 +465,7 @@ class ExpressionParserTrait {
         const start = this._getCurrentPosition();
         let expression;
 
-        const state = this.state;
+        let state = this.state;
         try {
             expression = identifier ? this._parseExpressionStage2(start, maxLevel) : this._parseExpressionStage1(start, maxLevel);
         } catch (e) {
@@ -484,207 +485,221 @@ class ExpressionParserTrait {
             return expression;
         }
 
-        if (undefined !== expression) {
-            if (this._lexer.isToken(Lexer.T_SPACE) && ! this.constructor._includesLineTerminator(this._lexer.token.value)) {
-                this._skipSpaces();
+        let originalExpression = expression;
+        state = this.state;
+        try {
+            if (undefined !== expression) {
+                if (this._lexer.isToken(Lexer.T_SPACE) && !this.constructor._includesLineTerminator(this._lexer.token.value)) {
+                    this._skipSpaces();
+                }
+
+                // Level 17
+                if (this._lexer.isToken(Lexer.T_OPERATOR) && [ '++', '--' ].includes(this._lexer.token.value)) {
+                    const operator = this._lexer.token.value;
+                    this._next();
+
+                    expression = new AST.UpdateExpression(this._makeLocation(start), operator, expression, false);
+                }
+            } else {
+                // Level 16
+                switch (this._lexer.token.value) {
+                    case '!':
+                    case '!!':
+                    case '~':
+                    case '~~':
+                    case '+':
+                    case '-':
+                    case 'typeof':
+                    case 'void':
+                    case 'delete': {
+                        const operator = this._lexer.token.value;
+                        this._next();
+
+                        const argument = this._parseExpression({maxLevel: 16});
+                        expression = new AST.UnaryExpression(this._makeLocation(start), operator, argument);
+                    }
+                        break;
+
+                    case '++':
+                    case '--': {
+                        const operator = this._lexer.token.value;
+                        this._next();
+
+                        const argument = this._parseExpression({maxLevel: 16});
+                        expression = new AST.UpdateExpression(this._makeLocation(start), operator, argument, true);
+                    }
+                        break;
+
+                    case 'await': {
+                        this._next();
+                        const promise = this._parseExpression({maxLevel: 16});
+
+                        expression = new AST.AwaitExpression(this._makeLocation(start), promise);
+                    }
+                        break;
+                }
             }
 
-            // Level 17
-            if (this._lexer.isToken(Lexer.T_OPERATOR) && [ '++', '--' ].includes(this._lexer.token.value)) {
+            const _binaryExpression = (level) => {
+                if (maxLevel > level) {
+                    return;
+                }
+
                 const operator = this._lexer.token.value;
                 this._next();
 
-                expression = new AST.UpdateExpression(this._makeLocation(start), operator, expression, false);
-            }
-        } else {
-            // Level 16
-            switch (this._lexer.token.value) {
-                case '!':
-                case '!!':
-                case '~':
-                case '~~':
-                case '+':
-                case '-':
-                case 'typeof':
-                case 'void':
-                case 'delete': {
-                    const operator = this._lexer.token.value;
-                    this._next();
+                const right = this._parseExpression({maxLevel: level});
+                expression = new AST.BinaryExpression(this._makeLocation(start), operator, expression, right);
+            };
 
-                    const argument = this._parseExpression({ maxLevel: 16 });
-                    expression = new AST.UnaryExpression(this._makeLocation(start), operator, argument);
-                } break;
+            state = this.state;
+            originalExpression = expression;
+            this._skipSpaces();
 
-                case '++':
-                case '--': {
-                    const operator = this._lexer.token.value;
-                    this._next();
-
-                    const argument = this._parseExpression({ maxLevel: 16 });
-                    expression = new AST.UpdateExpression(this._makeLocation(start), operator, argument, true);
-                } break;
-
-                case 'await': {
-                    this._next();
-                    const promise = this._parseExpression({ maxLevel: 16 });
-
-                    expression = new AST.AwaitExpression(this._makeLocation(start), promise);
-                } break;
-            }
-        }
-
-        const _binaryExpression = (level) => {
-            if (maxLevel > level) {
-                return;
+            // Level 15
+            if ('**' === this._lexer.token.value) {
+                _binaryExpression(15);
             }
 
-            const operator = this._lexer.token.value;
-            this._next();
+            if (this._lexer.isToken(Lexer.T_REGEX)) {
+                throw new NotARegExpException(this._lexer.token);
+            }
 
-            const right = this._parseExpression({ maxLevel: level });
-            expression = new AST.BinaryExpression(this._makeLocation(start), operator, expression, right);
-        };
+            // Level 14
+            if ([ '*', '/', '%' ].includes(this._lexer.token.value)) {
+                _binaryExpression(14);
+            }
 
-        this._skipSpaces();
+            // Level 13
+            if ([ '+', '-' ].includes(this._lexer.token.value)) {
+                _binaryExpression(13);
+            }
 
-        // Level 15
-        if ('**' === this._lexer.token.value) {
-            _binaryExpression(15);
-        }
+            // Level 12
+            if ([ '<<', '>>', '>>>' ].includes(this._lexer.token.value)) {
+                _binaryExpression(12);
+            }
 
-        if (this._lexer.isToken(Lexer.T_REGEX)) {
-            throw new NotARegExpException(this._lexer.token);
-        }
+            // Level 11
+            if ([ '<', '<=', '>', '>=', 'in', 'instanceof' ].includes(this._lexer.token.value)) {
+                _binaryExpression(11);
+            }
 
-        // Level 14
-        if ([ '*', '/', '%' ].includes(this._lexer.token.value)) {
-            _binaryExpression(14);
-        }
+            // Level 10
+            if ([ '==', '!=', '===', '!==' ].includes(this._lexer.token.value)) {
+                _binaryExpression(10);
+            }
 
-        // Level 13
-        if ([ '+', '-' ].includes(this._lexer.token.value)) {
-            _binaryExpression(13);
-        }
+            // Level 9
+            if ('&' === this._lexer.token.value) {
+                _binaryExpression(9);
+            }
 
-        // Level 12
-        if ([ '<<', '>>', '>>>' ].includes(this._lexer.token.value)) {
-            _binaryExpression(12);
-        }
+            // Level 8
+            if ('^' === this._lexer.token.value) {
+                _binaryExpression(8);
+            }
 
-        // Level 11
-        if ([ '<', '<=', '>', '>=', 'in', 'instanceof' ].includes(this._lexer.token.value)) {
-            _binaryExpression(11);
-        }
+            // Level 7
+            if ('|' === this._lexer.token.value) {
+                _binaryExpression(7);
+            }
 
-        // Level 10
-        if ([ '==', '!=', '===', '!==' ].includes(this._lexer.token.value)) {
-            _binaryExpression(10);
-        }
+            // Level 6
+            if ('&&' === this._lexer.token.value) {
+                _binaryExpression(6);
+            }
 
-        // Level 9
-        if ('&' === this._lexer.token.value) {
-            _binaryExpression(9);
-        }
+            // Level 5
+            if ('||' === this._lexer.token.value || '??' === this._lexer.token.value) {
+                _binaryExpression(5);
+            }
 
-        // Level 8
-        if ('^' === this._lexer.token.value) {
-            _binaryExpression(8);
-        }
+            if (4 < maxLevel) {
+                return expression;
+            }
 
-        // Level 7
-        if ('|' === this._lexer.token.value) {
-            _binaryExpression(7);
-        }
-
-        // Level 6
-        if ('&&' === this._lexer.token.value) {
-            _binaryExpression(6);
-        }
-
-        // Level 5
-        if ('||' === this._lexer.token.value || '??' === this._lexer.token.value) {
-            _binaryExpression(5);
-        }
-
-        if (4 < maxLevel) {
-            return expression;
-        }
-
-        // Level 4
-        if (this._lexer.isToken(Lexer.T_QUESTION_MARK)) {
-            this._next();
-
-            const consequent = this._parseExpression({ maxLevel: 2 });
-            this._expect(Lexer.T_COLON);
-            this._next();
-            const alternate = this._parseExpression({ maxLevel: 2 });
-
-            expression = new AST.ConditionalExpression(this._makeLocation(start), expression, consequent, alternate);
-        }
-
-        if (3 < maxLevel) {
-            return expression;
-        }
-
-        // Level 3
-        if (this._lexer.isToken(Lexer.T_ASSIGNMENT_OP)) {
-            const operator = this._lexer.token.value;
-
-            this._next();
-            const right = this._parseExpression({ maxLevel: 2 });
-            expression = new AST.AssignmentExpression(this._makeLocation(start), operator, expression, right);
-        }
-
-        if (2 < maxLevel) {
-            return expression;
-        }
-
-        // Level 2
-        if (Lexer.T_YIELD === this._lexer.token.type) {
-            this._next();
-            const delegate = '*' === this._lexer.token.value;
-            if (delegate) {
+            // Level 4
+            if (this._lexer.isToken(Lexer.T_QUESTION_MARK)) {
                 this._next();
+
+                const consequent = this._parseExpression({maxLevel: 2});
+                this._skipSpaces();
+                this._expect(Lexer.T_COLON);
+                this._next();
+                const alternate = this._parseExpression({maxLevel: 2});
+
+                expression = new AST.ConditionalExpression(this._makeLocation(start), expression, consequent, alternate);
             }
 
-            const state = this.state;
-            let argument = null;
-            try {
-                argument = this._parseExpression({ maxLevel: 2 }) || null;
-            } catch (e) {
-                this.state = state;
+            if (3 < maxLevel) {
+                return expression;
             }
 
-            expression = new AST.YieldExpression(this._makeLocation(start), argument, delegate);
-        }
+            // Level 3
+            if (this._lexer.isToken(Lexer.T_ASSIGNMENT_OP)) {
+                const operator = this._lexer.token.value;
 
-        if (1 < maxLevel) {
-            return expression;
-        }
+                this._next();
+                const right = this._parseExpression({maxLevel: 2});
+                expression = new AST.AssignmentExpression(this._makeLocation(start), operator, expression, right);
+            }
 
-        if (this._lexer.isToken(Lexer.T_COMMA)) {
-            this._next();
+            if (2 < maxLevel) {
+                return expression;
+            }
 
-            const args = [ expression ];
-            while (true) {
-                const right = this._parseExpression({ maxLevel: 2 });
-
-                if (this._lexer.isToken(Lexer.T_COMMA)) {
+            // Level 2
+            if (Lexer.T_YIELD === this._lexer.token.type) {
+                this._next();
+                const delegate = '*' === this._lexer.token.value;
+                if (delegate) {
                     this._next();
-                } else {
-                    if (undefined !== right) {
-                        args.push(right);
-                    }
-                    break;
                 }
 
-                args.push(right);
+                const state = this.state;
+                let argument = null;
+                try {
+                    argument = this._parseExpression({maxLevel: 2}) || null;
+                } catch (e) {
+                    this.state = state;
+                }
+
+                expression = new AST.YieldExpression(this._makeLocation(start), argument, delegate);
             }
 
-            expression = new AST.SequenceExpression(this._makeLocation(start), args);
-        }
+            if (1 < maxLevel) {
+                return expression;
+            }
 
-        return expression;
+            if (this._lexer.isToken(Lexer.T_COMMA)) {
+                this._next();
+
+                const args = [ expression ];
+                while (true) {
+                    const right = this._parseExpression({maxLevel: 2});
+
+                    if (this._lexer.isToken(Lexer.T_COMMA)) {
+                        this._next();
+                    } else {
+                        if (undefined !== right) {
+                            args.push(right);
+                        }
+                        break;
+                    }
+
+                    args.push(right);
+                }
+
+                expression = new AST.SequenceExpression(this._makeLocation(start), args);
+            }
+
+            return expression;
+        } finally {
+            if (expression === originalExpression) {
+                this.state = state;
+            }
+        }
     }
 }
 
