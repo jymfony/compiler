@@ -274,6 +274,7 @@ class ExpressionParserTrait {
                 let elements = [];
                 if (! this._lexer.isToken(Lexer.T_CLOSED_SQUARE_BRACKET)) {
                     elements = this._parseExpression();
+                    this._skipSpaces();
                 }
 
                 this._next(false);

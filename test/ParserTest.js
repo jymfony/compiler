@@ -1441,4 +1441,24 @@ val =
         const compiled = compiler.compile(program);
         expect(compiled).to.be.eq("x = false;\nvar n = this.length;\n");
     });
+
+    it ('should correctly parse member expressions with a comment in the middle #4', () => {
+        const program = parser.parse(`
+  [
+    'x',
+    'y' // this is the second element
+    // and this is a comment
+  ].forEach(opt => {
+    this[opt]();
+  });
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`[ 'x', 'y',  ].forEach((opt) => {
+  this[opt]();
+  
+});
+`);
+    });
 });
