@@ -1404,7 +1404,7 @@ exports.default = TypedPrivateMethodClass;
 `);
     });
 
-    it ('should correctly parse member expressions with a comment in the middle', () => {
+    it ('should correctly parse expressions with a comment in the middle', () => {
         const program = parser.parse(`
 a.b('.x', Y)
     .setA() // comment
@@ -1416,7 +1416,7 @@ a.b('.x', Y)
         expect(compiled).to.be.eq("a.b('.x',Y).setA().setB();\n");
     });
 
-    it ('should correctly parse member expressions with a comment in the middle #2', () => {
+    it ('should correctly parse expressions with a comment in the middle #2', () => {
         const program = parser.parse(`
 val =
   val === 0 && 1 / val === -Infinity // -0
@@ -1429,7 +1429,7 @@ val =
         expect(compiled).to.be.eq("val = val === 0 && 1 / val === - Infinity ? '-0' : val.toString();\n");
     });
 
-    it ('should correctly parse member expressions with a comment in the middle #3', () => {
+    it ('should correctly parse expressions with a comment in the middle #3', () => {
         const program = parser.parse(`
   x = false
 
@@ -1442,7 +1442,7 @@ val =
         expect(compiled).to.be.eq("x = false;\nvar n = this.length;\n");
     });
 
-    it ('should correctly parse member expressions with a comment in the middle #4', () => {
+    it ('should correctly parse expressions with a comment in the middle #4', () => {
         const program = parser.parse(`
   [
     'x',
@@ -1462,6 +1462,26 @@ val =
 `);
     });
 
+    it ('should correctly parse expressions with a comment in the middle #5', () => {
+        const program = parser.parse(`
+for (;;) {
+  switch(x) {
+    default: console.log(1);
+  } // end switch
+} // end for
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`for (;;){
+  switch (x) {
+    default:
+      console.log(1);
+      
+  };
+};`);
+    });
+
     it ('should correctly parse if expressions with line terminations', () => {
         const program = parser.parse(`
 if (
@@ -1479,7 +1499,7 @@ if (
 `);
     });
 
-    it ('should correctly parse if expressions with line terminations', () => {
+    it ('should correctly parse if expressions with line terminations #2', () => {
         const program = parser.parse(`
 _err.code !== 'MODULE_NOT_FOUND' ||
 _err.message.indexOf('Cannot find module') !== -1

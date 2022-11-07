@@ -1552,6 +1552,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                     return new AST.FunctionStatement(this._makeLocation(start), body, id, args, { generator, async });
                 }
 
+                case Lexer.T_COMMENT: {
+                    this._next();
+                    return new AST.EmptyStatement(this._makeLocation(start));
+                }
+
                 default:
                     this._syntaxError('Unexpected "' + this._lexer.token.value + '"');
             }
