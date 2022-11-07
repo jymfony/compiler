@@ -1478,4 +1478,17 @@ if (
 }
 `);
     });
+
+    it ('should correctly parse if expressions with line terminations', () => {
+        const program = parser.parse(`
+_err.code !== 'MODULE_NOT_FOUND' ||
+_err.message.indexOf('Cannot find module') !== -1
+  ? x
+  : y;
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq('_err.code !== \'MODULE_NOT_FOUND\' || _err.message.indexOf(\'Cannot find module\') !== - 1 ? x : y;\n');
+    });
 });

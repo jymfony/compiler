@@ -271,12 +271,21 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             this._skipSpaces();
         } else if ((this._lexer.isToken(Lexer.T_SPACE) && Parser._includesLineTerminator(this._lexer.token.value)) || (lastToken && Lexer.T_SPACE === lastToken.type && Parser._includesLineTerminator(lastToken.value))) {
             this._skipSpaces();
-        } else if (lastNonBlankToken && (Lexer.T_CURLY_BRACKET_CLOSE === lastNonBlankToken.type || this._lexer.isToken(Lexer.T_CURLY_BRACKET_CLOSE))) {
+        } else if (
+            lastNonBlankToken &&
+            (Lexer.T_CURLY_BRACKET_CLOSE === lastNonBlankToken.type || this._lexer.isToken(Lexer.T_CURLY_BRACKET_CLOSE))
+        ) {
             this._skipSpaces();
-        } else if (this._lexer.isToken(Lexer.T_EOF) || (lastToken && lastToken.type === Lexer.T_EOF) || (lastNonBlankToken && lastNonBlankToken.type === Lexer.T_SEMICOLON)) {
+        } else if (
+            this._lexer.isToken(Lexer.T_EOF) ||
+            (lastToken && lastToken.type === Lexer.T_EOF) ||
+            (lastNonBlankToken && lastNonBlankToken.type === Lexer.T_SEMICOLON)
+        ) {
             // Do nothing
         } else if (this._lexer.isToken(Lexer.T_COMMENT) && Parser._includesLineTerminator(this._lexer.token.value)) {
             this._next(true);
+        } else if (lastNonBlankToken && lastNonBlankToken.type === Lexer.T_COMMENT && Parser._includesLineTerminator(lastNonBlankToken.value)){
+            // Do nothing
         } else {
             this._syntaxError('Unexpected "' + this._lexer.token.value + '": statement termination expected.');
         }
