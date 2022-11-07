@@ -34,15 +34,7 @@ class ExpressionStatement extends implementationOf(StatementInterface) {
      * @inheritdoc
      */
     get shouldBeClosed() {
-        if (
-            this._expression instanceof CallExpression ||
-            this._expression instanceof AssignmentExpression
-        ) {
-            return false;
-        }
-
-        // TODO!
-        return true;
+        return false;
     }
 
     /**

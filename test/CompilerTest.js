@@ -580,4 +580,26 @@ exports.default = ScopingHttpClientTest;
             __jymfony.autoload.debug = debug;
         }
     });
+
+    it ('should correctly compile inline if-else', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+if (!bits(1)) t++;
+else t--;
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            expect(compiled).to.be.equal(`if (! bits(1)) 
+  t++;
+else t--;
+
+`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
 });
