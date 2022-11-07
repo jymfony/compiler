@@ -246,8 +246,6 @@ class ExpressionParserTrait {
                     number = Number.parseInt(number.substr(2), 8);
                 } else if (number.startsWith('0b')) {
                     number = Number.parseInt(number.substr(2), 2);
-                } else {
-                    number = Number.parseFloat(number);
                 }
 
                 expression = new AST.NumberLiteral(this._makeLocation(start), number);
@@ -298,7 +296,7 @@ class ExpressionParserTrait {
         }
 
         if (20 === maxLevel) {
-            return undefined;
+            return expression;
         }
 
         return this._parseExpressionStage2(start, maxLevel, expression);
@@ -457,6 +455,10 @@ class ExpressionParserTrait {
     _parseExpression({ maxLevel = -1, pattern = false, identifier = false } = {}) {
         const start = this._getCurrentPosition();
         let expression;
+
+        while (this._lexer.isToken(Lexer.T_COMMENT)) {
+            this._next();
+        }
 
         const state = this.state;
         try {

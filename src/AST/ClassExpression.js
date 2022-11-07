@@ -6,11 +6,20 @@ const StatementInterface = require('./StatementInterface');
 const { Variable } = require('../Generator');
 
 class ClassExpression extends mix(Class, ExpressionInterface) {
+    __construct(location, body, id = undefined, superClass = undefined) {
+        super.__construct(location, body, id, superClass);
+
+        /**
+         * @type {boolean}
+         */
+        this.forceWrap = false;
+    }
+
     compile(compiler) {
         const hasDecorators = (this.decorators && 0 < this.decorators.length) ||
             this._body.members.find(m => m.decorators && 0 < m.decorators.length) !== undefined;
 
-        if (!this.docblock && !hasDecorators) {
+        if (!this.forceWrap && !this.docblock && !hasDecorators) {
             return super.compile(compiler);
         }
 

@@ -1,11 +1,11 @@
 const { dirname, sep } = require('path');
 const { readdirSync, readFileSync } = require('fs');
-const ClassLoader = Jymfony.Component.Autoloader.ClassLoader;
 const Compiler = require('../src/Compiler');
 const Generator = require('../src/SourceMap/Generator');
 const Parser = require('../src/Parser');
 const { expect } = require('chai');
 const folder = dirname(require.resolve('test262-parser-tests/package.json'));
+const { compileFunction } = require('vm');
 const seedrandom = require('seedrandom');
 
 describe('[Compiler] Parser', function () {
@@ -71,12 +71,24 @@ describe('[Compiler] Parser', function () {
         'ffaf5b9d3140465b.js', // "let" as identifier. Not supported: let is reserved word in ES6
         'd22f8660531e1c1a.js', // "static" as identifier. Not supported: static is reserved word in ES6
         'f4a61fcdefebb9d4.js', // "private", "protected", "public" as identifier. Not supported: reserved words in ES6
+        '177fef3d002eb873.js', // "yield" used in extends.
+        '901fca17189cd709.js', // "yield" as method name.
+        '48567b651f81277e.js', // Duplicate __proto__ fields are not allowed in object literals
     ];
 
     const ignored = [
         '7b0a9215ec756496.js', // Multiline comment used as statement terminator
         '946bee37652a31fa.js', // HTML comment after multiline comment
         '9f0d8eb6f7ab8180.js', // HTML comment after multiline comment
+
+        // TBD
+        '0813adc754c82a98.js', // Method name as string
+        '55b74de671f60184.js', // Method name as string
+        '7055b45fe7f74d94.js', // Method name as string
+        '3df03e7e138b7760.js', // Member expression with new
+        '802658d6ef9a83ec.js', // Member expression with new
+        '8543b43f3c48c975.module.js', // "default" identifier
+        'abcfae2381708c43.module.js', // "default" identifier
     ];
 
     for (const filename of readdirSync(folder + sep + 'pass')) {
@@ -91,9 +103,10 @@ describe('[Compiler] Parser', function () {
             const program = parser.parse(content);
 
             const compiler = new Compiler(new Generator());
-            compiler.compile(program);
+            const compiled = compiler.compile(program);
 
             expect(program).is.not.null;
+            compileFunction(compiled);
         });
     }
 
@@ -467,7 +480,7 @@ class x extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390954,
+      value: 390949,
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -597,7 +610,7 @@ class x extends __jymfony.JObject {
               writable: false,
               enumerable: false,
               configurable: true,
-              value: 390955,
+              value: 390950,
             });
             Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.metadata,{
               writable: false,
@@ -729,7 +742,7 @@ class x extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390956,
+      value: 390951,
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -1122,7 +1135,7 @@ class TestAnnotation extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390957,
+      value: 390952,
     });
     Object.defineProperty(TestAnnotation,Symbol.metadata,{
       writable: false,
@@ -1156,7 +1169,7 @@ const TestConstClassAnnotation = (() => {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390958,
+          value: 390953,
         });
         Object.defineProperty(_anonymous_xΞ96888,Symbol.metadata,{
           writable: false,
@@ -1222,7 +1235,7 @@ const RoutableClass = (() => {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390959,
+          value: 390954,
         });
         Object.defineProperty(RoutableClass,Symbol.metadata,{
           writable: false,
@@ -1352,7 +1365,7 @@ const TypedPrivateMethodClass = (() => {
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390960,
+        value: 390955,
       });
       Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
         writable: false,

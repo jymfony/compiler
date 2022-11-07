@@ -25,7 +25,7 @@ class ContinueStatement extends implementationOf(StatementInterface) {
      * @inheritdoc
      */
     get shouldBeClosed() {
-        return true;
+        return false;
     }
 
     /**
@@ -33,11 +33,12 @@ class ContinueStatement extends implementationOf(StatementInterface) {
      */
     compile(compiler) {
         compiler._emit('continue');
-
         if (null !== this._label) {
             compiler._emit(' ');
             compiler.compileNode(this._label);
         }
+
+        compiler._emit(';');
     }
 }
 

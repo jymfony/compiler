@@ -25,7 +25,7 @@ class BreakStatement extends implementationOf(StatementInterface) {
      * @inheritdoc
      */
     get shouldBeClosed() {
-        return true;
+        return false;
     }
 
     /**
@@ -33,11 +33,12 @@ class BreakStatement extends implementationOf(StatementInterface) {
      */
     compile(compiler) {
         compiler._emit('break');
-
         if (null !== this._label) {
             compiler._emit(' ');
             compiler.compileNode(this._label);
         }
+
+        compiler._emit(';');
     }
 }
 

@@ -20,6 +20,8 @@ const StatementInterface = require('./StatementInterface');
 const StringLiteral = require('./StringLiteral');
 const { getNextTypeId } = require('../TypeId');
 
+let ClassExpression;
+
 /**
  * @abstract
  */
@@ -243,8 +245,20 @@ class Class extends implementationOf(NodeInterface) {
         if (null === this.superClass) {
             this.superClass = new Identifier(null, '__jymfony.JObject');
             const constructor = this.getConstructor();
-            if (null !== constructor) {
+            if (null !== constructor && !constructor.static) {
                 constructor.body.statements.unshift(new CallExpression(null, new Identifier(null, 'super')));
+            }
+        } else {
+            if (undefined === ClassExpression) {
+                ClassExpression = require('./ClassExpression');
+            }
+
+            if (this.superClass instanceof ClassExpression) {
+                this.superClass.forceWrap = true;
+            }
+
+            if ('function' === typeof this.superClass.prepare) {
+                this.superClass.prepare(compiler);
             }
         }
 

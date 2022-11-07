@@ -29,6 +29,12 @@ class YieldExpression extends implementationOf(ExpressionInterface) {
         this._delegate = delegate;
     }
 
+    prepare(compiler) {
+        if (null !== this._argument && 'function' === typeof this._argument.prepare) {
+            this._argument.prepare(compiler);
+        }
+    }
+
     /**
      * @inheritdoc
      */

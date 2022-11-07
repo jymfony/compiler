@@ -11,7 +11,7 @@ class NumberLiteral extends Literal {
         super.__construct(location);
 
         /**
-         * @type {number|BigInt}
+         * @type {string|number|BigInt}
          *
          * @private
          */

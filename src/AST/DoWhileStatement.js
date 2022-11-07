@@ -1,4 +1,3 @@
-const BlockStatement = require('./BlockStatement');
 const StatementInterface = require('./StatementInterface');
 
 class DoWhileStatement extends implementationOf(StatementInterface) {
@@ -41,9 +40,10 @@ class DoWhileStatement extends implementationOf(StatementInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        compiler._emit('do');
+        compiler._emit('do ');
+
         compiler.compileNode(this._body);
-        if (! (this._body instanceof BlockStatement)) {
+        if (this._body.shouldBeClosed) {
             compiler._emit(';\n');
         }
 

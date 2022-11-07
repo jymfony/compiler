@@ -1,5 +1,7 @@
 const ExpressionInterface = require('./ExpressionInterface');
 const Identifier = require('./Identifier');
+const NumberLiteral = require('./NumberLiteral');
+const ParenthesizedExpression = require('./ParenthesizedExpression');
 
 class MemberExpression extends implementationOf(ExpressionInterface) {
     /**
@@ -69,7 +71,11 @@ class MemberExpression extends implementationOf(ExpressionInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        compiler.compileNode(this._object);
+        if (this._object instanceof NumberLiteral) {
+            compiler.compileNode(new ParenthesizedExpression(this.location, this._object));
+        } else {
+            compiler.compileNode(this._object);
+        }
 
         if (this._optional) {
             compiler._emit('?.');

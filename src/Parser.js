@@ -168,6 +168,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
             try {
                 while (this._lexer.token && !this._lexer.isToken(Lexer.T_EOF)) {
+                    if (this._lexer.isToken(Lexer.T_COMMENT)) {
+                        this._next();
+                        continue;
+                    }
+
                     program.add(this._doParse());
                     this._skipSpaces();
                 }
@@ -275,6 +280,8 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             this._skipSpaces();
         } else if (this._lexer.isToken(Lexer.T_EOF) || (lastToken && lastToken.type === Lexer.T_EOF) || (lastNonBlankToken && lastNonBlankToken.type === Lexer.T_SEMICOLON)) {
             // Do nothing
+        } else if (this._lexer.isToken(Lexer.T_COMMENT) && Parser._includesLineTerminator(this._lexer.token.value)) {
+            this._next(true);
         } else {
             this._syntaxError('Unexpected "' + this._lexer.token.value + '": statement termination expected.');
         }
@@ -368,7 +375,9 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                     }
                 }
 
-                continue;
+                if (!Parser._includesLineTerminator(this._lexer.token.value)) {
+                    continue;
+                }
             }
 
             break;
@@ -590,11 +599,23 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
             case 'continue': {
                 this._next(false);
+                let label = null;
+
                 if (this._lexer.isToken(Lexer.T_SPACE) && ! Parser._includesLineTerminator(this._lexer.token.value)) {
                     this._skipSpaces();
                 }
 
-                let label = null;
+                if (
+                    (this._lexer.isToken(Lexer.T_COMMENT) || this._lexer.isToken(Lexer.T_DOCBLOCK)) &&
+                    Parser._includesLineTerminator(this._lexer.token.value, label)
+                ) {
+                    return new AST.ContinueStatement(this._makeLocation(start), label);
+                }
+
+                if (this._lexer.isToken(Lexer.T_SPACE) && ! Parser._includesLineTerminator(this._lexer.token.value)) {
+                    this._skipSpaces();
+                }
+
                 if (this._lexer.isToken(Lexer.T_IDENTIFIER)) {
                     label = this._parseIdentifier();
                 }
@@ -606,17 +627,23 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 this._next(false);
                 let label = null;
 
-                if (
-                    this._lexer.isToken(Lexer.T_SPACE) &&
-                    ! this.constructor._includesLineTerminator(this._lexer.token.value)
-                ) {
-                    this._next();
+                if (this._lexer.isToken(Lexer.T_SPACE) && ! Parser._includesLineTerminator(this._lexer.token.value)) {
+                    this._skipSpaces();
+                }
 
-                    if (this._lexer.isToken(Lexer.T_IDENTIFIER)) {
-                        label = this._parseIdentifier();
-                    }
-                } else {
-                    this._next();
+                if (
+                    (this._lexer.isToken(Lexer.T_COMMENT) || this._lexer.isToken(Lexer.T_DOCBLOCK)) &&
+                    Parser._includesLineTerminator(this._lexer.token.value)
+                ) {
+                    return new AST.ContinueStatement(this._makeLocation(start), label);
+                }
+
+                if (this._lexer.isToken(Lexer.T_SPACE) && ! Parser._includesLineTerminator(this._lexer.token.value)) {
+                    this._skipSpaces();
+                }
+
+                if (this._lexer.isToken(Lexer.T_IDENTIFIER)) {
+                    label = this._parseIdentifier();
                 }
 
                 return new AST.BreakStatement(this._makeLocation(start), label);
@@ -695,6 +722,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                     const consequent = [];
 
                     while ('case' !== this._lexer.token.value && 'default' !== this._lexer.token.value && ! this._lexer.isToken(Lexer.T_CURLY_BRACKET_CLOSE)) {
+                        if (this._lexer.isToken(Lexer.T_COMMENT)) {
+                            this._next();
+                            continue;
+                        }
+
                         consequent.push(this._parseStatement());
                         this._skipSpaces();
                     }
@@ -1128,7 +1160,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
     _parseObjectMemberSignature(acceptsPrivateMembers = true) {
         let Generator = false, Static = false, Get = false, Set = false, Async = false, property = false, Private = false, Accessor = false, MethodName, state = this.state;
-        const apply = (name, computed) => {
+        const apply = (name, computed, next = true) => {
             switch (MethodName) {
                 case 'static': Static = true; break;
                 case 'get': Get = true; break;
@@ -1143,8 +1175,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 this._expect(Lexer.T_CLOSED_SQUARE_BRACKET);
             }
 
-            this._next(false);
-            state = this.state;
+            if (next) {
+                this._next(false);
+                state = this.state;
+            }
+
             this._skipSpaces();
         };
 
@@ -1179,6 +1214,8 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             if (MethodName instanceof AST.Identifier) {
                 MethodName = new AST.StringLiteral(this._makeLocation(start), MethodName.name);
             }
+        } else if (this._lexer.isToken(Lexer.T_NUMBER)) {
+            apply(this._parseExpression({ maxLevel: 20 }), false, false);
         } else if (! [ Lexer.T_COLON, Lexer.T_OPEN_PARENTHESIS ].includes(this._lexer.token.type)) {
             apply(this._lexer.token.value);
         }
@@ -1224,7 +1261,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
         const body = [];
         while (! this._lexer.isToken(Lexer.T_CURLY_BRACKET_CLOSE)) {
-            if (this._lexer.isToken(Lexer.T_SEMICOLON)) {
+            if (this._lexer.isToken(Lexer.T_SEMICOLON) || this._lexer.isToken(Lexer.T_COMMENT)) {
                 this._next();
                 continue;
             }
@@ -1330,6 +1367,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
         const statements = [];
         while (! this._lexer.isToken(Lexer.T_CURLY_BRACKET_CLOSE)) {
+            if (this._lexer.isToken(Lexer.T_COMMENT)) {
+                this._next();
+                continue;
+            }
+
             statements.push(this._parseStatement());
             this._skipSpaces();
         }
@@ -1381,6 +1423,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
         const start = this._getCurrentPosition();
         const level = this._level++;
         let async = false;
+
+        if (this._lexer.isToken(Lexer.T_COMMENT)) {
+            this._next();
+            return this._parseStatement(skipStatementTermination);
+        }
 
         try {
             if (this._lexer.isToken(Lexer.T_CURLY_BRACKET_OPEN)) {
@@ -1610,6 +1657,10 @@ class Parser extends implementationOf(ExpressionParserTrait) {
         }
 
         this._skipSpaces();
+        while (this._lexer.isToken(Lexer.T_SEMICOLON)) {
+            this._next();
+        }
+
         let alternative;
 
         if (this._lexer.isToken(Lexer.T_ELSE)) {

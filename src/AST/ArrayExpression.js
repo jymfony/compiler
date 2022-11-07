@@ -1,4 +1,6 @@
 const ExpressionInterface = require('./ExpressionInterface');
+const RestElement = require('./RestElement');
+const SpreadElement = require('./SpreadElement');
 
 class ArrayExpression extends implementationOf(ExpressionInterface) {
     /**
@@ -30,6 +32,10 @@ class ArrayExpression extends implementationOf(ExpressionInterface) {
         for (const element of this._elements) {
             if (null !== element) {
                 compiler.compileNode(element);
+            }
+
+            if (element instanceof RestElement || element instanceof SpreadElement) {
+                break;
             }
 
             compiler._emit(', ');
