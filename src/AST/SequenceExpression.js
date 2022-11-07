@@ -21,6 +21,14 @@ class SequenceExpression extends implementationOf(ExpressionInterface) {
         this._expressions = expressions;
     }
 
+    prepare(compiler) {
+        for (const expr of this._expressions) {
+            if ('function' === typeof expr.prepare) {
+                expr.prepare(compiler);
+            }
+        }
+    }
+
     /**
      * Gets the expressions.
      *
@@ -29,6 +37,7 @@ class SequenceExpression extends implementationOf(ExpressionInterface) {
     get expressions() {
         return this._expressions;
     }
+
     /**
      * @inheritdoc
      */

@@ -602,4 +602,45 @@ else t--;
             __jymfony.autoload.debug = debug;
         }
     });
+
+    it ('should correctly compile anonymous classes into sequence expressions', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+const x = (_a = class extends this {}, _a.ps = ps.concat(nps.filter(p => !ps.includes(p))), _a);
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
+const x = (_a = (() => {
+  const _anonymous_xΞddcbb = class _anonymous_xΞddcbb extends this {
+    
+    static [αa_initialize_class_fields]() {
+      Object.defineProperty(_anonymous_xΞddcbb,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: 390838,
+      });
+      Object.defineProperty(_anonymous_xΞddcbb,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      
+    }
+  }
+  _anonymous_xΞddcbb[αa_initialize_class_fields]();
+  ;
+  return _anonymous_xΞddcbb;
+})(), _a.ps = ps.concat(nps.filter((p) => ! ps.includes(p))), _a);
+`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
 });
