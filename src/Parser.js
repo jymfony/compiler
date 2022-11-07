@@ -1626,6 +1626,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
         const condition = this._parseExpression();
 
+        this._skipSpaces();
         this._expect(Lexer.T_CLOSED_PARENTHESIS);
         this._next();
 

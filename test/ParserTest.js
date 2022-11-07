@@ -1461,4 +1461,21 @@ val =
 });
 `);
     });
+
+    it ('should correctly parse if expressions with line terminations', () => {
+        const program = parser.parse(`
+if (
+  err.code !== 'MODULE_NOT_FOUND' ||
+  err.message.indexOf('Cannot find module') !== -1
+) {
+}
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`if (err.code !== 'MODULE_NOT_FOUND' || err.message.indexOf('Cannot find module') !== - 1) {
+  
+}
+`);
+    });
 });
