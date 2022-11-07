@@ -305,7 +305,7 @@ class ExpressionParserTrait {
     _parseExpressionStage2(start, maxLevel, expression) {
         cycle: while (true) {
             const state = this.state;
-            this._skipSpaces();
+            this._skipSpaces(false, false);
 
             // Level 19-18
             switch (this._lexer.token.type) {
@@ -423,7 +423,7 @@ class ExpressionParserTrait {
 
                 case Lexer.T_COMMENT: {
                     this._next();
-                    if (![Lexer.T_DOT, Lexer.T_OPEN_SQUARE_BRACKET, Lexer.T_OPEN_PARENTHESIS].includes(this._lexer.token.type)) {
+                    if (![ Lexer.T_DOT, Lexer.T_OPEN_SQUARE_BRACKET, Lexer.T_OPEN_PARENTHESIS ].includes(this._lexer.token.type)) {
                         this.state = state;
                         break cycle;
                     }
@@ -463,10 +463,6 @@ class ExpressionParserTrait {
     _parseExpression({ maxLevel = -1, pattern = false, identifier = false } = {}) {
         const start = this._getCurrentPosition();
         let expression;
-
-        while (this._lexer.isToken(Lexer.T_COMMENT)) {
-            this._next();
-        }
 
         const state = this.state;
         try {

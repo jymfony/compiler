@@ -1415,4 +1415,17 @@ a.b('.x', Y)
         const compiled = compiler.compile(program);
         expect(compiled).to.be.eq("a.b('.x',Y).setA().setB();\n");
     });
+
+    it ('should correctly parse member expressions with a comment in the middle #2', () => {
+        const program = parser.parse(`
+val =
+  val === 0 && 1 / val === -Infinity // -0
+    ? '-0'
+    : val.toString();
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq("val = val === 0 && 1 / val === - Infinity ? '-0' : val.toString();\n");
+    });
 });
