@@ -421,6 +421,14 @@ class ExpressionParserTrait {
                     }
                 } break;
 
+                case Lexer.T_COMMENT: {
+                    this._next();
+                    if (![Lexer.T_DOT, Lexer.T_OPEN_SQUARE_BRACKET, Lexer.T_OPEN_PARENTHESIS].includes(this._lexer.token.type)) {
+                        this.state = state;
+                        break cycle;
+                    }
+                } break;
+
                 default: {
                     this.state = state;
                     break cycle;

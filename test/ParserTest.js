@@ -1402,5 +1402,17 @@ const TypedPrivateMethodClass = (() => {
 })();
 exports.default = TypedPrivateMethodClass;
 `);
-    })
+    });
+
+    it ('should correctly parse member expressions with a comment in the middle', () => {
+        const program = parser.parse(`
+a.b('.x', Y)
+    .setA() // comment
+    .setB();
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq("a.b('.x',Y).setA().setB();\n");
+    });
 });
