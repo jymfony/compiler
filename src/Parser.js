@@ -639,7 +639,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                     (this._lexer.isToken(Lexer.T_COMMENT) || this._lexer.isToken(Lexer.T_DOCBLOCK)) &&
                     Parser._includesLineTerminator(this._lexer.token.value)
                 ) {
-                    return new AST.ContinueStatement(this._makeLocation(start), label);
+                    return new AST.BreakStatement(this._makeLocation(start), label);
                 }
 
                 if (this._lexer.isToken(Lexer.T_SPACE) && ! Parser._includesLineTerminator(this._lexer.token.value)) {
