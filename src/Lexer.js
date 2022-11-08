@@ -317,11 +317,13 @@ class Lexer {
                 match += input[ofs];
                 switch (input[ofs]) {
                     case '/': {
-                        const i = input.substring(ofs);
-                        const reg = i.match(this._regexes);
-                        if (reg) {
-                            match += reg[0].substring(1);
-                            ofs += reg[0].length - 1;
+                        if ('${' === stop[stop.length - 1]) {
+                            const i = input.substring(ofs);
+                            const reg = i.match(new RegExp('^' + this._regexes.source));
+                            if (reg && reg[0].match(/[`"'$]/)) {
+                                match += reg[0].substring(1);
+                                ofs += reg[0].length - 1;
+                            }
                         }
                     } break;
 
@@ -337,7 +339,7 @@ class Lexer {
 
                     case '\'':
                     case '"':
-                        if ('`' !== stop[stop.length - 1]) {
+                        if ('${' === stop[stop.length - 1] || stop[stop.length - 1] === input[ofs]) {
                             if (stop[stop.length - 1] !== input[ofs]) {
                                 stop.push(input[ofs]);
                             } else {
