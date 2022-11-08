@@ -643,4 +643,49 @@ const x = (_a = (() => {
             __jymfony.autoload.debug = debug;
         }
     });
+
+    it ('should correctly compile anonymous classes into object values', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+const x = ({ [n]: class {
+} })[n];
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
+const x = ({
+  [n]: (() => {
+    const αb_initialize_class_fields = Symbol();
+    let _anonymous_xΞd2774 = class _anonymous_xΞd2774 extends __jymfony.JObject {
+      
+      static [αa_initialize_class_fields]() {
+        Object.defineProperty(_anonymous_xΞd2774,Symbol.reflection,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: 390839,
+        });
+        Object.defineProperty(_anonymous_xΞd2774,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        
+      }
+    };
+    _anonymous_xΞd2774[αa_initialize_class_fields]();
+    
+    return _anonymous_xΞd2774;
+  })(),
+})[n];
+`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
 });

@@ -67,6 +67,16 @@ class MemberExpression extends implementationOf(ExpressionInterface) {
             'this' === this._object.name;
     }
 
+    prepare(compiler) {
+        if ('function' === typeof this._object.prepare) {
+            this._object.prepare(compiler);
+        }
+
+        if ('function' === typeof this._property.prepare) {
+            this._property.prepare(compiler);
+        }
+    }
+
     /**
      * @inheritdoc
      */

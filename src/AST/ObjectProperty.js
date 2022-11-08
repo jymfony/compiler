@@ -1,6 +1,7 @@
 const Identifier = require('./Identifier');
 const ObjectMember = require('./ObjectMember');
 const StringLiteral = require('./StringLiteral');
+let ClassExpression;
 
 class ObjectProperty extends implementationOf(ObjectMember) {
     /**
@@ -29,6 +30,20 @@ class ObjectProperty extends implementationOf(ObjectMember) {
          * @protected
          */
         this._value = value;
+    }
+
+    prepare(compiler) {
+        if (undefined === ClassExpression) {
+            ClassExpression = require('./ClassExpression');
+        }
+
+        if (this._value instanceof ClassExpression) {
+            this._value.forceWrap = true;
+        }
+
+        if (null !== this._value && 'function' === typeof this._value.prepare) {
+            this._value.prepare(compiler);
+        }
     }
 
     /**
