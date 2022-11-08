@@ -275,16 +275,19 @@ class Lexer {
             throw new Exception('Unknown rescan reason');
         }
 
-        while ((match = regex.exec(value))) {
+        while ((match = this._matchFn(value, regex, offset))) {
+            [ match, offset ] = match;
             const holder = new ValueHolder(match[0]);
             const type = this.getType(holder);
 
             tokens.push({
                 value: holder.value,
                 type: type,
-                position: match.index + offset,
+                position: offset,
                 index: 0,
             });
+
+            offset += match[0].length;
         }
 
         tokens.push({
@@ -300,6 +303,80 @@ class Lexer {
         }
     }
 
+    _matchFn(input, regex, offset) {
+        if ('`' === input[offset]) {
+            // Manually balance backticks and parenthesis
+            const stop = [];
+            let ofs = offset;
+            let match = '';
+            do {
+                if (input[ofs] === undefined) {
+                    throw new Error('Unterminated quoted string');
+                }
+
+                match += input[ofs];
+                switch (input[ofs]) {
+                    case '/': {
+                        const i = input.substring(ofs);
+                        const reg = i.match(this._regexes);
+                        if (reg) {
+                            match += reg[0].substring(1);
+                            ofs += reg[0].length - 1;
+                        }
+                    } break;
+
+                    case '`':
+                        if (0 === stop.length || '`' !== stop[stop.length - 1]) {
+                            stop.push('`');
+                        } else {
+                            stop.pop();
+                        }
+                        break;
+
+                    case '\'':
+                    case '"':
+                        if (stop[stop.length - 1] !== input[ofs]) {
+                            stop.push(input[ofs]);
+                        } else {
+                            stop.pop();
+                        }
+                        break;
+
+                    case '$':
+                        if ('{' === input[ofs + 1]) {
+                            match += '{';
+                            stop.push('${');
+                            ofs++;
+                        }
+                        break;
+
+                    case '}':
+                        if ('${' === stop[stop.length - 1]) {
+                            stop.pop();
+                        }
+                        break;
+
+                    case '\\':
+                        match += input[ofs + 1];
+                        ofs++;
+                        break;
+                }
+
+                ofs++;
+            } while (0 < stop.length);
+
+            regex.lastIndex += match.length;
+            return [ [ match ], offset ];
+        }
+
+        const match = regex.exec(input);
+        if (! match) {
+            return null;
+        }
+
+        return [ match, offset ];
+    }
+
     /**
      * Scans the input string for tokens.
      *
@@ -311,22 +388,25 @@ class Lexer {
         const regex = new RegExp('((?:' + this.getPatterns().join(')|(?:') + '))', 'g');
 
         let match;
-        while ((match = regex.exec(input))) {
+        while ((match = this._matchFn(input, regex, offset))) {
+            [ match, offset ] = match;
             const holder = new ValueHolder(match[0]);
             const type = this.getType(holder);
 
             this._tokens.push({
                 value: holder.value,
                 type: type,
-                position: match.index + offset,
+                position: offset,
                 index: this._tokens.length,
             });
+
+            offset += match[0].length;
         }
 
         this._tokens.push({
             value: 'end-of-file',
             type: Lexer.T_EOF,
-            position: input.length,
+            position: offset,
             index: this._tokens.length,
         });
     }
