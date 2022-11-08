@@ -1511,4 +1511,32 @@ _err.message.indexOf('Cannot find module') !== -1
         const compiled = compiler.compile(program);
         expect(compiled).to.be.eq('_err.code !== \'MODULE_NOT_FOUND\' || _err.message.indexOf(\'Cannot find module\') !== - 1 ? x : y;\n');
     });
+
+    it ('should correctly parse if expressions with line terminations #3', () => {
+        const program = parser.parse(`
+  if (code >= 97) { val = code - 97 + 10; } // a
+  else if (code >= 65) { val = code - 65 + 10; } // A
+  else if (code >= 48 && code <= 57) { val = code - 48; } // 0-9
+  else { val = Infinity; }
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`if (code >= 97) {
+  val = code - 97 + 10;
+  
+} else if (code >= 65) {
+  val = code - 65 + 10;
+  
+} else if (code >= 48 && code <= 57) {
+  val = code - 48;
+  
+} else {
+  val = Infinity;
+  
+}
+
+
+`);
+    });
 });

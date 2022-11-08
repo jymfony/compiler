@@ -1652,7 +1652,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
         }
 
         this._skipSpaces();
-        while (this._lexer.isToken(Lexer.T_SEMICOLON)) {
+        while (this._lexer.isToken(Lexer.T_SEMICOLON) || this._lexer.isToken(Lexer.T_COMMENT)) {
             this._next();
         }
 
