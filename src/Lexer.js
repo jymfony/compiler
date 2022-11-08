@@ -326,19 +326,23 @@ class Lexer {
                     } break;
 
                     case '`':
-                        if (0 === stop.length || '`' !== stop[stop.length - 1]) {
-                            stop.push('`');
-                        } else {
-                            stop.pop();
+                        if ('\'' !== stop[stop.length - 1] && '"' !== stop[stop.length - 1]) {
+                            if (0 === stop.length || '`' !== stop[stop.length - 1]) {
+                                stop.push('`');
+                            } else {
+                                stop.pop();
+                            }
                         }
                         break;
 
                     case '\'':
                     case '"':
-                        if (stop[stop.length - 1] !== input[ofs]) {
-                            stop.push(input[ofs]);
-                        } else {
-                            stop.pop();
+                        if ('`' !== stop[stop.length - 1]) {
+                            if (stop[stop.length - 1] !== input[ofs]) {
+                                stop.push(input[ofs]);
+                            } else {
+                                stop.pop();
+                            }
                         }
                         break;
 

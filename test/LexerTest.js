@@ -85,4 +85,16 @@ describe('[Compiler] Lexer', function () {
             { value: 'end-of-file', type: Lexer.T_EOF, position: 116, index: 30 },
         ]);
     });
+
+    it ('can parse template strings', () => {
+        const lexer = new Lexer();
+
+        lexer.input = `\`'N \${p} (\${
+  x ? 'u' : 'l'
+})\``;
+        expect(lexer._tokens).to.be.deep.eq([
+            { value: '`\'N ${p} (${\n  x ? \'u\' : \'l\'\n})`', type: Lexer.T_STRING, position: 0, index: 0 },
+            { value: 'end-of-file', type: Lexer.T_EOF, position: 32, index: 1 },
+        ]);
+    });
 });
