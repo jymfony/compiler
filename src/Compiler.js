@@ -1,4 +1,6 @@
 const AST = require('./AST');
+const Generator = require('./SourceMap/Generator');
+const vm = require('vm');
 
 if (undefined === Object.getOwnPropertyDescriptor(Symbol, 'metadata')) {
     Object.defineProperty(Symbol, 'metadata', {
@@ -228,6 +230,76 @@ class Compiler {
     }
 
     /**
+     * Serialize the function parameters.
+     *
+     * @param {AST.Function} func
+     *
+     * @private
+     */
+    static _getFunctionParams(func) {
+        const parameters = [];
+        for (let parameter of func.params) {
+            parameter = parameter.pattern;
+
+            let $default = undefined;
+            let restElement = false;
+            if (parameter instanceof AST.AssignmentPattern) {
+                $default = parameter.right;
+                parameter = parameter.left;
+            }
+
+            if (parameter instanceof AST.RestElement) {
+                parameter = parameter.argument;
+                restElement = true;
+            } else if (parameter instanceof AST.SpreadElement) {
+                parameter = parameter.expression;
+                restElement = true;
+            }
+
+            let name = null;
+            let objectPattern = false;
+            let arrayPattern = false;
+            if (parameter instanceof AST.Identifier) {
+                name = parameter.name;
+            } else if (parameter instanceof AST.ObjectPattern) {
+                objectPattern = true;
+            } else if (parameter instanceof AST.ArrayPattern) {
+                arrayPattern = true;
+            }
+
+            let compiledDefault = false;
+            const index = parameters.length;
+            parameters.push({
+                name,
+                index,
+                get default() {
+                    if (compiledDefault) {
+                        return $default;
+                    }
+
+                    if (undefined !== $default) {
+                        const compiler = new Compiler(new Generator({ skipValidation: true }));
+                        try {
+                            $default = vm.runInNewContext(compiler.compile($default));
+                        } catch (e) {
+                            $default = undefined;
+                        }
+                    }
+
+                    compiledDefault = true;
+
+                    return $default;
+                },
+                objectPattern,
+                arrayPattern,
+                restElement,
+            });
+        }
+
+        return parameters;
+    }
+
+    /**
      * Get data for reflection.
      *
      * @param {Function} value
@@ -283,6 +355,7 @@ class Compiler {
                             private: member.private,
                             value: funcValue,
                             ownClass: value,
+                            parameters: this._getFunctionParams(member),
                         });
                     } else {
                         for (const statement of member.body.statements) {
@@ -312,6 +385,16 @@ class Compiler {
                                 ownClass: value,
                             });
                         }
+
+                        methods.push({
+                            name: member.key.name,
+                            kind: 'constructor',
+                            static: member.static,
+                            private: member.private,
+                            value,
+                            ownClass: value,
+                            parameters: this._getFunctionParams(member),
+                        });
                     }
                 } else if (member instanceof AST.ClassProperty) {
                     if (!(member.key instanceof AST.Identifier)) {
