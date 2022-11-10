@@ -18,9 +18,9 @@
     "node": ">=14.0"
   },
   "devDependencies": {
-    "@jymfony/autoloader": "^0.1.0-alpha.30",
-    "@jymfony/datastructure": "^0.1.0-alpha.30",
-    "@jymfony/util": "^0.1.0-alpha.30",
+    "@jymfony/autoloader": "https://github.com/jymfony/autoloader.git",
+    "@jymfony/datastructure": "https://github.com/jymfony/data-structure.git",
+    "@jymfony/util": "https://github.com/jymfony/util.git",
     "@types/node": "^14",
     "chai": "^4.2",
     "mocha": "^6.0",

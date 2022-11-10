@@ -4,7 +4,7 @@ const Generator = require('../src/SourceMap/Generator');
 const StackHandler = require('../src/SourceMap/StackHandler');
 const Parser = require('../src/Parser');
 const { expect } = require('chai');
-const { runInNewContext } = require('vm');
+const { runInNewContext, runInThisContext } = require('vm');
 const seedrandom = require('seedrandom');
 
 describe('[Compiler] Compiler', function () {
@@ -684,6 +684,45 @@ const x = ({
   })(),
 })[n];
 `);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
+
+    it ('should correctly compile anonymous classes into object values', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+const Type = Jymfony.Component.Autoloader.Decorator.Type;
+
+export default class FoobarClass {
+    /**
+     * Constructor.
+     */
+    constructor(@Type('string') param) {
+    }
+}
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+
+            const module = { exports: {}, };
+            runInThisContext(`(function(exports, require, module, __filename, __dirname) {
+  'use strict';
+${compiled}
+})`, {})(module.exports, require, module, 'x.js', __dirname);
+
+            const c = module.exports.default;
+
+            const reflectionData = Compiler.getReflectionData(c);
+            expect(reflectionData).not.to.be.undefined;
+            expect(reflectionData.methods).to.have.length(1);
+            expect(reflectionData.methods[0].name).to.be.equal('constructor');
+            expect(reflectionData.methods[0].value[Symbol.metadata]).not.to.be.undefined;
+            expect(MetadataStorage.getMetadata(reflectionData.methods[0].value[Symbol.metadata], 0)[0][1]).to.be.equal('string');
         } finally {
             __jymfony.autoload.debug = debug;
         }

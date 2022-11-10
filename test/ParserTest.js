@@ -8,6 +8,8 @@ const folder = dirname(require.resolve('test262-parser-tests/package.json'));
 const { compileFunction } = require('vm');
 const seedrandom = require('seedrandom');
 
+const reflectionIdStart = 390951;
+
 describe('[Compiler] Parser', function () {
     const parser = new Parser();
     const generator = new class extends Generator {
@@ -480,7 +482,7 @@ class x extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390950,
+      value: ${reflectionIdStart + 0},
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -610,7 +612,7 @@ class x extends __jymfony.JObject {
               writable: false,
               enumerable: false,
               configurable: true,
-              value: 390951,
+              value: ${reflectionIdStart + 1},
             });
             Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.metadata,{
               writable: false,
@@ -742,7 +744,7 @@ class x extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390952,
+      value: ${reflectionIdStart + 2},
     });
     Object.defineProperty(x,Symbol.metadata,{
       writable: false,
@@ -1135,7 +1137,7 @@ class TestAnnotation extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390953,
+      value: ${reflectionIdStart + 3},
     });
     Object.defineProperty(TestAnnotation,Symbol.metadata,{
       writable: false,
@@ -1169,7 +1171,7 @@ const TestConstClassAnnotation = (() => {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390954,
+          value: ${reflectionIdStart + 4},
         });
         Object.defineProperty(_anonymous_xΞ96888,Symbol.metadata,{
           writable: false,
@@ -1235,7 +1237,7 @@ const RoutableClass = (() => {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390955,
+          value: ${reflectionIdStart + 5},
         });
         Object.defineProperty(RoutableClass,Symbol.metadata,{
           writable: false,
@@ -1365,7 +1367,7 @@ const TypedPrivateMethodClass = (() => {
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390956,
+        value: ${reflectionIdStart + 6},
       });
       Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
         writable: false,

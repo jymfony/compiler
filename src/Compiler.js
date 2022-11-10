@@ -332,32 +332,36 @@ class Compiler {
                         continue;
                     }
 
-                    if ('constructor' !== member.key.name && '__construct' !== member.key.name) {
-                        const funcValue = (() => {
-                            if (member.private) {
-                                const accessors = value[Symbol.jymfony_private_accessors];
-                                const type = member.static ? 'staticMethods' : 'methods';
+                    const funcValue = (() => {
+                        if (member.private) {
+                            const accessors = value[Symbol.jymfony_private_accessors];
+                            const type = member.static ? 'staticMethods' : 'methods';
 
-                                return accessors && accessors[type] && accessors[type][member.key.name] ?
-                                    accessors[type][member.key.name].call : undefined;
-                            }
+                            return accessors && accessors[type] && accessors[type][member.key.name] ?
+                                accessors[type][member.key.name].call : undefined;
+                        }
 
-                            const obj = member.static ? value : value.prototype;
-                            const descriptor = Object.getOwnPropertyDescriptor(obj, member.key.name);
+                        if ('constructor' === member.key.name) {
+                            return value;
+                        }
 
-                            return 'method' === (member.kind || 'method') ? descriptor.value : descriptor[member.kind];
-                        })();
+                        const obj = member.static ? value : value.prototype;
+                        const descriptor = Object.getOwnPropertyDescriptor(obj, member.key.name);
 
-                        methods.push({
-                            name: (member.private ? '#' : '') + member.key.name,
-                            kind: member.kind || 'method',
-                            static: member.static,
-                            private: member.private,
-                            value: funcValue,
-                            ownClass: value,
-                            parameters: this._getFunctionParams(member),
-                        });
-                    } else {
+                        return 'method' === (member.kind || 'method') ? descriptor.value : descriptor[member.kind];
+                    })();
+
+                    methods.push({
+                        name: (member.private ? '#' : '') + member.key.name,
+                        kind: member.kind || 'method',
+                        static: member.static,
+                        private: member.private,
+                        value: funcValue,
+                        ownClass: value,
+                        parameters: this._getFunctionParams(member),
+                    });
+
+                    if ('constructor' === member.key.name || '__construct' !== member.key.name) {
                         for (const statement of member.body.statements) {
                             if (!statement.isFieldDeclaration) {
                                 continue;
@@ -385,16 +389,6 @@ class Compiler {
                                 ownClass: value,
                             });
                         }
-
-                        methods.push({
-                            name: member.key.name,
-                            kind: 'constructor',
-                            static: member.static,
-                            private: member.private,
-                            value,
-                            ownClass: value,
-                            parameters: this._getFunctionParams(member),
-                        });
                     }
                 } else if (member instanceof AST.ClassProperty) {
                     if (!(member.key instanceof AST.Identifier)) {
