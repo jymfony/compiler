@@ -784,7 +784,7 @@ ${compiled}
 
         try {
             const program = parser.parse(`
-var encodeMap = {'': 'empty','\\xAD':'shy','\\u200C':'zwnj','\\u200D':'zwj','#': 'hash','?': 'qm'};
+var encodeMap = {'': 'empty','\\xAD':'shy','\\u200C':'zwnj','\\u200D':'zwj','#': 'hash','?': 'qm','foo\\\'bar':'bar'};
 `);
 
             const compiler = new Compiler(generator);
@@ -796,6 +796,7 @@ var encodeMap = {'': 'empty','\\xAD':'shy','\\u200C':'zwnj','\\u200D':'zwj','#':
   '\\u200D': 'zwj',
   '#': 'hash',
   '?': 'qm',
+  'foo\\\'bar': 'bar',
 };
 `);
         } finally {

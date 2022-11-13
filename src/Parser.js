@@ -1240,7 +1240,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 } else {
                     token = Number.parseInt(token);
                 }
-            } else if (token.match(/^[^a-z]/i) || 0 === token.length) {
+            } else if (token.match(/[^a-z0-9]/i) || 0 === token.length) {
                 token = this._lexer.token.value;
             } else if (tokenType !== Lexer.T_IDENTIFIER && tokenType !== Lexer.T_NULL && tokenType !== Lexer.T_ARGUMENTS) {
                 token = JSON.stringify(token);
