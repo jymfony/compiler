@@ -117,7 +117,7 @@ declare module "@jymfony/compiler" {
          */
         private _parseClass(): [AST.SourceLocation, AST.ClassBody, null | AST.Identifier, null | AST.ExpressionInterface];
 
-        private _parseObjectMemberSignature(acceptsPrivateMembers?: boolean): { Generator: boolean, Static: boolean, Get: boolean, Set: boolean, Async: boolean, Private: boolean, property: boolean, MethodName: AST.ExpressionInterface };
+        private _parseObjectMemberSignature(start: AST.SourceLocation, acceptsPrivateMembers?: boolean): { Generator: boolean, Static: boolean, Get: boolean, Set: boolean, Async: boolean, Private: boolean, property: boolean, MethodName: AST.ExpressionInterface };
 
         /**
          * Parses a class body.
