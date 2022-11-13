@@ -8,7 +8,7 @@ const folder = dirname(require.resolve('test262-parser-tests/package.json'));
 const { compileFunction } = require('vm');
 const seedrandom = require('seedrandom');
 
-const reflectionIdStart = 390955;
+const reflectionIdStart = 390956;
 
 describe('[Compiler] Parser', function () {
     const parser = new Parser();

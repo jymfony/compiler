@@ -728,6 +728,56 @@ ${compiled}
         }
     });
 
+    it ('should correctly compile classes reflection data', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+export default class Foobar {
+    accessor accessorField;
+
+    /**
+     * @inheritdoc
+     */
+    __construct(options = null) {
+        this.message = 'This value should be of type {{ type }}.';
+        this.type = undefined;
+
+        return super.__construct(options);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    get defaultOption() {
+        return 'type';
+    }
+}
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+
+            const module = { exports: {}, };
+            runInThisContext(`(function(exports, require, module, __filename, __dirname) {
+  'use strict';
+${compiled}
+})`, {})(module.exports, require, module, 'x.js', __dirname);
+
+            const c = module.exports.default;
+
+            const reflectionData = Compiler.getReflectionData(c);
+            expect(reflectionData).not.to.be.undefined;
+            expect(reflectionData.fields).to.have.length(3);
+            expect(reflectionData.fields.map(f => f.name)).to.be.deep.eq([ 'accessorField', 'message', 'type' ]);
+            expect(reflectionData.methods).to.have.length(2);
+            expect(reflectionData.methods.map(f => f.name)).to.be.deep.eq([ '__construct', 'defaultOption' ]);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
+
     it ('should correctly compile literal objects with unicode chars member names', () => {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;

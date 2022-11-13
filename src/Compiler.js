@@ -361,7 +361,7 @@ class Compiler {
                         parameters: this._getFunctionParams(member),
                     });
 
-                    if ('constructor' === member.key.name || '__construct' !== member.key.name) {
+                    if ('constructor' === member.key.name || '__construct' === member.key.name) {
                         for (const statement of member.body.statements) {
                             if (!statement.isFieldDeclaration) {
                                 continue;
