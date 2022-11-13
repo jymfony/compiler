@@ -727,4 +727,29 @@ ${compiled}
             __jymfony.autoload.debug = debug;
         }
     });
+
+    it ('should correctly compile literal objects with unicode chars member names', () => {
+        const debug = __jymfony.autoload.debug;
+        __jymfony.autoload.debug = false;
+
+        try {
+            const program = parser.parse(`
+var encodeMap = {'': 'empty','\\xAD':'shy','\\u200C':'zwnj','\\u200D':'zwj','#': 'hash','?': 'qm'};
+`);
+
+            const compiler = new Compiler(generator);
+            const compiled = compiler.compile(program);
+            expect(compiled).to.be.equal(`var encodeMap = {
+  '': 'empty',
+  '\\xAD': 'shy',
+  '\\u200C': 'zwnj',
+  '\\u200D': 'zwj',
+  '#': 'hash',
+  '?': 'qm',
+};
+`);
+        } finally {
+            __jymfony.autoload.debug = debug;
+        }
+    });
 });
