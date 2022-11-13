@@ -95,7 +95,7 @@ class ExpressionParserTrait {
 
                 properties.push(new AST.SpreadElement(this._makeLocation(start), argument));
             } else {
-                const { Generator, Static, Get, Set, Async, MethodName, property } = this._parseObjectMemberSignature(false);
+                const { Generator, Static, Get, Set, Async, MethodName, property } = this._parseObjectMemberSignature(start, false);
                 const kind = Get ? 'get' : Set ? 'set' : 'method';
 
                 if (Static) {
@@ -235,18 +235,8 @@ class ExpressionParserTrait {
             } break;
 
             case Lexer.T_NUMBER: {
-                let number = this._lexer.token.value;
+                const number = this._lexer.token.value;
                 this._next(false);
-
-                if (number.endsWith('n')) {
-                    number = BigInt(number.substr(0, number.length - 1));
-                } else if (number.startsWith('0x')) {
-                    number = Number.parseInt(number.substr(2), 16);
-                } else if (number.startsWith('0o')) {
-                    number = Number.parseInt(number.substr(2), 8);
-                } else if (number.startsWith('0b')) {
-                    number = Number.parseInt(number.substr(2), 2);
-                }
 
                 expression = new AST.NumberLiteral(this._makeLocation(start), number);
             } break;
@@ -387,14 +377,6 @@ class ExpressionParserTrait {
                         this._next();
                         const property = this._parseIdentifier();
                         expression = new AST.MemberExpression(this._makeLocation(start), identifier, property, false, false);
-                    } else if (this._lexer.isToken(Lexer.T_OPEN_SQUARE_BRACKET)) {
-                        this._next();
-                        const property = this._parseExpression({ maxLevel: 2 });
-
-                        expression = new AST.MemberExpression(this._makeLocation(start), identifier, property, false, false);
-
-                        this._expect(Lexer.T_CLOSED_SQUARE_BRACKET);
-                        this._next();
                     } else {
                         const callExpression = this._parseExpression({ maxLevel: 19 });
                         const [ callee, args ] = callExpression instanceof AST.CallExpression ? [ callExpression.callee, callExpression.args ] : [ callExpression, [] ];

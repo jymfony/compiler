@@ -29,7 +29,9 @@ class ArrayExpression extends implementationOf(ExpressionInterface) {
     compile(compiler) {
         compiler._emit('[ ');
 
-        for (const element of this._elements) {
+        const len = this._elements.length;
+        for (let idx = 0; idx < len; idx++) {
+            const element = this._elements[idx];
             if (null !== element) {
                 compiler.compileNode(element);
             }
@@ -38,7 +40,9 @@ class ArrayExpression extends implementationOf(ExpressionInterface) {
                 break;
             }
 
-            compiler._emit(', ');
+            if (idx !== len - 1) {
+                compiler._emit(', ');
+            }
         }
 
         compiler._emit(' ]');

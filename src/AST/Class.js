@@ -18,6 +18,7 @@ const ReturnStatement = require('./ReturnStatement');
 const SpreadElement = require('./SpreadElement');
 const StatementInterface = require('./StatementInterface');
 const StringLiteral = require('./StringLiteral');
+const YieldExpression = require('./YieldExpression');
 const { getNextTypeId } = require('../TypeId');
 
 let ClassExpression;
@@ -321,6 +322,16 @@ class Class extends implementationOf(NodeInterface) {
         const staticMethods = [];
 
         for (const member of members) {
+            if (member.id instanceof YieldExpression) {
+                const yieldedName = compiler.generateVariableName();
+                compiler.compileNode(Variable.create('const', yieldedName, member.id));
+                compiler._emit(';');
+                compiler.newLine();
+
+                member._id = new StringLiteral(null, yieldedName);
+                continue;
+            }
+
             if (null === member.location) {
                 continue;
             }

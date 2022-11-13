@@ -39,12 +39,13 @@ class YieldExpression extends implementationOf(ExpressionInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        compiler._emit('yield ');
+        compiler._emit('yield');
         if (this._delegate) {
-            compiler._emit('* ');
+            compiler._emit(' *');
         }
 
         if (null !== this._argument) {
+            compiler._emit(' ');
             compiler.compileNode(this._argument);
         }
     }

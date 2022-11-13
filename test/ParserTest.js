@@ -8,7 +8,7 @@ const folder = dirname(require.resolve('test262-parser-tests/package.json'));
 const { compileFunction } = require('vm');
 const seedrandom = require('seedrandom');
 
-const reflectionIdStart = 390951;
+const reflectionIdStart = 390955;
 
 describe('[Compiler] Parser', function () {
     const parser = new Parser();
@@ -74,23 +74,14 @@ describe('[Compiler] Parser', function () {
         'd22f8660531e1c1a.js', // "static" as identifier. Not supported: static is reserved word in ES6
         'f4a61fcdefebb9d4.js', // "private", "protected", "public" as identifier. Not supported: reserved words in ES6
         '177fef3d002eb873.js', // "yield" used in extends.
-        '901fca17189cd709.js', // "yield" as method name.
         '48567b651f81277e.js', // Duplicate __proto__ fields are not allowed in object literals
+        '802658d6ef9a83ec.js', // Duplicate __proto__ fields are not allowed in object literals
     ];
 
     const ignored = [
         '7b0a9215ec756496.js', // Multiline comment used as statement terminator
         '946bee37652a31fa.js', // HTML comment after multiline comment
         '9f0d8eb6f7ab8180.js', // HTML comment after multiline comment
-
-        // TBD
-        '0813adc754c82a98.js', // Method name as string
-        '55b74de671f60184.js', // Method name as string
-        '7055b45fe7f74d94.js', // Method name as string
-        '3df03e7e138b7760.js', // Member expression with new
-        '802658d6ef9a83ec.js', // Member expression with new
-        '8543b43f3c48c975.module.js', // "default" identifier
-        'abcfae2381708c43.module.js', // "default" identifier
     ];
 
     for (const filename of readdirSync(folder + sep + 'pass')) {
@@ -104,7 +95,7 @@ describe('[Compiler] Parser', function () {
             const content = readFileSync(fn, { encoding: 'utf-8' });
             const program = parser.parse(content);
 
-            const compiler = new Compiler(new Generator());
+            const compiler = new Compiler(generator);
             const compiled = compiler.compile(program);
 
             expect(program).is.not.null;
@@ -215,7 +206,7 @@ const Inject = αa.Inject;
 const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
 const Client = αb.Client;
 exports.default = () => {
-  return [ Inject !== undefined, Client === undefined,  ];
+  return [ Inject !== undefined, Client === undefined ];
 };
 `);
     });
@@ -290,7 +281,7 @@ export default () => {
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const x = [ 1, , 3, 4,  ];\n');
+        expect(compiled).to.be.equal('const x = [ 1, , 3, 4 ];\n');
     });
 
     it ('should spread operator in object unpacking', () => {
@@ -383,7 +374,7 @@ const a = {[k]: env = defaultEnv};
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB,  ].map(function xmap(v) {
+        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB ].map(function xmap(v) {
   return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
 });
 `);
@@ -407,13 +398,13 @@ convert.gray.rgb = function gray(args) {
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
         expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple) {
-  return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255,  ];
+  return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255 ];
 };
 convert.rgb.apple = function apple(rgb) {
-  return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535,  ];
+  return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535 ];
 };
 convert.gray.rgb = function gray(args) {
-  return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255,  ];
+  return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255 ];
 };
 `);
     });
@@ -1109,13 +1100,13 @@ if (async === null) {
         seedrandom('decorators', { global: true });
         const program = parser.parse(`
         import { Annotation, ANNOTATION_TARGET_CLASS, ANNOTATION_TARGET_FUNCTION } from '../src';
+export
 @Annotation(ANNOTATION_TARGET_CLASS)
-export class TestAnnotation {
+class TestAnnotation {
     // ...
 }
 
-@Annotation(ANNOTATION_TARGET_CLASS)
-export const TestConstClassAnnotation = class {
+export const TestConstClassAnnotation = @Annotation(ANNOTATION_TARGET_CLASS) class {
     // ...
 }
 `);
@@ -1457,7 +1448,7 @@ val =
 
         const compiler = new Compiler(generator);
         const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`[ 'x', 'y',  ].forEach((opt) => {
+        expect(compiled).to.be.eq(`[ 'x', 'y' ].forEach((opt) => {
   this[opt]();
   
 });

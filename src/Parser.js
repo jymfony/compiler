@@ -4,6 +4,7 @@ const Lexer = require('./Lexer');
 const RescanException = require('./Exception/RescanException');
 const WrongAssignmentException = require('./Exception/WrongAssignmentException');
 const ExpressionParserTrait = require('./ExpressionParserTrait');
+const ValueHolder = require('./ValueHolder');
 
 const FOR_PLAIN = 1;
 const FOR_IN = 2;
@@ -470,8 +471,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             case 'let':
             case 'const': {
                 const kind = token.value;
-                this._next();
+                if (0 !== this._pendingDecorators.length) {
+                    this._syntaxError('Leading decorators must be attached to a class declaration.');
+                }
 
+                this._next();
                 const declarators = [];
 
                 while (true) {
@@ -860,8 +864,11 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
             case 'export': {
                 this._esModule = true;
-                this._next();
+                if (0 !== this._pendingDecorators.length) {
+                    this._syntaxError('Using the export keyword between a decorator and a class is not allowed. Please use `export @dec class` instead.');
+                }
 
+                this._next();
                 if ('default' === this._lexer.token.value) {
                     this._next();
                     const expression = this._parseExpression();
@@ -1157,7 +1164,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
         return [ this._makeLocation(start), body, id, superClass ];
     }
 
-    _parseObjectMemberSignature(acceptsPrivateMembers = true) {
+    _parseObjectMemberSignature(start, acceptsPrivateMembers = true) {
         let Generator = false, Static = false, Get = false, Set = false, Async = false, property = false, Private = false, Accessor = false, MethodName, state = this.state;
         const apply = (name, computed, next = true) => {
             switch (MethodName) {
@@ -1215,6 +1222,29 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             }
         } else if (this._lexer.isToken(Lexer.T_NUMBER)) {
             apply(this._parseExpression({ maxLevel: 20 }), false, false);
+        } else if (this._lexer.isToken(Lexer.T_STRING) && (this._lexer.token.value.startsWith('"') || this._lexer.token.value.startsWith('\''))) {
+            let token = this._lexer.token.value.substring(1, this._lexer.token.value.length - 1);
+            const holder = new ValueHolder(token);
+            const tokenType = this._lexer.getType(holder);
+            if (tokenType === Lexer.T_NUMBER) {
+                if (token.endsWith('n')) {
+                    token = BigInt(token.substring(0, number.length - 1));
+                } else if (token.startsWith('0x')) {
+                    token = Number.parseInt(token.substring(2), 16);
+                } else if (token.startsWith('0o')) {
+                    token = Number.parseInt(token.substring(2), 8);
+                } else if (token.startsWith('0b')) {
+                    token = Number.parseInt(token.substring(2), 2);
+                } else if (token.includes('e') || token.includes('.') || token.endsWith('f')) {
+                    token = Number.parseFloat(token);
+                } else {
+                    token = Number.parseInt(token);
+                }
+            } else if (tokenType !== Lexer.T_IDENTIFIER && tokenType !== Lexer.T_NULL && tokenType !== Lexer.T_ARGUMENTS) {
+                token = JSON.stringify(token);
+            }
+
+            apply(token.toString());
         } else if (! [ Lexer.T_COLON, Lexer.T_OPEN_PARENTHESIS ].includes(this._lexer.token.type)) {
             apply(this._lexer.token.value);
         }
@@ -1266,7 +1296,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             }
 
             const start = this._getCurrentPosition();
-            const { Generator, Static, Get, Set, Async, Private, Accessor, MethodName, property } = this._parseObjectMemberSignature();
+            const { Generator, Static, Get, Set, Async, Private, Accessor, MethodName, property } = this._parseObjectMemberSignature(start);
             let kind = (() => {
                 if (Accessor) {
                     return 'accessor';
@@ -1388,10 +1418,17 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                     statement.decorators = statement.decorators || [];
                     statement.decorators.push(...decorators);
                 }
+
+                decorators.splice(0, decorators.length);
             }
 
-            case statement instanceof AST.ExpressionStatement:
             case statement instanceof AST.VariableDeclaration: {
+                if (0 !== decorators.length) {
+                    this._syntaxError('Leading decorators must be attached to a class declaration.');
+                }
+            } // No break
+
+            case statement instanceof AST.ExpressionStatement: {
                 if (docBlock) {
                     statement.docblock = docBlock;
                 }
@@ -1400,8 +1437,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
             case statement instanceof AST.ExportNamedDeclaration:
             case statement instanceof AST.ExportDefaultDeclaration: {
                 if (decorators.length) {
-                    statement.decorators = statement.decorators || [];
-                    statement.decorators.push(...decorators);
+                    this._syntaxError('Using the export keyword between a decorator and a class is not allowed. Please use `export @dec class` instead.');
                 }
 
                 if (docBlock) {

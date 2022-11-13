@@ -1,23 +1,23 @@
 const CallExpression = require('./CallExpression');
-const ClassExpression = require('./ClassExpression');
 const Function = require('./Function');
+const Identifier = require('./Identifier');
+const ParenthesizedExpression = require('./ParenthesizedExpression');
 
 class NewExpression extends CallExpression {
+    prepare(compiler) {
+        if (! (this._callee instanceof Identifier) && ! (this._callee instanceof ParenthesizedExpression)) {
+            this._callee = new ParenthesizedExpression(this._callee.location, this._callee);
+        }
+
+        super.prepare(compiler);
+    }
+
     /**
      * @inheritdoc
      */
     compile(compiler) {
         compiler._emit('new ');
-        if (this._callee instanceof ClassExpression) {
-            compiler._emit('(');
-        }
-
         compiler.compileNode(this._callee);
-
-        if (this._callee instanceof ClassExpression) {
-            compiler._emit(')');
-        }
-
         Function.compileParams(compiler, this._args);
     }
 }
