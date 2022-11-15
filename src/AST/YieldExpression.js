@@ -30,7 +30,7 @@ class YieldExpression extends implementationOf(ExpressionInterface) {
     }
 
     prepare(compiler) {
-        if (null !== this._argument && 'function' === typeof this._argument.prepare) {
+        if (null !== this._argument) {
             this._argument.prepare(compiler);
         }
     }

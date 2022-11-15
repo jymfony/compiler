@@ -16,6 +16,11 @@ declare module "@jymfony/compiler" {
             public readonly expression: ExpressionInterface;
 
             /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
+
+            /**
              * Compiles a decorator.
              */
             compile(compiler: Compiler, class_: Class, target: Class | ClassMemberInterface | Argument, parameterIndex?: number): StatementInterface[];

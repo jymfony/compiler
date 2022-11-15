@@ -13,8 +13,12 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, properties: AssignmentProperty[]): void;
-
             constructor(location: SourceLocation, properties: AssignmentProperty[]);
+
+            /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
 
             /**
              * @inheritdoc

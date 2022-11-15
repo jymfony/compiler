@@ -33,6 +33,13 @@ class ExpressionStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._expression.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return false;
     }

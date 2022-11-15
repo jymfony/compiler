@@ -72,9 +72,9 @@ class CallExpression extends implementationOf(ExpressionInterface) {
                 Variable.create('const', arg.name, arg),
                 new ReturnStatement(null, new Identifier(null, arg.name)),
             ])));
-        } else if ('function' === typeof arg.prepare) {
-            arg.prepare(compiler);
         }
+        arg.prepare(compiler);
+
 
         return null;
     }
@@ -86,11 +86,9 @@ class CallExpression extends implementationOf(ExpressionInterface) {
         }
 
         for (const [ idx, arg ] of __jymfony.getEntries(this._args || [])) {
-            if ('function' === typeof arg.prepare) {
-                const id = this._prepareArg(arg, compiler);
-                if (null !== id) {
-                    this._args[idx] = id;
-                }
+            const id = this._prepareArg(arg, compiler);
+            if (null !== id) {
+                this._args[idx] = id;
             }
         }
     }

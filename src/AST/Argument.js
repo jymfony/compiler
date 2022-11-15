@@ -32,6 +32,14 @@ class Argument extends implementationOf(NodeInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare(compiler) {
+        this.decorators.forEach(d => d.prepare(compiler));
+        this._pattern.prepare(compiler);
+    }
+
+    /**
      * Gets the argument pattern.
      *
      * @returns {PatternInterface|RestElement}

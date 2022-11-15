@@ -45,7 +45,7 @@ class ParenthesizedExpression extends implementationOf(ExpressionInterface) {
                 Variable.create('const', this._expression.name, this._expression),
                 new ReturnStatement(null, new Identifier(null, this._expression.name)),
             ]));
-        } else if ('function' === typeof this._expression.prepare) {
+        } else {
             this._expression.prepare(compiler);
         }
     }

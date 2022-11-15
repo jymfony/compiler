@@ -7,6 +7,11 @@ declare module "@jymfony/compiler" {
              * Compiles a node.
              */
             compile(compiler: Compiler): void;
+
+            /**
+             * Prepares a node (do transformations, compile temporary variables, etc.)
+             */
+            prepare(compiler: Compiler): void;
         }
     }
 }

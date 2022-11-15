@@ -40,6 +40,13 @@ class UpdateExpression extends implementationOf(ExpressionInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._argument.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         if (this._prefix) {
             compiler._emit(this._operator);

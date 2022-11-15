@@ -26,6 +26,13 @@ class ArrayExpression extends implementationOf(ExpressionInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._elements.forEach(e => null !== e && e.prepare(compiler));
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('[ ');
 

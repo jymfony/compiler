@@ -59,6 +59,13 @@ class ClassBody extends implementationOf(NodeInterface) {
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         for (const member of this._body) {
             compiler.newLine();

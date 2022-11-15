@@ -48,6 +48,25 @@ class ForStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        if (null !== this._init) {
+            this._init.prepare(compiler);
+        }
+
+        if (null !== this._test) {
+            this._test.prepare(compiler);
+        }
+
+        if (null !== this._update) {
+            this._update.prepare(compiler);
+        }
+
+        this._body.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return false;
     }

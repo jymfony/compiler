@@ -54,6 +54,13 @@ class AppliedDecorator extends implementationOf(NodeInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare(compiler) {
+        this._expression.prepare(compiler);
+    }
+
+    /**
      * Compiles a decorator.
      *
      * @param {Compiler} compiler

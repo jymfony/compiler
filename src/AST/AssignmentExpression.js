@@ -47,10 +47,8 @@ class AssignmentExpression extends implementationOf(ExpressionInterface) {
             Class = require('./Class');
         }
 
-        if ('function' === typeof this._right.prepare) {
-            this._right.prepare(compiler);
-        }
-
+        this._left.prepare(compiler);
+        this._right.prepare(compiler);
         if (this._right instanceof Class) {
             const varDecl = Variable.create('const', this._right.name, this._right);
             varDecl.declarators[0].prepare = () => {};

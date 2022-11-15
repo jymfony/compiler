@@ -33,7 +33,6 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, key: ExpressionInterface, value: ExpressionInterface, Static: boolean, Private: boolean): void;
-
             constructor(location: SourceLocation, key: ExpressionInterface, value: ExpressionInterface, Static: boolean, Private: boolean);
 
             /**
@@ -45,6 +44,11 @@ declare module "@jymfony/compiler" {
              * @inheritdoc
              */
             compileDecorators(compiler: Compiler, target: Class): StatementInterface[];
+
+            /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
 
             /**
              * @inheritdoc

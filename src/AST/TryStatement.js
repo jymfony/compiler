@@ -40,6 +40,19 @@ class TryStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._block.prepare(compiler);
+        if (null !== this._handler) {
+            this._handler.prepare(compiler);
+        }
+        if (null !== this._finalizer) {
+            this._finalizer.prepare(compiler);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return false;
     }

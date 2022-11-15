@@ -21,6 +21,13 @@ class BooleanLiteral extends Literal {
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit(this._value ? 'true' : 'false');
     }

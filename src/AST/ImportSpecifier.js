@@ -30,6 +30,13 @@ class ImportSpecifier extends implementationOf(ImportSpecifierInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
      * Gets the local part.
      *
      * @returns {Identifier}

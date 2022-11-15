@@ -23,6 +23,10 @@ declare module "@jymfony/compiler" {
             public readonly args: (ExpressionInterface | SpreadElement)[];
 
             private _prepareArg(arg: NodeInterface, compiler: Compiler): NodeInterface | null;
+
+            /**
+             * @inheritdoc
+             */
             prepare(compiler: Compiler): void;
 
             /**

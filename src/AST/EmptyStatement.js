@@ -16,6 +16,13 @@ class EmptyStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return false;
     }

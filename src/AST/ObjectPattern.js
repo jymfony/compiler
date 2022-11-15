@@ -24,6 +24,13 @@ class ObjectPattern extends implementationOf(PatternInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._properties.forEach(p => p.prepare(compiler));
+    }
+
+    /**
+     * @inheritdoc
+     */
     get names() {
         const names = [];
         for (const property of this._properties) {

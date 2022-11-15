@@ -23,9 +23,7 @@ class ObjectExpression extends implementationOf(ExpressionInterface) {
 
     prepare(compiler) {
         for (const p of this._properties) {
-            if ('function' === typeof p.prepare) {
-                p.prepare(compiler);
-            }
+            p.prepare(compiler);
         }
     }
 

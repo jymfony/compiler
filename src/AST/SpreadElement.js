@@ -23,6 +23,13 @@ class SpreadElement extends implementationOf(NodeInterface, ObjectMember) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare(compiler) {
+        this._expression.prepare(compiler);
+    }
+
+    /**
      * Gets the spread element expression.
      *
      * @returns {ExpressionInterface}

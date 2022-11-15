@@ -50,6 +50,17 @@ class IfStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._test.prepare(compiler);
+        this._consequent.prepare(compiler);
+        if (null !== this._alternate) {
+            this._alternate.prepare(compiler);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('if (');
         compiler.compileNode(this._test);

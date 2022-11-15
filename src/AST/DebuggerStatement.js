@@ -16,6 +16,13 @@ class DebuggerStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return true;
     }

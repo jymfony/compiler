@@ -8,13 +8,17 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, value: string): void;
-
             constructor(location: SourceLocation, value: string);
 
             /**
              * Gets the comment content.
              */
             public readonly value: string;
+
+            /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
 
             /**
              * @inheritdoc

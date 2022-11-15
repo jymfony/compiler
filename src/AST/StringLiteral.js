@@ -19,6 +19,13 @@ class StringLiteral extends Literal {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
      * Gets the string literal value.
      *
      * @returns {string}

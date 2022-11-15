@@ -10,8 +10,12 @@ declare module "@jymfony/compiler" {
              * Constructor.
              */
             __construct(location: SourceLocation, argument: ExpressionInterface, delegate: boolean): void;
-
             constructor(location: SourceLocation, argument: ExpressionInterface, delegate: boolean);
+
+            /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
 
             /**
              * @inheritdoc

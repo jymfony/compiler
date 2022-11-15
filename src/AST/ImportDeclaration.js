@@ -55,6 +55,13 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return false;
     }

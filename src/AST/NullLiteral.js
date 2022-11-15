@@ -7,6 +7,13 @@ class NullLiteral extends Literal {
     compile(compiler) {
         compiler._emit('null');
     }
+
+    /**
+     * @inheritdoc
+     */
+    prepare() {
+        // Do nothing.
+    }
 }
 
 module.exports = NullLiteral;

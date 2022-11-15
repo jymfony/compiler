@@ -5,6 +5,11 @@ declare module "@jymfony/compiler" {
              * @inheritdoc
              */
             compile(compiler: Compiler): void;
+
+            /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
         }
     }
 }

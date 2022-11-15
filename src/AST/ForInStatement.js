@@ -40,6 +40,15 @@ class ForInStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._left.prepare(compiler);
+        this._right.prepare(compiler);
+        this._body.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return false;
     }

@@ -24,6 +24,13 @@ class AwaitExpression extends implementationOf(ExpressionInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._expression.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('await ');
         compiler.compileNode(this._expression);

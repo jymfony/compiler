@@ -27,6 +27,9 @@ declare module "@jymfony/compiler" {
             __construct(location: SourceLocation, operator: string, left: PatternInterface | ExpressionInterface, right: ExpressionInterface): void;
             constructor(location: SourceLocation, operator: string, left: PatternInterface | ExpressionInterface, right: ExpressionInterface);
 
+            /**
+             * @inheritdoc
+             */
             prepare(compiler: Compiler): void;
 
             /**

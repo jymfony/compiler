@@ -9,10 +9,6 @@ class ArrowFunctionExpression extends Function {
             compiler._emit('async ');
         }
 
-        // If (this._static) {
-        //     Compiler._emit('static ');
-        // }
-
         if (this._generator) {
             compiler._emit('* ');
         }

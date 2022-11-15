@@ -32,6 +32,13 @@ class LabeledStatement extends implementationOf(StatementInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._statement.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return this._statement.shouldBeClosed;
     }

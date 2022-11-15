@@ -13,8 +13,12 @@ declare module "@jymfony/compiler" {
              */
             // @ts-ignore
             __construct(location: SourceLocation, value: string): void;
-
             constructor(location: SourceLocation, value: string);
+
+            /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
 
             /**
              * @inheritdoc

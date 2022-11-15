@@ -33,6 +33,17 @@ class SwitchCase extends implementationOf(NodeInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        if (null !== this._test) {
+            this._test.prepare(compiler);
+        }
+
+        this._consequent.forEach(s => s.prepare(compiler));
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         if (null === this._test) {
             compiler._emit('default');

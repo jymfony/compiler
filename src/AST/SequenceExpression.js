@@ -23,9 +23,7 @@ class SequenceExpression extends implementationOf(ExpressionInterface) {
 
     prepare(compiler) {
         for (const expr of this._expressions) {
-            if ('function' === typeof expr.prepare) {
-                expr.prepare(compiler);
-            }
+            expr.prepare(compiler);
         }
     }
 

@@ -102,6 +102,13 @@ class ClassProperty extends implementationOf(ClassMemberInterface) {
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         if (this._static) {
             compiler._emit('static ');

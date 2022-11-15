@@ -63,6 +63,15 @@ class Function extends implementationOf(NodeInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare(compiler) {
+        this._id.prepare(compiler);
+        this._params.forEach(a => a.prepare(compiler));
+        this._body.prepare(compiler);
+    }
+
+    /**
      * Gets the function identifier.
      *
      * @returns {Identifier}

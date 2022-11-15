@@ -22,6 +22,13 @@ class RestElement extends implementationOf(PatternInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare(compiler) {
+        this._argument.prepare(compiler);
+    }
+
+    /**
      * Gets the rest argument.
      *
      * @returns {PatternInterface}

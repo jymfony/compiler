@@ -47,6 +47,11 @@ declare module "@jymfony/compiler" {
             constructor(location: SourceLocation, body: BlockStatement, id?: Identifier | null, params?: PatternInterface[], { generator, async }?: { generator?: boolean, async?: boolean });
 
             /**
+             * @inheritdoc
+             */
+            prepare(compiler: Compiler): void;
+
+            /**
              * Compile parameter list of a function.
              */
             static compileParams(compiler: Compiler, params: PatternInterface[]): void;

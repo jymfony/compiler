@@ -32,6 +32,14 @@ class AssignmentPattern extends implementationOf(PatternInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._left.prepare(compiler);
+        this._right.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     get names() {
         return this._left.names;
     }

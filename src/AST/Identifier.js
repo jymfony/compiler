@@ -29,6 +29,13 @@ class Identifier extends implementationOf(NodeInterface, ExpressionInterface, Pa
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
      * Gets the identifier name.
      *
      * @returns {string}

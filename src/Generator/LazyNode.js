@@ -10,6 +10,10 @@ class LazyNode {
      */
     static create(callback) {
         return new class extends implementationOf(NodeInterface) {
+            __construct() {
+                this._node = undefined;
+            }
+
             get location() {
                 return null;
             }
@@ -18,13 +22,28 @@ class LazyNode {
                 return true;
             }
 
-            compile(compiler) {
-                const node = callback();
-                if (null === node) {
+            get node() {
+                if (undefined === this._node) {
+                    this._node = callback();
+                }
+
+                return this._node;
+            }
+
+            prepare(compiler) {
+                if (null === this.node) {
                     return;
                 }
 
-                node.compile(compiler);
+                this.node.prepare(compiler);
+            }
+
+            compile(compiler) {
+                if (null === this.node) {
+                    return;
+                }
+
+                this.node.compile(compiler);
             }
         }();
     }

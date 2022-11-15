@@ -32,6 +32,13 @@ class CatchClause extends implementationOf(NodeInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._param.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit('catch (');
         if (null !== this._param) {

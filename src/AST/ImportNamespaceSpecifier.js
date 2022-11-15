@@ -22,6 +22,13 @@ class ImportNamespaceSpecifier extends implementationOf(ImportSpecifierInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
      * Gets the local name.
      *
      * @return {Identifier}

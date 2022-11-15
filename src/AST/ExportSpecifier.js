@@ -30,6 +30,13 @@ class ExportSpecifier extends implementationOf(NodeInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
      * Gets the local name.
      *
      * @returns {Identifier}

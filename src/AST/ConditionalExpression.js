@@ -40,6 +40,15 @@ class ConditionalExpression extends implementationOf(ExpressionInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._test.prepare(compiler);
+        this._consequent.prepare(compiler);
+        this._alternate.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler.compileNode(this._test);
         compiler._emit(' ? ');

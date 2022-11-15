@@ -258,9 +258,7 @@ class Class extends implementationOf(NodeInterface) {
                 this.superClass.forceWrap = true;
             }
 
-            if ('function' === typeof this.superClass.prepare) {
-                this.superClass.prepare(compiler);
-            }
+            this.superClass.prepare(compiler);
         }
 
         if (initializationSymbol === undefined) {

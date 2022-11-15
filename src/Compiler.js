@@ -122,11 +122,9 @@ class Compiler {
     compileNode(node) {
         this.pushLocation(node);
 
-        if ('function' === typeof node.prepare) {
-            node.prepare(this);
-        }
-
+        node.prepare(this);
         node.compile(this);
+
         this.popLocation();
     }
 

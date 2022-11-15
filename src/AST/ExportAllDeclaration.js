@@ -24,6 +24,13 @@ class ExportAllDeclaration extends implementationOf(ModuleDeclarationInterface) 
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     get shouldBeClosed() {
         return false;
     }

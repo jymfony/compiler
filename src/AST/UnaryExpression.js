@@ -32,6 +32,13 @@ class UnaryExpression extends implementationOf(ExpressionInterface) {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._argument.prepare(compiler);
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit(this._operator + ' ');
         compiler.compileNode(this._argument);

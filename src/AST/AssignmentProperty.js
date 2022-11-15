@@ -24,6 +24,17 @@ class AssignmentProperty extends ObjectProperty {
     /**
      * @inheritdoc
      */
+    prepare(compiler) {
+        this._key.prepare(compiler);
+
+        if (null !== this._value) {
+            this._value.prepare(compiler);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         if (this._key instanceof Identifier || this._key instanceof SpreadElement) {
             compiler.compileNode(this._key);

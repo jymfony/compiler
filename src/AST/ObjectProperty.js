@@ -41,7 +41,7 @@ class ObjectProperty extends implementationOf(ObjectMember) {
             this._value.forceWrap = true;
         }
 
-        if (null !== this._value && 'function' === typeof this._value.prepare) {
+        if (null !== this._value) {
             this._value.prepare(compiler);
         }
     }

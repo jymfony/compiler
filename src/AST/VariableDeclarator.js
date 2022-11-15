@@ -66,10 +66,7 @@ class VariableDeclarator extends implementationOf(NodeInterface) {
             Class = require('./Class');
         }
 
-        if ('function' === typeof this._init.prepare) {
-            this._init.prepare(compiler);
-        }
-
+        this._init.prepare(compiler);
         if (this._init instanceof Class) {
             const varDecl = Variable.create('const', this._init.name, this._init);
             varDecl.declarators[0].prepare = () => {};

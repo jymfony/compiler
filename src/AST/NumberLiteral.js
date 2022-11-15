@@ -28,6 +28,13 @@ class NumberLiteral extends Literal {
     /**
      * @inheritdoc
      */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
+     * @inheritdoc
+     */
     compile(compiler) {
         compiler._emit(this._value.toString() + (this._bigint ? 'n' : ''));
     }

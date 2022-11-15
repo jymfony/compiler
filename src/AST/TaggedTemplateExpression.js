@@ -30,6 +30,13 @@ class TaggedTemplateExpression extends implementationOf(ExpressionInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare(compiler) {
+        this._tag.prepare(compiler);
+    }
+
+    /**
      * Gets the tag expression.
      *
      * @return {ExpressionInterface}

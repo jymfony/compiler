@@ -22,6 +22,13 @@ class Comment extends implementationOf(NodeInterface) {
     }
 
     /**
+     * @inheritdoc
+     */
+    prepare() {
+        // Do nothing.
+    }
+
+    /**
      * Gets the comment value.
      *
      * @returns {string}

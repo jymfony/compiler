@@ -9,7 +9,6 @@ declare module "@jymfony/compiler" {
              */
             // @ts-ignore
             __construct(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async }?: { generator: boolean, async: boolean }): void;
-
             constructor(location: SourceLocation, body: BlockStatement, id: Identifier, kind: 'method' | 'get' | 'set', params?: PatternInterface[], { generator, async }?: { generator: boolean, async: boolean });
 
             /**
