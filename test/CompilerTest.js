@@ -298,8 +298,6 @@ function x(er, real) {
   else if (er.syscall === 'stat') 
     set[p] = true;
   else self.emit('error',er);
-  
-  
   if (--n === 0) {
     self.matches[index] = set;
     cb();
@@ -596,7 +594,6 @@ else t--;
             expect(compiled).to.be.equal(`if (! bits(1)) 
   t++;
 else t--;
-
 `);
         } finally {
             __jymfony.autoload.debug = debug;

@@ -1527,9 +1527,6 @@ _err.message.indexOf('Cannot find module') !== -1
 } else {
   val = Infinity;
   
-}
-
-
-`);
+}`);
     });
 });

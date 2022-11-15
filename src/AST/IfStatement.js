@@ -78,10 +78,11 @@ class IfStatement extends implementationOf(StatementInterface) {
             compiler.compileNode(this._alternate);
             if (this._alternate.shouldBeClosed) {
                 compiler._emit(';');
+                compiler.newLine();
             }
+        } else {
+            compiler.newLine();
         }
-
-        compiler.newLine();
     }
 }
 

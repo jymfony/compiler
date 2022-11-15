@@ -27,11 +27,6 @@ class ExportDefaultDeclaration extends implementationOf(ModuleDeclarationInterfa
          * @type {string}
          */
         this.docblock = null;
-
-        /**
-         * @type {null|[string, ExpressionInterface][]}
-         */
-        this.decorators = null;
     }
 
     /**
@@ -54,10 +49,6 @@ class ExportDefaultDeclaration extends implementationOf(ModuleDeclarationInterfa
      * @inheritdoc
      */
     compile(compiler) {
-        if (null !== this.decorators && (this._expression instanceof ClassExpression || this._expression instanceof FunctionExpression)) {
-            this._expression.decorators = this.decorators;
-        }
-
         if ((this._expression instanceof ClassExpression || this._expression instanceof FunctionExpression) && null !== this._expression.id) {
             const declaration = Variable.create('const', this._expression.id, this._expression);
             declaration.docblock = this.docblock || this._expression.docblock;

@@ -51,11 +51,6 @@ class ExportNamedDeclaration extends implementationOf(ModuleDeclarationInterface
          * @type {string}
          */
         this.docblock = null;
-
-        /**
-         * @type {null|[string, ExpressionInterface][]}
-         */
-        this.decorators = null;
     }
 
     /**
