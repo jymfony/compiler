@@ -14,6 +14,7 @@ const NodeInterface = require('./NodeInterface');
 const NumberLiteral = require('./NumberLiteral');
 const ObjectExpression = require('./ObjectExpression');
 const ObjectProperty = require('./ObjectProperty');
+const ParenthesizedExpression = require('./ParenthesizedExpression');
 const ReturnStatement = require('./ReturnStatement');
 const SpreadElement = require('./SpreadElement');
 const StatementInterface = require('./StatementInterface');
@@ -22,6 +23,7 @@ const YieldExpression = require('./YieldExpression');
 const { getNextTypeId } = require('../TypeId');
 
 let ClassExpression;
+const JObjectAccessor = Member.create('__jymfony', 'JObject');
 
 /**
  * @abstract
@@ -244,7 +246,7 @@ class Class extends implementationOf(NodeInterface) {
         }
 
         if (null === this.superClass) {
-            this.superClass = new Identifier(null, '__jymfony.JObject');
+            this.superClass = JObjectAccessor;
             const constructor = this.getConstructor();
             if (null !== constructor && !constructor.static) {
                 constructor.body.statements.unshift(new CallExpression(null, new Identifier(null, 'super')));
@@ -256,6 +258,13 @@ class Class extends implementationOf(NodeInterface) {
 
             if (this.superClass instanceof ClassExpression) {
                 this.superClass.forceWrap = true;
+            } else if (this.superClass instanceof YieldExpression || this.superClass instanceof ParenthesizedExpression) {
+                const variable = Variable.create('const', compiler.generateVariableName(), this.superClass);
+                compiler.compileNode(variable);
+                compiler._emit(';');
+                compiler.newLine();
+
+                this._superClass = variable.declarators[0].id;
             }
 
             this.superClass.prepare(compiler);

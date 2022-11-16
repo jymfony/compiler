@@ -8,7 +8,7 @@ const folder = dirname(require.resolve('test262-parser-tests/package.json'));
 const { compileFunction } = require('vm');
 const seedrandom = require('seedrandom');
 
-const reflectionIdStart = 390956;
+const reflectionIdStart = 390957;
 
 describe('[Compiler] Parser', function () {
     const parser = new Parser();
@@ -73,16 +73,11 @@ describe('[Compiler] Parser', function () {
         'ffaf5b9d3140465b.js', // "let" as identifier. Not supported: let is reserved word in ES6
         'd22f8660531e1c1a.js', // "static" as identifier. Not supported: static is reserved word in ES6
         'f4a61fcdefebb9d4.js', // "private", "protected", "public" as identifier. Not supported: reserved words in ES6
-        '177fef3d002eb873.js', // "yield" used in extends.
         '48567b651f81277e.js', // Duplicate __proto__ fields are not allowed in object literals
         '802658d6ef9a83ec.js', // Duplicate __proto__ fields are not allowed in object literals
     ];
 
-    const ignored = [
-        '7b0a9215ec756496.js', // Multiline comment used as statement terminator
-        '946bee37652a31fa.js', // HTML comment after multiline comment
-        '9f0d8eb6f7ab8180.js', // HTML comment after multiline comment
-    ];
+    const ignored = [];
 
     for (const filename of readdirSync(folder + sep + 'pass')) {
         if (excluded.includes(filename)) {

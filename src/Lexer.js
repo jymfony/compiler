@@ -270,7 +270,7 @@ class Lexer {
                 index: 0,
             });
 
-            value = this._input.substr(++offset);
+            value = this._input.substring(++offset);
         } else {
             throw new Exception('Unknown rescan reason');
         }
@@ -373,6 +373,28 @@ class Lexer {
 
             regex.lastIndex += match.length;
             return [ [ match ], offset ];
+        } else if ('<' === input[offset] && '!--' === input[offset + 1] + input[offset + 2] + input[offset + 3]) {
+            let match = '';
+            do {
+                match += input[offset];
+            } while ('\n' !== input[offset] && undefined !== input[++offset]);
+
+            regex.lastIndex += match.length;
+            return [ [ match ], offset ];
+        } else if ('-' === input[offset] && '->' === input[offset + 1] + input[offset + 2]) {
+            const lastToken = this._tokens.at(-1);
+            if (undefined === lastToken ||
+                (lastToken.type === Lexer.T_COMMENT && (0 === lastToken.position || '\n' === input[lastToken.position - 1] || lastToken.value.includes('\n'))) ||
+                (lastToken.type === Lexer.T_SPACE && lastToken.value.endsWith('\n'))
+            ) {
+                let match = '';
+                do {
+                    match += input[offset];
+                } while ('\n' !== input[offset] && undefined !== input[++offset]);
+
+                regex.lastIndex += match.length;
+                return [ [ match ], offset ];
+            }
         }
 
         const match = regex.exec(input);
