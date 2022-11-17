@@ -61,7 +61,7 @@ class TryStatement extends implementationOf(StatementInterface) {
      * @inheritdoc
      */
     compile(compiler) {
-        compiler._emit('try');
+        compiler._emit('try ');
         compiler.compileNode(this._block);
 
         if (null !== this._handler) {
@@ -69,7 +69,7 @@ class TryStatement extends implementationOf(StatementInterface) {
         }
 
         if (null !== this._finalizer) {
-            compiler._emit('finally');
+            compiler._emit(' finally ');
             compiler.compileNode(this._finalizer);
         }
     }
