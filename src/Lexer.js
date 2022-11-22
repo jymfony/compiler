@@ -356,8 +356,14 @@ class Lexer {
                         }
                         break;
 
-                    case '}':
+                    case '{':
                         if ('${' === stop[stop.length - 1]) {
+                            stop.push('{');
+                        }
+                        break;
+
+                    case '}':
+                        if ('${' === stop[stop.length - 1] || '{' === stop[stop.length - 1]) {
                             stop.pop();
                         }
                         break;

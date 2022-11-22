@@ -97,4 +97,63 @@ describe('[Compiler] Lexer', function () {
             { value: 'end-of-file', type: Lexer.T_EOF, position: 32, index: 1 },
         ]);
     });
+
+    it ('can parse template strings #2', () => {
+        const lexer = new Lexer();
+
+        lexer.input = `return \`
+      <div
+        \${this.htmlAttributes({
+            class: classesName,
+            style: 'div'
+        })}
+      >
+        <!--[if mso | IE]>
+        <table
+          \${this.htmlAttributes({
+            bgcolor: this.getAttribute('background-color') === 'none' ? undefined : this.getAttribute('background-color'),
+            border: '0',
+            cellpadding: '0',
+            cellspacing: '0',
+            role: 'presentation'
+        })}
+        >
+          <tr>
+        <![endif]-->
+          \${this.renderChildren(children, {
+            attributes: {
+                mobileWidth: 'mobileWidth'
+            },
+            renderer: component => component.constructor.isRawElement() ? component.render() : \`
+              <!--[if mso | IE]>
+              <td
+                \${component.htmlAttributes({
+                style: {
+                    align: component.getAttribute('align'),
+                    'vertical-align': component.getAttribute('vertical-align'),
+                    width: getElementWidth(component.getWidthAsPixel ? component.getWidthAsPixel() : component.getAttribute('width'))
+                }
+            })}
+              >
+              <![endif]-->
+                \${component.render()}
+              <!--[if mso | IE]>
+              </td>
+              <![endif]-->
+          \`
+        })}
+        <!--[if mso | IE]>
+          </tr>
+          </table>
+        <![endif]-->
+      </div>
+    \`;`;
+        expect(lexer._tokens).to.be.deep.eq([
+            { value: 'return', type: Lexer.T_RETURN, position: 0, index: 0 },
+            { value: ' ', type: Lexer.T_SPACE, position: 6, index: 1 },
+            { value: "`\n      <div\n        ${this.htmlAttributes({\n            class: classesName,\n            style: 'div'\n        })}\n      >\n        <!--[if mso | IE]>\n        <table\n          ${this.htmlAttributes({\n            bgcolor: this.getAttribute('background-color') === 'none' ? undefined : this.getAttribute('background-color'),\n            border: '0',\n            cellpadding: '0',\n            cellspacing: '0',\n            role: 'presentation'\n        })}\n        >\n          <tr>\n        <![endif]-->\n          ${this.renderChildren(children, {\n            attributes: {\n                mobileWidth: 'mobileWidth'\n            },\n            renderer: component => component.constructor.isRawElement() ? component.render() : `\n              <!--[if mso | IE]>\n              <td\n                ${component.htmlAttributes({\n                style: {\n                    align: component.getAttribute('align'),\n                    'vertical-align': component.getAttribute('vertical-align'),\n                    width: getElementWidth(component.getWidthAsPixel ? component.getWidthAsPixel() : component.getAttribute('width'))\n                }\n            })}\n              >\n              <![endif]-->\n                ${component.render()}\n              <!--[if mso | IE]>\n              </td>\n              <![endif]-->\n          `\n        })}\n        <!--[if mso | IE]>\n          </tr>\n          </table>\n        <![endif]-->\n      </div>\n    `", type: Lexer.T_STRING, position: 7, index: 2 },
+            { value: ';', type: Lexer.T_SEMICOLON, position: 1444, index: 3 },
+            { value: 'end-of-file', type: Lexer.T_EOF, position: 1445, index: 4 },
+        ]);
+    });
 });
