@@ -1524,4 +1524,44 @@ _err.message.indexOf('Cannot find module') !== -1
   
 }`);
     });
+
+    it ('"async" used as identifier #1', () => {
+        const program = parser.parse(`
+  // send back results we have so far
+  async(callback)(null, this.results);
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`async(callback)(null,this.results);\n`);
+    });
+
+    it ('"async" used as identifier #2', () => {
+        const program = parser.parse('let async = "test";');
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq('let async = "test";\n');
+    });
+
+    it ('"async" used as identifier #3', () => {
+        const program = parser.parse(`
+let async = "test";
+async.toUpperCase();
+`);
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq(`let async = "test";
+async.toUpperCase();
+`);
+    });
+
+    it ('"async" used as identifier #4', () => {
+        const program = parser.parse('this.async.toUpperCase();');
+
+        const compiler = new Compiler(generator);
+        const compiled = compiler.compile(program);
+        expect(compiled).to.be.eq('this.async.toUpperCase();\n');
+    });
 });

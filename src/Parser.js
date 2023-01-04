@@ -1560,6 +1560,16 @@ class Parser extends implementationOf(ExpressionParserTrait) {
                 }
 
                 case Lexer.T_ASYNC: {
+                    let peek;
+                    while ((peek = this._lexer.peek()), peek !== undefined && peek.type === Lexer.T_SPACE) {
+                        // Continue
+                    }
+
+                    if (peek !== undefined && peek.type === Lexer.T_OPEN_PARENTHESIS) {
+                        const expression = this._parseExpression();
+                        return new AST.ExpressionStatement(this._makeLocation(start), expression);
+                    }
+
                     async = true;
                     const state = this.state;
                     this._next();
