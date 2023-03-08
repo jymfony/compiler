@@ -731,6 +731,9 @@ ${compiled}
 
         try {
             const program = parser.parse(`
+/**
+ * Used to verify class docblock.
+ */
 export default class Foobar {
     accessor accessorField;
 
@@ -770,6 +773,8 @@ ${compiled}
             expect(reflectionData.fields.map(f => f.name)).to.be.deep.eq([ 'accessorField', 'message', 'type' ]);
             expect(reflectionData.methods).to.have.length(2);
             expect(reflectionData.methods.map(f => f.name)).to.be.deep.eq([ '__construct', 'defaultOption' ]);
+            expect(reflectionData.methods.find(f => f.name === '__construct').docblock).to.be.equal('/**\n     * @inheritdoc\n     */');
+            expect(reflectionData.docblock).to.be.equal('/**\n * Used to verify class docblock.\n */');
         } finally {
             __jymfony.autoload.debug = debug;
         }

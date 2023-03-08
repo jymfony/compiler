@@ -33,6 +33,11 @@ class ExportDefaultDeclaration extends implementationOf(ModuleDeclarationInterfa
      * @inheritdoc
      */
     prepare(compiler) {
+        if ((this._expression instanceof ClassExpression || this._expression instanceof FunctionExpression) && !this._expression.docblock && this.docblock) {
+            this._expression.docblock = this.docblock;
+            this.docblock = null;
+        }
+
         this._expression.prepare(compiler);
     }
 
@@ -57,10 +62,7 @@ class ExportDefaultDeclaration extends implementationOf(ModuleDeclarationInterfa
      */
     compile(compiler) {
         if ((this._expression instanceof ClassExpression || this._expression instanceof FunctionExpression) && null !== this._expression.id) {
-            const declaration = Variable.create('const', this._expression.id, this._expression);
-            declaration.docblock = this.docblock || this._expression.docblock;
-
-            compiler.compileNode(declaration);
+            compiler.compileNode(Variable.create('const', this._expression.id, this._expression));
 
             compiler._emit(';\nexports.default = ');
             compiler.compileNode(this._expression.id);

@@ -357,6 +357,7 @@ class Compiler {
                         value: funcValue,
                         ownClass: value,
                         parameters: this._getFunctionParams(member),
+                        docblock: member.docblock,
                     });
 
                     if ('constructor' === member.key.name || '__construct' === member.key.name) {
@@ -385,6 +386,7 @@ class Compiler {
                                 get: (obj) => obj[declaredField.name],
                                 set: (obj, vv) => obj[declaredField.name] = vv,
                                 ownClass: value,
+                                docblock: declaredField.docblock,
                             });
                         }
                     }
@@ -407,6 +409,7 @@ class Compiler {
                             (accessors && accessors[type] && accessors[type]['#' + member.key.name] ? accessors[type]['#' + member.key.name].set : undefined) :
                             (obj, vv) => (member.static ? value : obj)[member.key.name] = vv,
                         ownClass: value,
+                        docblock: member.docblock,
                     });
                 } else if (member instanceof AST.ClassAccessor) {
                     if (!(member.key instanceof AST.Identifier)) {
@@ -440,6 +443,7 @@ class Compiler {
                         get: descriptor.get,
                         set: descriptor.set,
                         ownClass: value,
+                        docblock: member.docblock,
                     });
                 } else if (member.lazyNode) {
                     // Do nothing
