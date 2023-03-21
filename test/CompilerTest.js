@@ -1,66 +1,748 @@
+import { runInNewContext, runInThisContext } from 'vm';
+import seedrandom from 'seedrandom';
+
 const AST = require('../src/AST');
 const Compiler = require('../src/Compiler');
 const Generator = require('../src/SourceMap/Generator');
-const StackHandler = require('../src/SourceMap/StackHandler');
 const Parser = require('../src/Parser');
-const { expect } = require('chai');
-const { runInNewContext, runInThisContext } = require('vm');
-const seedrandom = require('seedrandom');
+const NullGenerator = Jymfony.Compiler.Tests.NullGenerator;
+const StackHandler = require('../src/SourceMap/StackHandler');
+const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 
-describe('[Compiler] Compiler', function () {
-    const parser = new Parser();
-    const generator = new class extends Generator {
-        toString() {
-            return '';
+export default class CompilerTest extends TestCase {
+    /**
+     * @type {Parser}
+     * @private
+     */
+    _parser;
+
+    /**
+     * @type {Compiler}
+     * @private
+     */
+    _compiler;
+
+    get testCaseName() {
+        return '[Compiler] ' + super.testCaseName;
+    }
+
+    beforeEach() {
+        this._parser = new Parser();
+        this._compiler = new Compiler(new NullGenerator());
+    }
+
+    testShouldCorrectlyCompileDoWhileWithoutBlock() {
+        seedrandom('anonymous function', { global: true });
+        const program = this._parser.parse(`
+        (function () {
+            do
+                things()
+            while (a > 0);
+        })
+`);
+
+        const compiled = this._compiler.compile(program);
+
+        __self.assertNotNull(program);
+        __self.assertEquals(`(function _anonymous_xΞ73d42() {
+  do things();
+  while (a > 0);
+});
+`, compiled);
+    }
+
+    testShouldCorrectlyCompileMultipleImportFlags() {
+        const program = this._parser.parse(`import { Inject } from '@jymfony/decorators';
+import { Client } from 'non-existent-package' nocompile optional;
+
+export default () => {
+    return [ Inject !== undefined, Client === undefined ];
+};
+`);
+
+        __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require('@jymfony/decorators');
+const Inject = αa.Inject;
+const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
+const Client = αb.Client;
+exports.default = () => {
+  return [ Inject !== undefined, Client === undefined ];
+};
+`, this._compiler.compile(program));
+    }
+
+    testShouldCompileSimpleGeneratedExpression() {
+        const compiled = this._compiler.compile(new AST.NullLiteral(null));
+        __self.assertEquals('null', compiled);
+    }
+
+    testShouldCompileSpreadOperatorInObjectUnpacking() {
+        const program = this._parser.parse('const { g, ...x } = { g: \'foo\', y: \'test\', p: 123 }');
+        __self.assertEquals('const { g, ...x } = {\n  g: \'foo\',\n  y: \'test\',\n  p: 123,\n};\n', this._compiler.compile(program));
+    }
+
+    testShouldParseXorOperatorCorrectly() {
+        const program = this._parser.parse('function op_xor(x,y) { return x^y; }');
+
+        __self.assertEquals(`function op_xor(x,y) {
+  return x ^ y;
+}
+`, this._compiler.compile(program));
+    }
+
+    testShouldCorrectlyParseComputedClassMemberId() {
+        const program = this._parser.parse(`
+class x {
+  [computed](param) {}
+}
+`);
+
+        __self.assertEquals(`const αa_initialize_class_fields = Symbol();
+class x extends __jymfony.JObject {
+  [computed](param) {
+    
+  }
+  
+  static [αa_initialize_class_fields]() {
+    Object.defineProperty(x,Symbol.reflection,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: ${reflectionIdStart++},
+    });
+    Object.defineProperty(x,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Object.defineProperty(x.prototype[computed],Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    
+  }
+}
+x[αa_initialize_class_fields]();
+`, this._compiler.compile(program));
+    }
+
+    testShouldCorrectlyInitializePublicInstanceFieldsOnConstruct() {
+        const program = this._parser.parse(`
+class x {
+  field = 'foo';
+}
+`);
+
+        __self.assertEquals(`const αa_initialize_class_fields = Symbol();
+class x extends __jymfony.JObject {
+  [Symbol.__jymfony_field_initialization]() {
+    const superClass = Object.getPrototypeOf(x.prototype);
+    const superCall = superClass[Symbol.__jymfony_field_initialization];
+    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+      superCall.apply(this);
+    
+    this.field = 'foo';
+  }
+  static [αa_initialize_class_fields]() {
+    Object.defineProperty(x,Symbol.reflection,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: ${reflectionIdStart++},
+    });
+    Object.defineProperty(x,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: x.prototype[Symbol.__jymfony_field_initialization],
+    });
+    
+  }
+}
+x[αa_initialize_class_fields]();
+`, this._compiler.compile(program));
+    }
+
+    testShouldCorrectlyInvokeDecoratorsOnClassDeclarations() {
+        seedrandom('decorators', { global: true });
+        const program = this._parser.parse(`
+function register() { return () => {}; }
+function initialize() { return () => {}; }
+const secondary = () => console.log;
+const logger = {
+    logged: (value, { kind, name }) => {
+        if (kind === "method") {
+            return function (...args) {
+                console.log(\`starting \${name} with arguments \${args.join(", ")}\`);
+                const ret = value.call(this, ...args);
+                console.log(\`ending \${name}\`);
+                return ret;
+            };
         }
 
-        toJSON() {
-            return {};
+        if (kind === "field") {
+            return function (initialValue) {
+                console.log(\`initializing \${name} with value \${initialValue}\`);
+                return initialValue;
+            };
         }
-    }();
+    },
+}
 
-    it ('should compile simple generated expression', () => {
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(new AST.NullLiteral(null));
-        expect(compiled).to.be.equal('null');
-    })
+@logger.logged
+class x {
+  @logger.logged
+  @register((target, prop, parameterIndex = null) => {})
+  @initialize((instance, key, value) => {})
+  field = 'foo';
 
-    it ('should compile assert expressions in debug', () => {
+  @logger.logged
+  @initialize((instance, key, value) => {})
+  accessor fieldAcc = 'foobar';
+
+  @logger.logged
+  @secondary('great')
+  test() {
+    const cc = @logger.logged class {}
+  }
+
+  @logger.logged
+  @secondary('great')
+  get test_getter() {
+    return 'test';
+  }
+
+  @logger.logged
+  @secondary('great')
+  set test_setter(value) {
+  }
+
+  @logger.logged
+  testMethod(@type(Request) firstArg) {
+    dump(firstArg);
+  }
+}
+`);
+
+        __self.assertEquals(`function register() {
+  return () => {
+    
+  };
+}
+function initialize() {
+  return () => {
+    
+  };
+}
+const secondary = () => console.log;
+const logger = {
+  logged: (value,{ kind, name }) => {
+    if (kind === "method") {
+      return function _anonymous_xΞ11ea6(...args) {
+        console.log(\`starting \${name} with arguments \${args.join(", ")}\`);
+        const ret = value.call(this,...args);
+        console.log(\`ending \${name}\`);
+        return ret;
+      };
+    }
+    if (kind === "field") {
+      return function _anonymous_xΞ8f93b(initialValue) {
+        console.log(\`initializing \${name} with value \${initialValue}\`);
+        return initialValue;
+      };
+    }
+    
+  },
+};
+const αa_initialize_class_fields = Symbol();
+const αb_x_accessor_fieldAccΞe3230 = Symbol(), αb_x_accessor_fieldAccΞe3230_init = [  ];
+class x extends __jymfony.JObject {
+  
+  test() {
+    const αn_initialize_class_fields = Symbol();
+    const cc = (() => {
+      const _anonymous_xΞ5d6ae = (() => {
+        const αp_initialize_class_fields = Symbol();
+        let _anonymous_xΞ5d6ae = class _anonymous_xΞ5d6ae extends __jymfony.JObject {
+          
+          static [αn_initialize_class_fields]() {
+            Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.reflection,{
+              writable: false,
+              enumerable: false,
+              configurable: true,
+              value: ${reflectionIdStart++},
+            });
+            Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.metadata,{
+              writable: false,
+              enumerable: false,
+              configurable: true,
+              value: Symbol(),
+            });
+            
+          }
+        };
+        _anonymous_xΞ5d6ae[αn_initialize_class_fields]();
+        _anonymous_xΞ5d6ae = (() => {
+          const αo = logger.logged(_anonymous_xΞ5d6ae,{
+            kind: 'class',
+            name: "_anonymous_xΞ5d6ae",
+            metadataKey: _anonymous_xΞ5d6ae[Symbol.metadata],
+          });
+          if (αo === undefined) 
+            return _anonymous_xΞ5d6ae;
+          return αo;
+        })();
+        
+        return _anonymous_xΞ5d6ae;
+      })();
+      return _anonymous_xΞ5d6ae;
+    })();
+  }
+  get test_getter() {
+    return 'test';
+  }
+  set test_setter(value) {
+    
+  }
+  testMethod(firstArg) {
+    dump(firstArg);
+    
+  }
+  get fieldAcc() {
+    return this[αb_x_accessor_fieldAccΞe3230];
+  }
+  set fieldAcc(value) {
+    this[αb_x_accessor_fieldAccΞe3230] = value;
+  }
+  [Symbol.__jymfony_field_initialization]() {
+    const superClass = Object.getPrototypeOf(x.prototype);
+    const superCall = superClass[Symbol.__jymfony_field_initialization];
+    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
+      superCall.apply(this);
+    
+    this.field = (() => {
+      let αf = initialize((instance,key,value) => {
+        
+      })(undefined,{
+        kind: 'field',
+        name: "field",
+        access: {
+          get() {
+            return this.field;
+          },
+          set(value) {
+            this.field = value;
+            
+          },
+        },
+        static: false,
+        private: false,
+      });
+      if (αf === undefined) 
+        αf = (initialValue) => initialValue;
+      
+      return αf;
+    }).call(this,(() => {
+      let αe = register((target,prop,parameterIndex = null) => {
+        
+      })(undefined,{
+        kind: 'field',
+        name: "field",
+        access: {
+          get() {
+            return this.field;
+          },
+          set(value) {
+            this.field = value;
+            
+          },
+        },
+        static: false,
+        private: false,
+      });
+      if (αe === undefined) 
+        αe = (initialValue) => initialValue;
+      
+      return αe;
+    }).call(this,(() => {
+      let αd = logger.logged(undefined,{
+        kind: 'field',
+        name: "field",
+        access: {
+          get() {
+            return this.field;
+          },
+          set(value) {
+            this.field = value;
+            
+          },
+        },
+        static: false,
+        private: false,
+      });
+      if (αd === undefined) 
+        αd = (initialValue) => initialValue;
+      
+      return αd;
+    }).call(this,'foo')));
+    this[αb_x_accessor_fieldAccΞe3230] = (() => {
+      let initialValue = 'foobar';
+      for (const initFn of αb_x_accessor_fieldAccΞe3230_init){
+        const v = initFn(initialValue);
+        if (v !== undefined) 
+          initialValue = v;
+        
+        
+      }
+      return initialValue;
+    })();
+  }
+  static [αa_initialize_class_fields]() {
+    Object.defineProperty(x,Symbol.reflection,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: ${reflectionIdStart++},
+    });
+    Object.defineProperty(x,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Object.defineProperty(x.prototype.test,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"test_getter").get,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"test_setter").set,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Object.defineProperty(x.prototype.testMethod,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    type(Request)(undefined,{
+      kind: "parameter",
+      name: "firstArg",
+      parameterIndex: 0,
+      metadataKey: x.prototype.testMethod[Symbol.metadata],
+      class: {
+        name: "x",
+        metadataKey: x[Symbol.metadata],
+      },
+    });
+    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").get,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").set,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    {
+      const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc");
+      let { get: newGet = oldGet, set: newSet = oldSet, init } = (() => {
+        const s = logger.logged({
+          get: oldGet,
+          set: oldSet,
+        },{
+          kind: 'accessor',
+          name: "fieldAcc",
+          static: false,
+          private: false,
+          metadataKey: Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").get[Symbol.metadata],
+          class: {
+            name: "x",
+            metadataKey: x[Symbol.metadata],
+          },
+        });
+        if (s === undefined) 
+          return {
+        };
+        return s;
+      })();
+      Object.defineProperty(x.prototype,"fieldAcc",{
+        get: newGet,
+        set: newSet,
+      });
+      if (init !== undefined) 
+        αb_x_accessor_fieldAccΞe3230_init.push(init);
+      
+      
+    }{
+      const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc");
+      let { get: newGet = oldGet, set: newSet = oldSet, init } = (() => {
+        const s = initialize((instance,key,value) => {
+          
+        })({
+          get: oldGet,
+          set: oldSet,
+        },{
+          kind: 'accessor',
+          name: "fieldAcc",
+          static: false,
+          private: false,
+          metadataKey: Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").get[Symbol.metadata],
+          class: {
+            name: "x",
+            metadataKey: x[Symbol.metadata],
+          },
+        });
+        if (s === undefined) 
+          return {
+        };
+        return s;
+      })();
+      Object.defineProperty(x.prototype,"fieldAcc",{
+        get: newGet,
+        set: newSet,
+      });
+      if (init !== undefined) 
+        αb_x_accessor_fieldAccΞe3230_init.push(init);
+      
+      
+    }{
+      let αg = logger.logged(x.prototype.test,{
+        kind: "method",
+        name: "test",
+        access: {
+          get() {
+            return x.prototype.test;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: x.prototype.test[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αg === undefined) 
+        αg = x.prototype.test;
+      
+      x.prototype.test = αg;
+    }{
+      let αh = secondary('great')(x.prototype.test,{
+        kind: "method",
+        name: "test",
+        access: {
+          get() {
+            return x.prototype.test;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: x.prototype.test[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αh === undefined) 
+        αh = x.prototype.test;
+      
+      x.prototype.test = αh;
+    }{
+      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_getter");
+      let { get } = descriptor;
+      let αi = logger.logged(get,{
+        kind: "getter",
+        name: "test_getter",
+        access: {
+          get() {
+            return get;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: get[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αi === undefined) 
+        αi = get;
+      
+      descriptor.get = αi;
+      Object.defineProperty(x.prototype,"test_getter",descriptor);
+    }{
+      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_getter");
+      let { get } = descriptor;
+      let αj = secondary('great')(get,{
+        kind: "getter",
+        name: "test_getter",
+        access: {
+          get() {
+            return get;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: get[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αj === undefined) 
+        αj = get;
+      
+      descriptor.get = αj;
+      Object.defineProperty(x.prototype,"test_getter",descriptor);
+    }{
+      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_setter");
+      let { set } = descriptor;
+      let αk = logger.logged(set,{
+        kind: "setter",
+        name: "test_setter",
+        access: {
+          get() {
+            return set;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: set[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αk === undefined) 
+        αk = set;
+      
+      descriptor.set = αk;
+      Object.defineProperty(x.prototype,"test_setter",descriptor);
+    }{
+      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_setter");
+      let { set } = descriptor;
+      let αl = secondary('great')(set,{
+        kind: "setter",
+        name: "test_setter",
+        access: {
+          get() {
+            return set;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: set[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αl === undefined) 
+        αl = set;
+      
+      descriptor.set = αl;
+      Object.defineProperty(x.prototype,"test_setter",descriptor);
+    }{
+      let αm = logger.logged(x.prototype.testMethod,{
+        kind: "method",
+        name: "testMethod",
+        access: {
+          get() {
+            return x.prototype.testMethod;
+          },
+        },
+        static: false,
+        private: false,
+        metadataKey: x.prototype.testMethod[Symbol.metadata],
+        class: {
+          name: "x",
+          metadataKey: x[Symbol.metadata],
+        },
+      });
+      if (αm === undefined) 
+        αm = x.prototype.testMethod;
+      
+      x.prototype.testMethod = αm;
+    }Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: x.prototype[Symbol.__jymfony_field_initialization],
+    });
+    
+  }
+}
+x[αa_initialize_class_fields]();
+x = (() => {
+  const αc = logger.logged(x,{
+    kind: 'class',
+    name: "x",
+    metadataKey: x[Symbol.metadata],
+  });
+  if (αc === undefined) 
+    return x;
+  return αc;
+})();
+`, this._compiler.compile(program));
+    }
+
+    testShouldCompileAssertExpressionsIfDebugIsEnabled() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = true;
 
         try {
-            const program = parser.parse('__assert(foo instanceof Foo);');
-
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal('__assert(foo instanceof Foo);\n');
+            const program = this._parser.parse('__assert(foo instanceof Foo);');
+            const compiled = this._compiler.compile(program);
+            __self.assertEquals('__assert(foo instanceof Foo);\n', compiled);
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should not compile assert expressions when not in debug', () => {
+    testShouldNotCompileAssertExpressionsIfDebugIsDisabled() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse('__assert(foo instanceof Foo);');
-
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal('');
+            const program = this._parser.parse('__assert(foo instanceof Foo);');
+            const compiled = this._compiler.compile(program);
+            __self.assertEquals('', compiled);
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile classes with private members', () => {
+    testShouldCorrectlyCompileClassesWithPrivateMembers() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 class ClassB {
     #internal;
 }
@@ -76,9 +758,7 @@ export default class ClassA extends ClassB {
 }
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
+            __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
   value: true,
 });
 const αa_initialize_class_fields = Symbol();
@@ -106,7 +786,7 @@ class ClassB extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: 390831,
+      value: ${reflectionIdStart++},
     });
     Object.defineProperty(ClassB,Symbol.metadata,{
       writable: false,
@@ -156,7 +836,7 @@ const ClassA = (() => {
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390832,
+        value: ${reflectionIdStart++},
       });
       Object.defineProperty(ClassA,Symbol.metadata,{
         writable: false,
@@ -178,14 +858,18 @@ const ClassA = (() => {
   return ClassA;
 })();
 exports.default = ClassA;
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should handle error stack correctly', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
-        const program = parser.parse(`
+    testShouldHandleErrorStackCorrectly() {
+        if (__jymfony.version_compare(process.versions.node, '12', '<')) {
+            __self.markTestSkipped();
+        }
+
+        const program = this._parser.parse(`
 class x {
     constructor(shouldThrow = false) {
         if (shouldThrow) {
@@ -206,21 +890,25 @@ new x(true);
 
         try {
             runInNewContext(compiled, { Symbol, __jymfony }, { filename: 'x.js' });
-            throw new Error('FAIL');
+            __self.fail();
         } catch (e) {
-            expect(e.stack.startsWith(`x.js:6
+            __self.assertStringContainsString(`x.js:6
       throw new Error('Has to be thrown');
       ^
 
 Has to be thrown
 
     at new x (x.js:5:18)
-    at x.js:11:0`)).to.be.true;
+    at x.js:11:0`, e.stack);
         }
-    });
+    }
 
-    it ('should read and adapt multiple source map', __jymfony.version_compare(process.versions.node, '12', '<') ? undefined : () => {
-        const program = parser.parse(`
+    testShouldReadAndAdaptMultipleSourceMap() {
+        if (__jymfony.version_compare(process.versions.node, '12', '<')) {
+            __self.markTestSkipped();
+        }
+
+        const program = this._parser.parse(`
 function x(shouldThrow = false) {
     if (shouldThrow) {
         throw new Error('Has to be thrown');
@@ -237,44 +925,41 @@ new x(true);
 
         const genStep2 = new Generator({ file: 'x.ts' });
         const compiler2 = new Compiler(genStep2);
-        const recompiled = compiler2.compile(parser.parse(compiled));
+        const recompiled = compiler2.compile(this._parser.parse(compiled));
         StackHandler.registerSourceMap('x.ts', genStep2.toJSON().mappings);
 
         try {
             runInNewContext(recompiled, { Symbol }, { filename: 'x.ts' });
-            throw new Error('FAIL');
+            __self.fail();
         } catch (e) {
-            expect(e.stack.startsWith(`x.ts:3
+            __self.assertStringContainsString(`x.ts:3
     throw new Error('Has to be thrown');
     ^
 
 Has to be thrown
 
     at new x (x.ts:4:14)
-    at x.ts:9:0`)).to.be.true;
+    at x.ts:9:0`, e.stack);
         }
-    });
+    }
 
-    it ('should compile exports correctly', () => {
-        const program = parser.parse(`
+    testShouldCompileExportsCorrectly() {
+        const program = this._parser.parse(`
 export { x, y, z as ɵZ };
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-
-        expect(compiled).to.be.eq(
+        __self.assertEquals(
 `Object.defineProperty(exports,"__esModule",{
   value: true,
 });
 exports.x = x;
 exports.y = y;
 exports.ɵZ = z;
-`);
-    });
+`, this._compiler.compile(program));
+    }
 
-    it ('should correctly compile if-elses without braces', () => {
-        const program = parser.parse(`
+    testShouldCorrectlyCompileIfElsesWithoutBraces() {
+        const program = this._parser.parse(`
 function x(er, real) {
   if (!er)
     set[real] = true
@@ -290,9 +975,7 @@ function x(er, real) {
 }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`function x(er,real) {
+        __self.assertEquals(`function x(er,real) {
   if (! er) 
     set[real] = true;
   else if (er.syscall === 'stat') 
@@ -305,20 +988,18 @@ function x(er, real) {
   }
   
 }
-`);
-    });
+`, this._compiler.compile(program));
+    }
 
-    it ('should correctly compile new expressions with anonymous classes', () => {
+    testShouldCorrectlyCompileNewExpressionsWithAnonymousClasses() {
         seedrandom('anonymous classes', { global: true });
-        const program = parser.parse(`
+        const program = this._parser.parse(`
 const x = new class {
     getFoo() { }
 }();
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const x = new ((() => {
+        __self.assertEquals(`const x = new ((() => {
   const αa_initialize_class_fields = Symbol();
   const _anonymous_xΞ518e6 = (() => {
     const _anonymous_xΞ518e6 = class _anonymous_xΞ518e6 extends __jymfony.JObject {
@@ -331,7 +1012,7 @@ const x = new class {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390834,
+          value: ${reflectionIdStart+=2},
         });
         Object.defineProperty(_anonymous_xΞ518e6,Symbol.metadata,{
           writable: false,
@@ -354,23 +1035,21 @@ const x = new class {
   })();
   return _anonymous_xΞ518e6;
 })())();
-`);
-    });
+`, this._compiler.compile(program));
+    }
 
-    it ('should correctly compile classes with auto-accessors', () => {
+    testShouldCorrectlyCompileClassesWithAutoAccessors() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 export default class Foo {
     accessor internal;
 }
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
+            __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
   value: true,
 });
 const αa_initialize_class_fields = Symbol();
@@ -397,7 +1076,7 @@ const Foo = (() => {
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390835,
+        value: ${++reflectionIdStart},
       });
       Object.defineProperty(Foo,Symbol.metadata,{
         writable: false,
@@ -431,18 +1110,18 @@ const Foo = (() => {
   return Foo;
 })();
 exports.default = Foo;
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile anonymous classes in parenthesized expression', () => {
+    testShouldCorrectlyCompileAnonymousClassesInParenthesizedExpression() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 const x = new (class extends GenericRetryStrategy {
     methodX() {
     }
@@ -451,9 +1130,7 @@ const x = new (class extends GenericRetryStrategy {
 module.exports = x;
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`const x = new ((() => {
+            __self.assertEquals(`const x = new ((() => {
   const αa_initialize_class_fields = Symbol();
   const _anonymous_xΞ5c6f0 = (() => {
     const _anonymous_xΞ5c6f0 = class _anonymous_xΞ5c6f0 extends GenericRetryStrategy {
@@ -466,7 +1143,7 @@ module.exports = x;
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390836,
+          value: ${++reflectionIdStart},
         });
         Object.defineProperty(_anonymous_xΞ5c6f0,Symbol.metadata,{
           writable: false,
@@ -490,18 +1167,18 @@ module.exports = x;
   return _anonymous_xΞ5c6f0;
 })())(0);
 module.exports = x;
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile anonymous classes in variable declarators', () => {
+    testShouldCorrectlyCompileAnonymousClassesInVariableDeclarators() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 export default class ScopingHttpClientTest extends TestCase {
     @dataProvider('provideMatchingUrls')
     async testMatchingUrls(regexp, url, options) {
@@ -509,9 +1186,7 @@ export default class ScopingHttpClientTest extends TestCase {
 }
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
+            __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
   value: true,
 });
 const αa_initialize_class_fields = Symbol();
@@ -528,7 +1203,7 @@ const ScopingHttpClientTest = (() => {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: 390837,
+          value: ${++reflectionIdStart},
         });
         Object.defineProperty(ScopingHttpClientTest,Symbol.metadata,{
           writable: false,
@@ -573,45 +1248,41 @@ const ScopingHttpClientTest = (() => {
   return ScopingHttpClientTest;
 })();
 exports.default = ScopingHttpClientTest;
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile inline if-else', () => {
+    testShouldCorrectlyCompileInlineIfElse() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 if (!bits(1)) t++;
 else t--;
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`if (! bits(1)) 
+            __self.assertEquals(`if (! bits(1)) 
   t++;
 else t--;
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile anonymous classes into sequence expressions', () => {
+    testShouldCorrectlyCompileAnonymousClassesIntoSequenceExpressions() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 const x = (_a = class extends this {}, _a.ps = ps.concat(nps.filter(p => !ps.includes(p))), _a);
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
+            __self.assertEquals(`const αa_initialize_class_fields = Symbol();
 const x = (_a = (() => {
   const _anonymous_xΞddcbb = class _anonymous_xΞddcbb extends this {
     
@@ -620,7 +1291,7 @@ const x = (_a = (() => {
         writable: false,
         enumerable: false,
         configurable: true,
-        value: 390838,
+        value: ${++reflectionIdStart},
       });
       Object.defineProperty(_anonymous_xΞddcbb,Symbol.metadata,{
         writable: false,
@@ -635,25 +1306,23 @@ const x = (_a = (() => {
   ;
   return _anonymous_xΞddcbb;
 })(), _a.ps = ps.concat(nps.filter((p) => ! ps.includes(p))), _a);
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile anonymous classes into object values', () => {
+    testShouldCorrectlyCompileAnonymousClassesIntoObjectValues() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 const x = ({ [n]: class {
 } })[n];
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`const αa_initialize_class_fields = Symbol();
+            __self.assertEquals(`const αa_initialize_class_fields = Symbol();
 const x = ({
   [n]: (() => {
     const αb_initialize_class_fields = Symbol();
@@ -680,18 +1349,18 @@ const x = ({
     return _anonymous_xΞd2774;
   })(),
 })[n];
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile anonymous classes into object values', () => {
+    testShouldCorrectlyCompileAnonymousClassesIntoObjectValues() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 const Type = Jymfony.Component.Autoloader.Decorator.Type;
 
 export default class FoobarClass {
@@ -703,9 +1372,7 @@ export default class FoobarClass {
 }
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-
+            const compiled = this._compiler.compile(program);
             const module = { exports: {}, };
             runInThisContext(`(function(exports, require, module, __filename, __dirname) {
   'use strict';
@@ -715,22 +1382,22 @@ ${compiled}
             const c = module.exports.default;
 
             const reflectionData = Compiler.getReflectionData(c);
-            expect(reflectionData).not.to.be.undefined;
-            expect(reflectionData.methods).to.have.length(1);
-            expect(reflectionData.methods[0].name).to.be.equal('constructor');
-            expect(reflectionData.methods[0].value[Symbol.metadata]).not.to.be.undefined;
-            expect(MetadataStorage.getMetadata(reflectionData.methods[0].value[Symbol.metadata], 0)[0][1]).to.be.equal('string');
+            __self.assertNotNull(reflectionData);
+            __self.assertCount(1, reflectionData.methods);
+            __self.assertEquals('constructor', reflectionData.methods[0].name);
+            __self.assertNotNull(reflectionData.methods[0].value[Symbol.metadata]);
+            __self.assertEquals('string', MetadataStorage.getMetadata(reflectionData.methods[0].value[Symbol.metadata], 0)[0][1]);
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile classes reflection data', () => {
+    testShouldCorrectlyCompileClassesReflectionData() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 /**
  * Used to verify class docblock.
  */
@@ -756,9 +1423,7 @@ export default class Foobar {
 }
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-
+            const compiled = this._compiler.compile(program);
             const module = { exports: {}, };
             runInThisContext(`(function(exports, require, module, __filename, __dirname) {
   'use strict';
@@ -768,30 +1433,28 @@ ${compiled}
             const c = module.exports.default;
 
             const reflectionData = Compiler.getReflectionData(c);
-            expect(reflectionData).not.to.be.undefined;
-            expect(reflectionData.fields).to.have.length(3);
-            expect(reflectionData.fields.map(f => f.name)).to.be.deep.eq([ 'accessorField', 'message', 'type' ]);
-            expect(reflectionData.methods).to.have.length(2);
-            expect(reflectionData.methods.map(f => f.name)).to.be.deep.eq([ '__construct', 'defaultOption' ]);
-            expect(reflectionData.methods.find(f => f.name === '__construct').docblock).to.be.equal('/**\n     * @inheritdoc\n     */');
-            expect(reflectionData.docblock).to.be.equal('/**\n * Used to verify class docblock.\n */');
+            __self.assertNotNull(reflectionData);
+            __self.assertCount(3, reflectionData.fields);
+            __self.assertEquals([ 'accessorField', 'message', 'type' ], reflectionData.fields.map(f => f.name));
+            __self.assertCount(2, reflectionData.methods);
+            __self.assertEquals([ '__construct', 'defaultOption' ], reflectionData.methods.map(f => f.name));
+            __self.assertEquals('/**\n     * @inheritdoc\n     */', reflectionData.methods.find(f => f.name === '__construct').docblock);
+            __self.assertEquals('/**\n * Used to verify class docblock.\n */', reflectionData.docblock);
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile literal objects with unicode chars member names', () => {
+    testShouldCorrectlyCompileLiteralObjectsWithUnicodeCharsMemberNames() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 var encodeMap = {'': 'empty','\\xAD':'shy','\\u200C':'zwnj','\\u200D':'zwj','#': 'hash','?': 'qm','foo\\\'bar':'bar'};
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`var encodeMap = {
+            __self.assertEquals(`var encodeMap = {
   '': 'empty',
   '\\xAD': 'shy',
   '\\u200C': 'zwnj',
@@ -800,18 +1463,18 @@ var encodeMap = {'': 'empty','\\xAD':'shy','\\u200C':'zwnj','\\u200D':'zwj','#':
   '?': 'qm',
   'foo\\\'bar': 'bar',
 };
-`);
+`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
 
-    it ('should correctly compile catch clause without parameter', () => {
+    testShouldCorrectlyCompileCatchClauseWithoutParameter() {
         const debug = __jymfony.autoload.debug;
         __jymfony.autoload.debug = false;
 
         try {
-            const program = parser.parse(`
+            const program = this._parser.parse(`
 try {
     doThings();
 } catch {
@@ -819,17 +1482,326 @@ try {
 }
 `);
 
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-            expect(compiled).to.be.equal(`try {
+            __self.assertEquals(`try {
   doThings();
   
 } catch (Ξ_) {
   handleException();
   
-}`);
+}`, this._compiler.compile(program));
         } finally {
             __jymfony.autoload.debug = debug;
         }
-    });
+    }
+
+    testShouldCorrectlyExportNamedAsyncFunctions() {
+        const program = this._parser.parse(`
+export async function named() {
+}
+`);
+
+        __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
+  value: true,
 });
+async function named() {
+  
+}
+exports.named = named;
+`, this._compiler.compile(program));
+    }
+
+    testShouldCorrectlyCompileDecoratorsOnClassesInNamedExportsOrVariableDeclarations() {
+        seedrandom('decorators', { global: true });
+        const program = this._parser.parse(`
+        import { Annotation, ANNOTATION_TARGET_CLASS, ANNOTATION_TARGET_FUNCTION } from '../src';
+export
+@Annotation(ANNOTATION_TARGET_CLASS)
+class TestAnnotation {
+    // ...
+}
+
+export const TestConstClassAnnotation = @Annotation(ANNOTATION_TARGET_CLASS) class {
+    // ...
+}
+`);
+
+        __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require('../src');
+const Annotation = αa.Annotation;
+const ANNOTATION_TARGET_CLASS = αa.ANNOTATION_TARGET_CLASS;
+const ANNOTATION_TARGET_FUNCTION = αa.ANNOTATION_TARGET_FUNCTION;
+const αb_initialize_class_fields = Symbol();
+class TestAnnotation extends __jymfony.JObject {
+  
+  static [αb_initialize_class_fields]() {
+    Object.defineProperty(TestAnnotation,Symbol.reflection,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: ${reflectionIdStart+=19},
+    });
+    Object.defineProperty(TestAnnotation,Symbol.metadata,{
+      writable: false,
+      enumerable: false,
+      configurable: true,
+      value: Symbol(),
+    });
+    
+  }
+}
+TestAnnotation[αb_initialize_class_fields]();
+TestAnnotation = (() => {
+  const αc = Annotation(ANNOTATION_TARGET_CLASS)(TestAnnotation,{
+    kind: 'class',
+    name: "TestAnnotation",
+    metadataKey: TestAnnotation[Symbol.metadata],
+  });
+  if (αc === undefined) 
+    return TestAnnotation;
+  return αc;
+})();
+exports.TestAnnotation = TestAnnotation;
+const αd_initialize_class_fields = Symbol();
+const TestConstClassAnnotation = (() => {
+  const _anonymous_xΞ96888 = (() => {
+    const αf_initialize_class_fields = Symbol();
+    let _anonymous_xΞ96888 = class _anonymous_xΞ96888 extends __jymfony.JObject {
+      
+      static [αd_initialize_class_fields]() {
+        Object.defineProperty(_anonymous_xΞ96888,Symbol.reflection,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: ${++reflectionIdStart},
+        });
+        Object.defineProperty(_anonymous_xΞ96888,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        
+      }
+    };
+    _anonymous_xΞ96888[αd_initialize_class_fields]();
+    _anonymous_xΞ96888 = (() => {
+      const αe = Annotation(ANNOTATION_TARGET_CLASS)(_anonymous_xΞ96888,{
+        kind: 'class',
+        name: "_anonymous_xΞ96888",
+        metadataKey: _anonymous_xΞ96888[Symbol.metadata],
+      });
+      if (αe === undefined) 
+        return _anonymous_xΞ96888;
+      return αe;
+    })();
+    
+    return _anonymous_xΞ96888;
+  })();
+  return _anonymous_xΞ96888;
+})();
+exports.TestConstClassAnnotation = TestConstClassAnnotation;
+`, this._compiler.compile(program));
+    }
+
+    testShouldCorrectlyCompileClassesWithDecoratedMethodsOnExportDefault() {
+        seedrandom('decorators', { global: true });
+        const program = this._parser.parse(`import { Get, Route } from '../src';
+
+export default
+@Route({ path: '/foobar' })
+@Route('/barbar')
+class RoutableClass {
+    @Get('/get')
+    getAction() {}
+}
+`);
+
+        __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require('../src');
+const Get = αa.Get;
+const Route = αa.Route;
+const αb_initialize_class_fields = Symbol();
+const RoutableClass = (() => {
+  const RoutableClass = (() => {
+    const αf_initialize_class_fields = Symbol();
+    let RoutableClass = class RoutableClass extends __jymfony.JObject {
+      getAction() {
+        
+      }
+      
+      static [αb_initialize_class_fields]() {
+        Object.defineProperty(RoutableClass,Symbol.reflection,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: ${++reflectionIdStart},
+        });
+        Object.defineProperty(RoutableClass,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        Object.defineProperty(RoutableClass.prototype.getAction,Symbol.metadata,{
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: Symbol(),
+        });
+        {
+          let αe = Get('/get')(RoutableClass.prototype.getAction,{
+            kind: "method",
+            name: "getAction",
+            access: {
+              get() {
+                return RoutableClass.prototype.getAction;
+              },
+            },
+            static: false,
+            private: false,
+            metadataKey: RoutableClass.prototype.getAction[Symbol.metadata],
+            class: {
+              name: "RoutableClass",
+              metadataKey: RoutableClass[Symbol.metadata],
+            },
+          });
+          if (αe === undefined) 
+            αe = RoutableClass.prototype.getAction;
+          
+          RoutableClass.prototype.getAction = αe;
+        }
+      }
+    };
+    RoutableClass[αb_initialize_class_fields]();
+    RoutableClass = (() => {
+      const αc = Route({
+        path: '/foobar',
+      })(RoutableClass,{
+        kind: 'class',
+        name: "RoutableClass",
+        metadataKey: RoutableClass[Symbol.metadata],
+      });
+      if (αc === undefined) 
+        return RoutableClass;
+      return αc;
+    })();
+    RoutableClass = (() => {
+      const αd = Route('/barbar')(RoutableClass,{
+        kind: 'class',
+        name: "RoutableClass",
+        metadataKey: RoutableClass[Symbol.metadata],
+      });
+      if (αd === undefined) 
+        return RoutableClass;
+      return αd;
+    })();
+    
+    return RoutableClass;
+  })();
+  return RoutableClass;
+})();
+exports.default = RoutableClass;
+`, this._compiler.compile(program));
+    }
+
+    testShouldCorrectlyCompileParamDecoratorsInPrivateMethods() {
+        const program = this._parser.parse(`
+import { Type } from "../src";
+
+export default class TypedPrivateMethodClass {
+    #getAction(
+        @Type('FooType') param1,
+        @Type(Object) param2,
+        param3
+    ) {
+    }
+}
+`);
+
+        __self.assertEquals(`Object.defineProperty(exports,"__esModule",{
+  value: true,
+});
+const αa = require("../src");
+const Type = αa.Type;
+const αb_initialize_class_fields = Symbol();
+const TypedPrivateMethodClass = (() => {
+  const TypedPrivateMethodClass = class TypedPrivateMethodClass extends __jymfony.JObject {
+    #getAction(param1,param2,param3) {
+      
+    }
+    static get [Symbol.jymfony_private_accessors]() {
+      return {
+        fields: {
+        },
+        staticFields: {
+        },
+        methods: {
+          getAction: {
+            call: (obj,...args) => obj.#getAction(...args),
+            metadataKey: () => {
+              const αc = Object.getOwnPropertyDescriptor(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata);
+              if (undefined === αc) 
+                Object.defineProperty(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata,{
+                writable: false,
+                enumerable: false,
+                configurable: true,
+                value: Symbol(),
+              });
+              
+              return TypedPrivateMethodClass.prototype.#getAction[Symbol.metadata];
+            },
+          },
+        },
+        staticMethods: {
+        },
+      };
+    }
+    
+    static [αb_initialize_class_fields]() {
+      Object.defineProperty(TypedPrivateMethodClass,Symbol.reflection,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: ${++reflectionIdStart},
+      });
+      Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
+        writable: false,
+        enumerable: false,
+        configurable: true,
+        value: Symbol(),
+      });
+      Type('FooType')(undefined,{
+        kind: "parameter",
+        name: "param1",
+        parameterIndex: 0,
+        metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
+        class: {
+          name: "TypedPrivateMethodClass",
+          metadataKey: TypedPrivateMethodClass[Symbol.metadata],
+        },
+      });
+      Type(Object)(undefined,{
+        kind: "parameter",
+        name: "param2",
+        parameterIndex: 1,
+        metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
+        class: {
+          name: "TypedPrivateMethodClass",
+          metadataKey: TypedPrivateMethodClass[Symbol.metadata],
+        },
+      });
+      
+    }
+  }
+  TypedPrivateMethodClass[αb_initialize_class_fields]();
+  ;
+  return TypedPrivateMethodClass;
+})();
+exports.default = TypedPrivateMethodClass;
+`, this._compiler.compile(program));
+    }
+}

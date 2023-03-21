@@ -49,12 +49,33 @@ class MemberExpression extends implementationOf(ExpressionInterface) {
     }
 
     /**
+     * @returns {ExpressionInterface}
+     */
+    get object() {
+        return this._object;
+    }
+
+    /**
      * Gets the property accessed by this member access expression.
      *
      * @return {ExpressionInterface}
      */
     get property() {
         return this._property;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    get computed() {
+        return this._computed;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    get optional() {
+        return this._optional;
     }
 
     /**

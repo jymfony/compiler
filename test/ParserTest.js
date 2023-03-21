@@ -1,177 +1,313 @@
-const { dirname, sep } = require('path');
-const { readdirSync, readFileSync } = require('fs');
+import { dirname, sep } from 'path';
+import { readdirSync, readFileSync } from 'fs';
+import { compileFunction } from 'vm';
+
+const AST = require('../src/AST');
+const ASTComparator = Jymfony.Compiler.Tests.ASTComparator;
+const Builder = require('../src/AST/Builder');
 const Compiler = require('../src/Compiler');
-const Generator = require('../src/SourceMap/Generator');
+const NullGenerator = Jymfony.Compiler.Tests.NullGenerator;
 const Parser = require('../src/Parser');
-const { expect } = require('chai');
+
+const TestCase = Jymfony.Component.Testing.Framework.TestCase;
+const IsEqual = Jymfony.Component.Testing.Constraints.IsEqual;
+
 const folder = dirname(require.resolve('test262-parser-tests/package.json'));
-const { compileFunction } = require('vm');
-const seedrandom = require('seedrandom');
+global.reflectionIdStart = 390900;
 
-const reflectionIdStart = 390957;
+const excluded = [
+    '06f0deb843fbf358.js', // With statement. Not supported: all the generated code is in strict mode.
+    '123285734ee7f954.js', // With statement. Not supported: all the generated code is in strict mode.
+    '162fd7b4a7647a1b.js', // With statement. Not supported: all the generated code is in strict mode.
+    '1e61843633dcb483.js', // With statement. Not supported: all the generated code is in strict mode.
+    '2c4b264884006a8e.js', // With statement. Not supported: all the generated code is in strict mode.
+    '2c5f4d039f9c7740.js', // With statement. Not supported: all the generated code is in strict mode.
+    '32a9af0615bf7618.js', // With statement. Not supported: all the generated code is in strict mode.
+    '3610e596404818d6.js', // With statement. Not supported: all the generated code is in strict mode.
+    '3a5a7699f0631c6f.js', // With statement. Not supported: all the generated code is in strict mode.
+    '5239dd0fc0effb71.js', // With statement. Not supported: all the generated code is in strict mode.
+    '5333f04581124314.js', // With statement. Not supported: all the generated code is in strict mode.
+    '55c15fe174790fb2.js', // With statement. Not supported: all the generated code is in strict mode.
+    '560c364700fdb6b2.js', // With statement. Not supported: all the generated code is in strict mode.
+    '5aca2791ab698851.js', // With statement. Not supported: all the generated code is in strict mode.
+    '5d9d30af901ba176.js', // With statement. Not supported: all the generated code is in strict mode.
+    '6b0e8bbdc3dca1c5.js', // With statement. Not supported: all the generated code is in strict mode.
+    '7d8b61ba2a3a275c.js', // With statement. Not supported: all the generated code is in strict mode.
+    '855b8dea36c841ed.js', // With statement. Not supported: all the generated code is in strict mode.
+    '90fa9751ab71ce28.js', // With statement. Not supported: all the generated code is in strict mode.
+    '927b1e0dd52248a6.js', // With statement. Not supported: all the generated code is in strict mode.
+    '93d4c5dfbddf859d.js', // With statement. Not supported: all the generated code is in strict mode.
+    '96ea36bc180f25d5.js', // With statement. Not supported: all the generated code is in strict mode.
+    'a10929d2c1b0d792.js', // With statement. Not supported: all the generated code is in strict mode.
+    'a2f26b79b01628f9.js', // With statement. Not supported: all the generated code is in strict mode.
+    'ac73bc36bbc48890.js', // With statement. Not supported: all the generated code is in strict mode.
+    'a41e5072dd6dda98.js', // With statement. Not supported: all the generated code is in strict mode.
+    'a42a93f3af33bbc5.js', // With statement. Not supported: all the generated code is in strict mode.
+    'afcf8bace3839da2.js', // With statement. Not supported: all the generated code is in strict mode.
+    'b8705496c9c1ff60.js', // With statement. Not supported: all the generated code is in strict mode.
+    'bd883e5fd1f09b69.js', // With statement. Not supported: all the generated code is in strict mode.
+    'be2fd5888f434cbd.js', // With statement. Not supported: all the generated code is in strict mode.
+    'cb625ce2970fe52a.js', // With statement. Not supported: all the generated code is in strict mode.
+    'cf939dae739eacf6.js', // With statement. Not supported: all the generated code is in strict mode.
+    'd88992e07614f506.js', // With statement. Not supported: all the generated code is in strict mode.
+    'f658dbaa20c36388.js', // With statement. Not supported: all the generated code is in strict mode.
+    '14199f22a45c7e30.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    '2ef5ba0343d739dc.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    '5654d4106d7025c2.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    '56e2ba90e05f5659.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    '6815ab22de966de8.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    '6b36b5ad4f3ad84d.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    '9aa93e1e417ce8e3.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    '9fe1d41db318afba.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    'c442dc81201e2b55.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    'df696c501125c86f.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    'ee4e8fa6257d810a.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    'f0d9a7a2f5d42210.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    'ffaf5b9d3140465b.js', // "let" as identifier. Not supported: let is reserved word in ES6
+    'd22f8660531e1c1a.js', // "static" as identifier. Not supported: static is reserved word in ES6
+    'f4a61fcdefebb9d4.js', // "private", "protected", "public" as identifier. Not supported: reserved words in ES6
+    '48567b651f81277e.js', // Duplicate __proto__ fields are not allowed in object literals
+    '802658d6ef9a83ec.js', // Duplicate __proto__ fields are not allowed in object literals
+];
 
-describe('[Compiler] Parser', function () {
-    const parser = new Parser();
-    const generator = new class extends Generator {
-        toString() {
-            return '';
-        }
+export default class ParserTest extends TestCase {
+    /**
+     * @type {Parser}
+     * @private
+     */
+    _parser;
 
-        toJSON() {
-            return {};
-        }
-    }();
-
-    const excluded = [
-        '06f0deb843fbf358.js', // With statement. Not supported: all the generated code is in strict mode.
-        '123285734ee7f954.js', // With statement. Not supported: all the generated code is in strict mode.
-        '162fd7b4a7647a1b.js', // With statement. Not supported: all the generated code is in strict mode.
-        '1e61843633dcb483.js', // With statement. Not supported: all the generated code is in strict mode.
-        '2c4b264884006a8e.js', // With statement. Not supported: all the generated code is in strict mode.
-        '2c5f4d039f9c7740.js', // With statement. Not supported: all the generated code is in strict mode.
-        '32a9af0615bf7618.js', // With statement. Not supported: all the generated code is in strict mode.
-        '3610e596404818d6.js', // With statement. Not supported: all the generated code is in strict mode.
-        '3a5a7699f0631c6f.js', // With statement. Not supported: all the generated code is in strict mode.
-        '5239dd0fc0effb71.js', // With statement. Not supported: all the generated code is in strict mode.
-        '5333f04581124314.js', // With statement. Not supported: all the generated code is in strict mode.
-        '55c15fe174790fb2.js', // With statement. Not supported: all the generated code is in strict mode.
-        '560c364700fdb6b2.js', // With statement. Not supported: all the generated code is in strict mode.
-        '5aca2791ab698851.js', // With statement. Not supported: all the generated code is in strict mode.
-        '5d9d30af901ba176.js', // With statement. Not supported: all the generated code is in strict mode.
-        '6b0e8bbdc3dca1c5.js', // With statement. Not supported: all the generated code is in strict mode.
-        '7d8b61ba2a3a275c.js', // With statement. Not supported: all the generated code is in strict mode.
-        '855b8dea36c841ed.js', // With statement. Not supported: all the generated code is in strict mode.
-        '90fa9751ab71ce28.js', // With statement. Not supported: all the generated code is in strict mode.
-        '927b1e0dd52248a6.js', // With statement. Not supported: all the generated code is in strict mode.
-        '93d4c5dfbddf859d.js', // With statement. Not supported: all the generated code is in strict mode.
-        '96ea36bc180f25d5.js', // With statement. Not supported: all the generated code is in strict mode.
-        'a10929d2c1b0d792.js', // With statement. Not supported: all the generated code is in strict mode.
-        'a2f26b79b01628f9.js', // With statement. Not supported: all the generated code is in strict mode.
-        'ac73bc36bbc48890.js', // With statement. Not supported: all the generated code is in strict mode.
-        'a41e5072dd6dda98.js', // With statement. Not supported: all the generated code is in strict mode.
-        'a42a93f3af33bbc5.js', // With statement. Not supported: all the generated code is in strict mode.
-        'afcf8bace3839da2.js', // With statement. Not supported: all the generated code is in strict mode.
-        'b8705496c9c1ff60.js', // With statement. Not supported: all the generated code is in strict mode.
-        'bd883e5fd1f09b69.js', // With statement. Not supported: all the generated code is in strict mode.
-        'be2fd5888f434cbd.js', // With statement. Not supported: all the generated code is in strict mode.
-        'cb625ce2970fe52a.js', // With statement. Not supported: all the generated code is in strict mode.
-        'cf939dae739eacf6.js', // With statement. Not supported: all the generated code is in strict mode.
-        'd88992e07614f506.js', // With statement. Not supported: all the generated code is in strict mode.
-        'f658dbaa20c36388.js', // With statement. Not supported: all the generated code is in strict mode.
-        '14199f22a45c7e30.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '2ef5ba0343d739dc.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '5654d4106d7025c2.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '56e2ba90e05f5659.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '6815ab22de966de8.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '6b36b5ad4f3ad84d.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '9aa93e1e417ce8e3.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        '9fe1d41db318afba.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'c442dc81201e2b55.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'df696c501125c86f.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'ee4e8fa6257d810a.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'f0d9a7a2f5d42210.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'ffaf5b9d3140465b.js', // "let" as identifier. Not supported: let is reserved word in ES6
-        'd22f8660531e1c1a.js', // "static" as identifier. Not supported: static is reserved word in ES6
-        'f4a61fcdefebb9d4.js', // "private", "protected", "public" as identifier. Not supported: reserved words in ES6
-        '48567b651f81277e.js', // Duplicate __proto__ fields are not allowed in object literals
-        '802658d6ef9a83ec.js', // Duplicate __proto__ fields are not allowed in object literals
-    ];
-
-    const ignored = [];
-
-    for (const filename of readdirSync(folder + sep + 'pass')) {
-        if (excluded.includes(filename)) {
-            continue;
-        }
-
-        it ('should pass ' + filename + ' test', ignored.includes(filename) ? undefined : () => {
-            const fn = folder + sep + 'pass' + sep + filename;
-
-            const content = readFileSync(fn, { encoding: 'utf-8' });
-            const program = parser.parse(content);
-
-            const compiler = new Compiler(generator);
-            const compiled = compiler.compile(program);
-
-            expect(program).is.not.null;
-            compileFunction(compiled);
-        });
+    get testCaseName() {
+        return '[Compiler] ' + super.testCaseName;
     }
 
-    it ('should correctly compile do-while w/o block', () => {
-        const program = parser.parse(`
-        (function () {
-            do
-                things()
-            while (a > 0);
-        })
-`);
+    beforeEach() {
+        this._parser = new Parser();
+    }
 
-        const compiler = new Compiler(generator);
+    assertSameAST(expected, actual, message = null) {
+        if (expected instanceof Builder) {
+            expected = expected._children;
+        } else if (expected instanceof AST.Program) {
+            expected = expected.body;
+        }
+
+        if (actual instanceof Builder) {
+            actual = actual._children;
+        } else if (actual instanceof AST.Program) {
+            actual = actual.body;
+        }
+
+        const constraint = new IsEqual(expected);
+        const factory = constraint.comparatorFactory;
+        factory.register(new ASTComparator(factory));
+
+        __self.assertThat(actual, constraint, message);
+    }
+
+    * provide262Tests() {
+        for (const filename of readdirSync(folder + sep + 'pass')) {
+            if (excluded.includes(filename)) {
+                continue;
+            }
+
+            yield [ filename ];
+        }
+    }
+
+    @dataProvider('provide262Tests')
+    testShouldPass262Test(filename) {
+        this.setTitle('should pass ' + filename + ' test');
+        const fn = folder + sep + 'pass' + sep + filename;
+
+        const content = readFileSync(fn, { encoding: 'utf-8' });
+        const program = this._parser.parse(content);
+
+        const compiler = new Compiler(new NullGenerator());
         const compiled = compiler.compile(program);
 
-        expect(program).is.not.null;
-        expect(eval(compiled)).is.a('function');
-    });
+        __self.assertNotNull(program);
+        compileFunction(compiled);
+    }
 
-    it ('should correctly parse get/set as identifier', () => {
-        const program = parser.parse(`
-        (function () {
+    testShouldCorrectlyParseDoWhileWithoutBlock() {
+        const program = this._parser.parse(`
+        do
+            things()
+        while (a > 0);
+`);
+
+        __self.assertCount(1, program.body);
+
+        const builder = new Builder();
+        builder
+            .do()
+                .test()
+                    .binary()
+                        .operator('>')
+                        .left().ident('a').end()
+                        .right().number(0).end()
+                    .end()
+                .end()
+                .call()
+                    .callee()
+                        .ident('things').end()
+                    .end()
+                .end()
+            .end();
+
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseGetAndSetAsIdentifier() {
+        const program = this._parser.parse(`
+        function t() {
             obj.get('foo');
             set(obj, 'bar');
-        })
+        }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
+        const builder = new Builder();
+        builder
+            .function()
+                .name().ident('t').end()
+                .block()
+                    .call()
+                        .callee().member('obj', 'get').end()
+                        .string('\'foo\'')
+                    .end()
+                    .call()
+                        .callee().ident('set').end()
+                        .ident('obj')
+                        .string('\'bar\'')
+                    .end()
+                .end()
+            .end();
 
-        expect(program).is.not.null;
-        expect(eval(compiled)).is.a('function');
-    });
+        this.assertSameAST(builder, program);
+    }
 
-    it ('should correctly postfix update after space', () => {
-        const program = parser.parse(`
-        (function () {
-            i ++;
-        })
-`);
+    testShouldCorrectlyParsePostfixUpdateAfterSpace() {
+        const program = this._parser.parse('i ++;');
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
+        const builder = new Builder();
+        builder
+            .update()
+                .postfix()
+                .operator('++')
+                .ident('i')
+            .end();
 
-        expect(program).is.not.null;
-        expect(eval(compiled)).is.a('function');
-    });
+        this.assertSameAST(builder, program);
+    }
 
-    it ('should correctly parse init assignment ', () => {
-        const program = parser.parse('var u=-1');
+    testShouldCorrectlyParseVariableInitAssignment() {
+        const program = this._parser.parse('var u=-1');
 
-        const compiler = new Compiler(generator);
-        compiler.compile(program);
+        const builder = new Builder();
+        builder
+            .variable('var')
+                .declarator('u')
+                    .unary('-').number(1).end()
+                .end()
+            .end();
 
-        expect(program).is.not.null;
-    });
+        this.assertSameAST(builder, program);
+    }
 
-    it ('should correctly parse init assignment ', () => {
-        const program = parser.parse('function r(n,t){for(var r=-1,e=null==n?0:n.length;++r<e&&false!==t(n[r],r,n););return n}');
+    testShouldCorrectlyParseMultipleInitAssignments() {
+        const program = this._parser.parse('function r(n,t){for(var r=-1,e=null==n?0:n.length;++r<e&&false!==t(n[r],r,n););return n}');
 
-        const compiler = new Compiler(generator);
-        compiler.compile(program);
+        const builder = new Builder();
+        builder
+            .function()
+                .name().ident('r').end()
+                .argument().name('n').end()
+                .argument().name('t').end()
+                .block()
+                    .for()
+                        .init()
+                            .variable('var')
+                                .declarator('r')
+                                    .unary('-')
+                                        .number(1)
+                                    .end()
+                                .end()
+                                .declarator('e')
+                                    .conditional()
+                                        .test()
+                                            .binary()
+                                                .operator('==')
+                                                .left().null().end()
+                                                .right().ident('n').end()
+                                            .end()
+                                        .end()
+                                        .consequent()
+                                            .number(0)
+                                        .end()
+                                        .alternate()
+                                            .member('n', 'length')
+                                        .end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                        .test()
+                            .binary()
+                                .operator('&&')
+                                .left()
+                                    .binary()
+                                        .operator('<')
+                                        .left()
+                                            .update().operator('++').ident('r').prefix().end()
+                                        .end()
+                                        .right().ident('e').end()
+                                    .end()
+                                .end()
+                                .right()
+                                    .binary()
+                                        .operator('!==')
+                                        .left().false().end()
+                                        .right().call()
+                                            .callee().ident('t').end()
+                                            .member('n', '[r]')
+                                            .ident('r')
+                                            .ident('n')
+                                        .end().end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                    .return()
+                        .ident('n')
+                    .end()
+                .end()
+            .end()
+        ;
 
-        expect(program).is.not.null;
-    });
+        this.assertSameAST(builder, program);
+    }
 
-    it ('should correctly parse import without semicolons', () => {
-        const program = parser.parse(`import { Inject } from '@jymfony/decorators'
+    testShouldCorrectlyParseImportWithoutSemicolons() {
+        const program = this._parser.parse(`import { Inject } from '@jymfony/decorators'
 import { Client } from 'non-existent-package'
 `);
 
-        const compiler = new Compiler(generator);
-        expect(() => compiler.compile(program)).not.to.throw();
-    });
+        const builder = new Builder();
+        builder
+            .import('\'@jymfony/decorators\'')
+                .specifier('Inject')
+            .end()
+            .import('\'non-existent-package\'')
+                .specifier('Client')
+            .end();
 
-    it ('should correctly compile optional imports', () => {
-        const program = parser.parse(`import { Inject } from '@jymfony/decorators';
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseOptionalImports() {
+        const program = this._parser.parse(`import { Inject } from '@jymfony/decorators';
 import { Client } from 'non-existent-package' optional;
 
 export default () => {
@@ -179,12 +315,41 @@ export default () => {
 };
 `);
 
-        const compiler = new Compiler(generator);
-        expect(() => compiler.compile(program)).not.to.throw();
-    });
+        const builder = new Builder();
+        builder
+            .import('\'@jymfony/decorators\'')
+                .specifier('Inject')
+            .end()
+            .import('\'non-existent-package\'')
+                .specifier('Client')
+                .optional()
+            .end()
+            .exportDefault()
+                .arrowFunction()
+                    .block()
+                        .return()
+                            .array()
+                                .binary()
+                                    .operator('!==')
+                                    .left().ident('Inject').end()
+                                    .right().ident('undefined').end()
+                                .end()
+                                .binary()
+                                    .operator('===')
+                                    .left().ident('Client').end()
+                                    .right().ident('undefined').end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly compile multiple import flags', () => {
-        const program = parser.parse(`import { Inject } from '@jymfony/decorators';
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseMultipleImportFlags() {
+        const program = this._parser.parse(`import { Inject } from '@jymfony/decorators';
 import { Client } from 'non-existent-package' nocompile optional;
 
 export default () => {
@@ -192,191 +357,405 @@ export default () => {
 };
 `);
 
-        const compiler = new Compiler(generator);
-        expect(compiler.compile(program)).to.be.eq(`Object.defineProperty(exports,"__esModule",{
-  value: true,
-});
-const αa = require('@jymfony/decorators');
-const Inject = αa.Inject;
-const αb = (() => { try { return require.nocompile('non-existent-package'); } catch (e) { return {}; } })();
-const Client = αb.Client;
-exports.default = () => {
-  return [ Inject !== undefined, Client === undefined ];
-};
-`);
-    });
+        const builder = new Builder();
+        builder
+            .import('\'@jymfony/decorators\'')
+                .specifier('Inject')
+            .end()
+            .import('\'non-existent-package\'')
+                .specifier('Client')
+                .optional()
+                .nocompile()
+            .end()
+            .exportDefault()
+                .arrowFunction()
+                    .block()
+                        .return()
+                            .array()
+                                .binary()
+                                    .operator('!==')
+                                    .left().ident('Inject').end()
+                                    .right().ident('undefined').end()
+                                .end()
+                                .binary()
+                                    .operator('===')
+                                    .left().ident('Client').end()
+                                    .right().ident('undefined').end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly compile raw imports', () => {
-        const program = parser.parse(`import { Sloppy } from 'sloppy-package' nocompile;
+        this.assertSameAST(builder, program);
+    }
 
-export default () => {
-    return [ Sloppy === undefined ];
-};
-`);
+    testShouldParseVariableInterpolationCorrectly() {
+        const program = this._parser.parse('!indentfirst ? `${l}\\n` : `${sp}${l}\\n`;');
 
-        const compiler = new Compiler(generator);
-        expect(() => compiler.compile(program)).not.to.throw();
-    });
+        const builder = new Builder();
+        builder
+            .conditional()
+                .test()
+                    .unary('!').ident('indentfirst').end()
+                .end()
+                .consequent()
+                    .string('`${l}\\n`')
+                .end()
+                .alternate()
+                    .string('`${sp}${l}\\n`')
+                .end()
+            .end();
 
-    it ('should parse js code correctly. case #1', () => {
-        const program = parser.parse(`
-    const res = lines.map((l, i) => {
-        return (0 === i && !indentfirst) ? \`\${l}\\n\` : \`\${sp}\${l}\\n\`;
-    }).join('');
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        expect(() => compiler.compile(program)).not.to.throw();
-    });
+    testShouldParseJsOptionalChaining() {
+        const program = this._parser.parse('a?.prop1?.[prop2]');
+        const builder = new Builder();
+        builder
+            .member('a', '?prop1', '?[prop2]');
 
-    it ('should parse js optional chaining. case #1', () => {
-        const program = parser.parse(`
-    true === a?.prop1?.[prop2];
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.match(/true === a\?\.prop1\?\.\[prop2\]/);
-    });
+    testShouldParseJsOptionalChainingWithCall() {
+        const program = this._parser.parse('a?.prop1?.(\'test\')');
+        const builder = new Builder();
+        builder
+            .call()
+                .callee()
+                    .member('a', '?prop1')
+                .end()
+                .optional()
+                .string('\'test\'')
+            .end();
 
-    it ('should parse js optional chaining. case #2', () => {
-        const program = parser.parse(`
-    true === a?.prop1?.('test');
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.match(/true === a\?\.prop1\?\.\('test'\)/);
-    });
+    testShouldParseNullCoalescingOpeartor() {
+        const program = this._parser.parse('obj?.response?.html?.enabled ?? retval.response.html.enabled');
+        const builder = new Builder();
+        builder
+            .binary()
+                .operator('??')
+                .left().member('obj', '?response', '?html', '?enabled').end()
+                .right().member('retval', 'response', 'html', 'enabled').end()
+            .end();
 
-    it ('should parse js null-coalescing opeartor', () => {
-        const program = parser.parse(`
-    const enabled = obj?.response?.html?.enabled ?? retval.response.html.enabled;
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq('const enabled = obj?.response?.html?.enabled ?? retval.response.html.enabled;\n');
-    });
+    testShouldParseConsecutiveCommasInArrays() {
+        const program = this._parser.parse('[ 1, , 3, 4 ]');
 
-    it ('should parse js optional chaining. case #2', () => {
-        const program = parser.parse(`
-    true === a?.prop1?.('test');
-`);
+        const builder = new Builder();
+        builder
+            .array()
+                .number(1)
+                .empty()
+                .number(3)
+                .number(4)
+            .end();
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.match(/true === a\?\.prop1\?\.\('test'\)/);
-    });
+        this.assertSameAST(builder, program);
+    }
 
-    it ('should parse consecutive commas in arrays', () => {
-        const program = parser.parse(`
-    const x = [ 1, , 3, 4 ];
-`);
+    testShouldParseSpreadOperatorInObjectUnpacking() {
+        const program = this._parser.parse('const { g, ...x } = { g: \'foo\', y: \'test\', p: 123 }');
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const x = [ 1, , 3, 4 ];\n');
-    });
+        const builder = new Builder();
+        builder
+            .variable('const')
+                .declarator(
+                    new Builder(null, true)
+                        .pattern().object()
+                            .property()
+                                .key().ident('g').end()
+                            .end()
+                            .spread().ident('x').end()
+                        .end().end()
+                    .end()[0]
+                )
+                    .object()
+                        .property()
+                            .key().ident('g').end()
+                            .value().string('\'foo\'').end()
+                        .end()
+                        .property()
+                            .key().ident('y').end()
+                            .value().string('\'test\'').end()
+                        .end()
+                        .property()
+                            .key().ident('p').end()
+                            .value().number(123).end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should spread operator in object unpacking', () => {
-        const program = parser.parse(`
-    const { g, ...x } = { g: 'foo', y: 'test', p: 123 };
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const { g, ...x } = {\n  g: \'foo\',\n  y: \'test\',\n  p: 123,\n};\n');
-    });
+    testShouldParseXorOperatorCorrectly() {
+        const program = this._parser.parse('function op_xor(x,y) { return x^y; }');
 
-    it ('should parse xor operator correctly', () => {
-        const program = parser.parse(`
-function op_xor(x,y) { return x^y; }
-`);
+        const builder = new Builder();
+        builder
+            .function()
+                .name().ident('op_xor').end()
+                .argument().name('x').end()
+                .argument().name('y').end()
+                .block()
+                    .return()
+                        .binary()
+                            .operator('^')
+                            .left().ident('x').end()
+                            .right().ident('y').end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`function op_xor(x,y) {
-  return x ^ y;
-}
-`);
-    });
+        this.assertSameAST(builder, program);
+    }
 
-    it ('should parse async as variable identifier', () => {
-        const program = parser.parse(`
+    testShouldParseAsyncAsVariableIdentifier() {
+        const program = this._parser.parse(`
 var async = require('./lib/async');
 async.core = core;
 async.isCore = function isCore(x) { return core[x]; };
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`var async = require('./lib/async');
-async.core = core;
-async.isCore = function isCore(x) {
-  return core[x];
-};
-`);
-    });
+        const builder = new Builder();
+        builder
+            .variable('var')
+                .declarator('async')
+                    .call()
+                        .callee().ident('require').end()
+                        .string('\'./lib/async\'')
+                    .end()
+                .end()
+            .end()
+            .assign()
+                .left().member('async', 'core').end()
+                .right().ident('core').end()
+            .end()
+            .assign()
+                .left().member('async', 'isCore').end()
+                .right()
+                    .function()
+                        .name().ident('isCore').end()
+                        .argument().name('x').end()
+                        .block()
+                            .return()
+                                .member('core', '[x]')
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end()
 
-    it ('should parse break with newline and identifier next', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldParseBreakWithNewlineAndIdentifierNext() {
+        const program = this._parser.parse(`
   for (var i = released.length - 1; i >= 0; i--) {
     if (minimum > getMajor(released[i])) break
     selected.unshift(released[i])
   }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`for (var i = released.length - 1;i >= 0;i--){
-  if (minimum > getMajor(released[i])) 
-    break;
-  selected.unshift(released[i]);
-  
-}`);
-    });
+        const builder = new Builder();
+        builder
+            .for()
+                .init()
+                    .variable('var')
+                        .declarator('i')
+                            .binary()
+                                .operator('-')
+                                .left().member('released', 'length').end()
+                                .right().number(1).end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+                .test()
+                    .binary()
+                        .operator('>=')
+                        .left().ident('i').end()
+                        .right().number(0).end()
+                    .end()
+                .end()
+                .update()
+                    .update()
+                        .postfix()
+                        .operator('--')
+                        .ident('i')
+                    .end()
+                .end()
+                .block()
+                    .if()
+                        .test()
+                            .binary()
+                                .operator('>')
+                                .left().ident('minimum').end()
+                                .right()
+                                    .call()
+                                        .callee().ident('getMajor').end()
+                                        .member('released', '[i]')
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                        .consequent().break().end()
+                    .end()
+                    .call()
+                        .callee().member('selected', 'unshift').end()
+                        .member('released', '[i]')
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly rescan the rest of the file if a wrong regex has been matched', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyRescanTheRestOfTheFileIfAWrongRegexHasBeenMatched() {
+        const program = this._parser.parse(`
 const foo = cond ? Number(bar) / 100 : undefined; // return a comment
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const foo = cond ? Number(bar) / 100 : undefined;\n');
-    });
+        const builder = new Builder();
+        builder
+            .variable('const')
+                .declarator('foo')
+                    .conditional()
+                        .test().ident('cond').end()
+                        .consequent()
+                            .binary()
+                                .operator('/')
+                                .left()
+                                    .call()
+                                        .callee().ident('Number').end()
+                                        .ident('bar')
+                                    .end()
+                                .end()
+                                .right().number(100).end()
+                            .end()
+                        .end()
+                        .alternate().ident('undefined').end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should parse composed key in literal object', () => {
-        const program = parser.parse(`
-const a = {[k]: env = defaultEnv};
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const a = {
-  [k]: env = defaultEnv,
-};
-`);
-    });
+    testShouldParseComposedKeyInLiteralObject() {
+        const program = this._parser.parse('const a = {[k]: env = defaultEnv};');
 
-    it ('should correctly rethrow a rescan through the call chain', () => {
-        const program = parser.parse(`
+        const builder = new Builder();
+        builder
+            .variable('const')
+                .declarator('a')
+                    .object()
+                        .property()
+                            .key().string('k').end()
+                            .value()
+                                .assign()
+                                    .left().ident('env').end()
+                                    .right().ident('defaultEnv').end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
+
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyRethrowARescanThroughTheCallChain() {
+        const program = this._parser.parse(`
 [rgbR, rgbG, rgbB].map(function xmap(v) {
     return v > 4.045 ? Math.pow((v + 5.5) / 105.5, 2.4) * 100 : v / 12.92;
 });
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`[ rgbR, rgbG, rgbB ].map(function xmap(v) {
-  return v > 4.045 ? Math.pow((v + 5.5) / 105.5,2.4) * 100 : v / 12.92;
-});
-`);
-    });
+        const builder = new Builder();
+        builder
+            .call()
+                .callee()
+                    .member(
+                        new Builder(null, true)
+                            .array()
+                                .ident('rgbR')
+                                .ident('rgbG')
+                                .ident('rgbB')
+                            .end()
+                        .end()[0],
+                        'map'
+                    )
+                .end()
+                .function()
+                    .name().ident('xmap').end()
+                    .argument().name('v').end()
+                    .block()
+                        .return()
+                            .conditional()
+                                .test()
+                                    .binary()
+                                        .operator('>')
+                                        .left().ident('v').end()
+                                        .right().number(4.045).end()
+                                    .end()
+                                .end()
+                                .consequent()
+                                    .binary()
+                                        .operator('*')
+                                        .right().number(100).end()
+                                        .left()
+                                            .call()
+                                                .callee().member('Math', 'pow').end()
+                                                .binary()
+                                                    .operator('/')
+                                                    .right().number(105.5).end()
+                                                    .left()
+                                                        .parens()
+                                                            .binary()
+                                                                .operator('+')
+                                                                .left().ident('v').end()
+                                                                .right().number(5.5).end()
+                                                            .end()
+                                                        .end()
+                                                    .end()
+                                                .end()
+                                                .number(2.4)
+                                            .end()
+                                        .end()
+                                    .end()
+                                .end()
+                                .alternate()
+                                    .binary()
+                                        .operator('/')
+                                        .left().ident('v').end()
+                                        .right().number(12.92).end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly rescan multiple times', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyRescanMultipleTimes() {
+        const program = this._parser.parse(`
 convert.apple.rgb = function rgb(apple) {
     return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
 };
@@ -390,688 +769,307 @@ convert.gray.rgb = function gray(args) {
 };
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`convert.apple.rgb = function rgb(apple) {
-  return [ (apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255 ];
-};
-convert.rgb.apple = function apple(rgb) {
-  return [ (rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535 ];
-};
-convert.gray.rgb = function gray(args) {
-  return [ args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255 ];
-};
-`);
-    });
+        let builder = new Builder();
+        builder
+            .assign()
+                .left().member('convert', 'apple', 'rgb').end()
+                .right()
+                    .function()
+                        .name().ident('rgb').end()
+                        .argument().name('apple').end()
+                        .block()
+                            .return()
+                                .array()
+                                    .binary()
+                                        .operator('*')
+                                        .right().number(255).end()
+                                        .left()
+                                            .parens()
+                                                .binary()
+                                                    .operator('/')
+                                                    .left().member('apple', '[0]').end()
+                                                    .right().number(65535).end()
+                                                .end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                    .binary()
+                                        .operator('*')
+                                        .right().number(255).end()
+                                        .left()
+                                            .parens()
+                                                .binary()
+                                                    .operator('/')
+                                                    .left().member('apple', '[1]').end()
+                                                    .right().number(65535).end()
+                                                .end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                    .binary()
+                                        .operator('*')
+                                        .right().number(255).end()
+                                        .left()
+                                            .parens()
+                                                .binary()
+                                                    .operator('/')
+                                                    .left().member('apple', '[2]').end()
+                                                    .right().number(65535).end()
+                                                .end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly split keyword and string operator', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder.end()[0], program.body[0]);
+
+        builder = new Builder();
+        builder
+            .assign()
+                .left().member('convert', 'rgb', 'apple').end()
+                .right()
+                    .function()
+                        .name().ident('apple').end()
+                        .argument().name('rgb').end()
+                        .block()
+                            .return()
+                                .array()
+                                    .binary()
+                                        .operator('*')
+                                        .right().number(65535).end()
+                                        .left()
+                                            .parens()
+                                                .binary()
+                                                    .operator('/')
+                                                    .left().member('rgb', '[0]').end()
+                                                    .right().number(255).end()
+                                                .end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                    .binary()
+                                        .operator('*')
+                                        .right().number(65535).end()
+                                        .left()
+                                            .parens()
+                                                .binary()
+                                                    .operator('/')
+                                                    .left().member('rgb', '[1]').end()
+                                                    .right().number(255).end()
+                                                .end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                    .binary()
+                                        .operator('*')
+                                        .right().number(65535).end()
+                                        .left()
+                                            .parens()
+                                                .binary()
+                                                    .operator('/')
+                                                    .left().member('rgb', '[2]').end()
+                                                    .right().number(255).end()
+                                                .end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
+
+        this.assertSameAST(builder.end()[0], program.body[1]);
+
+        builder = new Builder();
+        builder
+            .assign()
+                .left().member('convert', 'gray', 'rgb').end()
+                .right()
+                    .function()
+                        .name().ident('gray').end()
+                        .argument().name('args').end()
+                        .block()
+                            .return()
+                                .array()
+                                    .binary()
+                                        .operator('/')
+                                        .left().member('args', '[0]').end()
+                                        .right()
+                                            .binary()
+                                                .operator('*')
+                                                .left().number(100).end()
+                                                .right().number(255).end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                    .binary()
+                                        .operator('/')
+                                        .left().member('args', '[0]').end()
+                                        .right()
+                                            .binary()
+                                                .operator('*')
+                                                .left().number(100).end()
+                                                .right().number(255).end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                    .binary()
+                                        .operator('/')
+                                        .left().member('args', '[0]').end()
+                                        .right()
+                                            .binary()
+                                                .operator('*')
+                                                .left().number(100).end()
+                                                .right().number(255).end()
+                                            .end()
+                                        .end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
+
+        this.assertSameAST(builder.end()[0], program.body[2]);
+    }
+
+    testShouldCorrectlySplitKeywordAndStringOperator() {
+        const program = this._parser.parse(`
 switch(c){case'\\t':read();return;}
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`switch (c) {
-  case '\\t':
-    read();
-    return;
-}`);
-    });
+        const builder = new Builder();
+        builder
+            .switch()
+                .discriminant().ident('c').end()
+                .case()
+                    .test().string('\'\\t\'').end()
+                    .call()
+                        .callee().ident('read').end()
+                    .end()
+                    .return().end()
+                .end()
+            .end();
 
-    it ('should correctly parse yield expression assignment', () => {
-        const program = parser.parse(`
-result = yield transform(source, options);
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('result = yield transform(source,options);\n');
-    });
+    testShouldCorrectlyParseYieldExpressionAssignment() {
+        const program = this._parser.parse('result = yield transform(source, options);');
 
-    it ('should correctly parse computed class member id', () => {
-        const program = parser.parse(`
+        const builder = new Builder();
+        builder
+            .assign()
+                .left().ident('result').end()
+                .right()
+                    .yield()
+                        .call()
+                            .callee().ident('transform').end()
+                            .ident('source')
+                            .ident('options')
+                        .end()
+                    .end()
+                .end()
+            .end();
+
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseComputedClassMemberId() {
+        const program = this._parser.parse(`
 class x {
   [computed](param) {}
 }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.have.string(`class x extends __jymfony.JObject {
-  [computed](param) {
-    
-  }
-`);
-    });
+        const builder = new Builder();
+        builder
+            .class()
+                .id('x')
+                .method()
+                    .name().string('computed').end()
+                    .argument().name('param').end()
+                .end()
+            .end();
 
-    it ('should correctly initialize public instance fields on construct', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+    testShouldCorrectlyParseInstanceFields() {
+        const program = this._parser.parse(`
 class x {
   field = 'foo';
+  #priv;
 }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`const αa_initialize_class_fields = Symbol();
-class x extends __jymfony.JObject {
-  [Symbol.__jymfony_field_initialization]() {
-    const superClass = Object.getPrototypeOf(x.prototype);
-    const superCall = superClass[Symbol.__jymfony_field_initialization];
-    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
-      superCall.apply(this);
-    
-    this.field = 'foo';
-  }
-  static [αa_initialize_class_fields]() {
-    Object.defineProperty(x,Symbol.reflection,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: ${reflectionIdStart + 0},
-    });
-    Object.defineProperty(x,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: x.prototype[Symbol.__jymfony_field_initialization],
-    });
-    
-  }
-}
-x[αa_initialize_class_fields]();
-`);
-    });
+        const builder = new Builder();
+        builder
+            .class()
+                .id('x')
+                .property()
+                    .key().ident('field').end()
+                    .value().string('\'foo\'').end()
+                .end()
+                .property()
+                    .private()
+                    .key().ident('priv').end()
+                .end()
+            .end()
 
-    it ('should correctly invoke decorators on class declarations', () => {
-        seedrandom('decorators', { global: true });
-        const program = parser.parse(`
-function register() { return () => {}; }
-function initialize() { return () => {}; }
-const secondary = () => console.log;
-const logger = {
-    logged: (value, { kind, name }) => {
-        if (kind === "method") {
-            return function (...args) {
-                console.log(\`starting \${name} with arguments \${args.join(", ")}\`);
-                const ret = value.call(this, ...args);
-                console.log(\`ending \${name}\`);
-                return ret;
-            };
-        }
-
-        if (kind === "field") {
-            return function (initialValue) {
-                console.log(\`initializing \${name} with value \${initialValue}\`);
-                return initialValue;
-            };
-        }
-    },
-}
-
-@logger.logged
-class x {
-  @logger.logged
-  @register((target, prop, parameterIndex = null) => {})
-  @initialize((instance, key, value) => {})
-  field = 'foo';
-  
-  @logger.logged
-  @initialize((instance, key, value) => {})
-  accessor fieldAcc = 'foobar';
-
-  @logger.logged
-  @secondary('great')
-  test() {
-    const cc = @logger.logged class {}
-  }
-
-  @logger.logged
-  @secondary('great')
-  get test_getter() {
-    return 'test';
-  }
-
-  @logger.logged
-  @secondary('great')
-  set test_setter(value) {
-  }
-  
-  @logger.logged
-  testMethod(@type(Request) firstArg) {
-    dump(firstArg);
-  }
-}
-`);
-
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`function register() {
-  return () => {
-    
-  };
-}
-function initialize() {
-  return () => {
-    
-  };
-}
-const secondary = () => console.log;
-const logger = {
-  logged: (value,{ kind, name }) => {
-    if (kind === "method") {
-      return function _anonymous_xΞ11ea6(...args) {
-        console.log(\`starting \${name} with arguments \${args.join(", ")}\`);
-        const ret = value.call(this,...args);
-        console.log(\`ending \${name}\`);
-        return ret;
-      };
+        this.assertSameAST(builder, program);
     }
-    if (kind === "field") {
-      return function _anonymous_xΞ8f93b(initialValue) {
-        console.log(\`initializing \${name} with value \${initialValue}\`);
-        return initialValue;
-      };
-    }
-    
-  },
-};
-const αa_initialize_class_fields = Symbol();
-const αb_x_accessor_fieldAccΞe3230 = Symbol(), αb_x_accessor_fieldAccΞe3230_init = [  ];
-class x extends __jymfony.JObject {
-  
-  test() {
-    const αn_initialize_class_fields = Symbol();
-    const cc = (() => {
-      const _anonymous_xΞ5d6ae = (() => {
-        const αp_initialize_class_fields = Symbol();
-        let _anonymous_xΞ5d6ae = class _anonymous_xΞ5d6ae extends __jymfony.JObject {
-          
-          static [αn_initialize_class_fields]() {
-            Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.reflection,{
-              writable: false,
-              enumerable: false,
-              configurable: true,
-              value: ${reflectionIdStart + 1},
-            });
-            Object.defineProperty(_anonymous_xΞ5d6ae,Symbol.metadata,{
-              writable: false,
-              enumerable: false,
-              configurable: true,
-              value: Symbol(),
-            });
-            
-          }
-        };
-        _anonymous_xΞ5d6ae[αn_initialize_class_fields]();
-        _anonymous_xΞ5d6ae = (() => {
-          const αo = logger.logged(_anonymous_xΞ5d6ae,{
-            kind: 'class',
-            name: "_anonymous_xΞ5d6ae",
-            metadataKey: _anonymous_xΞ5d6ae[Symbol.metadata],
-          });
-          if (αo === undefined) 
-            return _anonymous_xΞ5d6ae;
-          return αo;
-        })();
-        
-        return _anonymous_xΞ5d6ae;
-      })();
-      return _anonymous_xΞ5d6ae;
-    })();
-  }
-  get test_getter() {
-    return 'test';
-  }
-  set test_setter(value) {
-    
-  }
-  testMethod(firstArg) {
-    dump(firstArg);
-    
-  }
-  get fieldAcc() {
-    return this[αb_x_accessor_fieldAccΞe3230];
-  }
-  set fieldAcc(value) {
-    this[αb_x_accessor_fieldAccΞe3230] = value;
-  }
-  [Symbol.__jymfony_field_initialization]() {
-    const superClass = Object.getPrototypeOf(x.prototype);
-    const superCall = superClass[Symbol.__jymfony_field_initialization];
-    if (undefined !== superClass[Symbol.__jymfony_field_initialization]) 
-      superCall.apply(this);
-    
-    this.field = (() => {
-      let αf = initialize((instance,key,value) => {
-        
-      })(undefined,{
-        kind: 'field',
-        name: "field",
-        access: {
-          get() {
-            return this.field;
-          },
-          set(value) {
-            this.field = value;
-            
-          },
-        },
-        static: false,
-        private: false,
-      });
-      if (αf === undefined) 
-        αf = (initialValue) => initialValue;
-      
-      return αf;
-    }).call(this,(() => {
-      let αe = register((target,prop,parameterIndex = null) => {
-        
-      })(undefined,{
-        kind: 'field',
-        name: "field",
-        access: {
-          get() {
-            return this.field;
-          },
-          set(value) {
-            this.field = value;
-            
-          },
-        },
-        static: false,
-        private: false,
-      });
-      if (αe === undefined) 
-        αe = (initialValue) => initialValue;
-      
-      return αe;
-    }).call(this,(() => {
-      let αd = logger.logged(undefined,{
-        kind: 'field',
-        name: "field",
-        access: {
-          get() {
-            return this.field;
-          },
-          set(value) {
-            this.field = value;
-            
-          },
-        },
-        static: false,
-        private: false,
-      });
-      if (αd === undefined) 
-        αd = (initialValue) => initialValue;
-      
-      return αd;
-    }).call(this,'foo')));
-    this[αb_x_accessor_fieldAccΞe3230] = (() => {
-      let initialValue = 'foobar';
-      for (const initFn of αb_x_accessor_fieldAccΞe3230_init){
-        const v = initFn(initialValue);
-        if (v !== undefined) 
-          initialValue = v;
-        
-        
-      }
-      return initialValue;
-    })();
-  }
-  static [αa_initialize_class_fields]() {
-    Object.defineProperty(x,Symbol.reflection,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: ${reflectionIdStart + 2},
-    });
-    Object.defineProperty(x,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(x.prototype.test,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"test_getter").get,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"test_setter").set,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(x.prototype.testMethod,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    type(Request)(undefined,{
-      kind: "parameter",
-      name: "firstArg",
-      parameterIndex: 0,
-      metadataKey: x.prototype.testMethod[Symbol.metadata],
-      class: {
-        name: "x",
-        metadataKey: x[Symbol.metadata],
-      },
-    });
-    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").get,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    Object.defineProperty(Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").set,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    {
-      const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc");
-      let { get: newGet = oldGet, set: newSet = oldSet, init } = (() => {
-        const s = logger.logged({
-          get: oldGet,
-          set: oldSet,
-        },{
-          kind: 'accessor',
-          name: "fieldAcc",
-          static: false,
-          private: false,
-          metadataKey: Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").get[Symbol.metadata],
-          class: {
-            name: "x",
-            metadataKey: x[Symbol.metadata],
-          },
-        });
-        if (s === undefined) 
-          return {
-        };
-        return s;
-      })();
-      Object.defineProperty(x.prototype,"fieldAcc",{
-        get: newGet,
-        set: newSet,
-      });
-      if (init !== undefined) 
-        αb_x_accessor_fieldAccΞe3230_init.push(init);
-      
-      
-    }{
-      const { get: oldGet, set: oldSet } = Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc");
-      let { get: newGet = oldGet, set: newSet = oldSet, init } = (() => {
-        const s = initialize((instance,key,value) => {
-          
-        })({
-          get: oldGet,
-          set: oldSet,
-        },{
-          kind: 'accessor',
-          name: "fieldAcc",
-          static: false,
-          private: false,
-          metadataKey: Object.getOwnPropertyDescriptor(x.prototype,"fieldAcc").get[Symbol.metadata],
-          class: {
-            name: "x",
-            metadataKey: x[Symbol.metadata],
-          },
-        });
-        if (s === undefined) 
-          return {
-        };
-        return s;
-      })();
-      Object.defineProperty(x.prototype,"fieldAcc",{
-        get: newGet,
-        set: newSet,
-      });
-      if (init !== undefined) 
-        αb_x_accessor_fieldAccΞe3230_init.push(init);
-      
-      
-    }{
-      let αg = logger.logged(x.prototype.test,{
-        kind: "method",
-        name: "test",
-        access: {
-          get() {
-            return x.prototype.test;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: x.prototype.test[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αg === undefined) 
-        αg = x.prototype.test;
-      
-      x.prototype.test = αg;
-    }{
-      let αh = secondary('great')(x.prototype.test,{
-        kind: "method",
-        name: "test",
-        access: {
-          get() {
-            return x.prototype.test;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: x.prototype.test[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αh === undefined) 
-        αh = x.prototype.test;
-      
-      x.prototype.test = αh;
-    }{
-      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_getter");
-      let { get } = descriptor;
-      let αi = logger.logged(get,{
-        kind: "getter",
-        name: "test_getter",
-        access: {
-          get() {
-            return get;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: get[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αi === undefined) 
-        αi = get;
-      
-      descriptor.get = αi;
-      Object.defineProperty(x.prototype,"test_getter",descriptor);
-    }{
-      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_getter");
-      let { get } = descriptor;
-      let αj = secondary('great')(get,{
-        kind: "getter",
-        name: "test_getter",
-        access: {
-          get() {
-            return get;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: get[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αj === undefined) 
-        αj = get;
-      
-      descriptor.get = αj;
-      Object.defineProperty(x.prototype,"test_getter",descriptor);
-    }{
-      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_setter");
-      let { set } = descriptor;
-      let αk = logger.logged(set,{
-        kind: "setter",
-        name: "test_setter",
-        access: {
-          get() {
-            return set;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: set[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αk === undefined) 
-        αk = set;
-      
-      descriptor.set = αk;
-      Object.defineProperty(x.prototype,"test_setter",descriptor);
-    }{
-      const descriptor = Object.getOwnPropertyDescriptor(x.prototype,"test_setter");
-      let { set } = descriptor;
-      let αl = secondary('great')(set,{
-        kind: "setter",
-        name: "test_setter",
-        access: {
-          get() {
-            return set;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: set[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αl === undefined) 
-        αl = set;
-      
-      descriptor.set = αl;
-      Object.defineProperty(x.prototype,"test_setter",descriptor);
-    }{
-      let αm = logger.logged(x.prototype.testMethod,{
-        kind: "method",
-        name: "testMethod",
-        access: {
-          get() {
-            return x.prototype.testMethod;
-          },
-        },
-        static: false,
-        private: false,
-        metadataKey: x.prototype.testMethod[Symbol.metadata],
-        class: {
-          name: "x",
-          metadataKey: x[Symbol.metadata],
-        },
-      });
-      if (αm === undefined) 
-        αm = x.prototype.testMethod;
-      
-      x.prototype.testMethod = αm;
-    }Object.defineProperty(x.prototype,Symbol.__jymfony_field_initialization,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: x.prototype[Symbol.__jymfony_field_initialization],
-    });
-    
-  }
-}
-x[αa_initialize_class_fields]();
-x = (() => {
-  const αc = logger.logged(x,{
-    kind: 'class',
-    name: "x",
-    metadataKey: x[Symbol.metadata],
-  });
-  if (αc === undefined) 
-    return x;
-  return αc;
-})();
-`);
-    });
 
-    it ('should correctly parse bigint notation', () => {
-        const program = parser.parse(`
+    testShouldCorrectlyParseBigintNotation() {
+        const program = this._parser.parse(`
 const x = 1n;
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal('const x = 1n;\n');
-    });
+        const builder = new Builder();
+        builder
+            .variable('const')
+                .declarator('x')
+                    .number(1n)
+                .end()
+            .end();
 
-    it ('should strip shebang directive from generated code', () => {
-        const program = parser.parse(`#!/usr/bin/env node
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldStripShebangDirectiveFromParsedCode() {
+        const program = this._parser.parse(`#!/usr/bin/env node
 
 const module = require('module');
 console.log(module);
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const module = require('module');
-console.log(module);
-`);
-    });
+        const builder = new Builder();
+        builder
+            .variable('const')
+                .declarator('module')
+                    .call()
+                        .callee().ident('require').end()
+                        .string('\'module\'')
+                    .end()
+                .end()
+            .end()
+            .call()
+                .callee().member('console', 'log').end()
+                .ident('module')
+            .end();
 
-    it ('should correctly export named async functions', () => {
-        const program = parser.parse(`
-export async function named() {
-}
-`);
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
-  value: true,
-});
-async function named() {
-  
-}
-exports.named = named;
-`);
-    });
-
-    it ('should correctly parse keywords in incorrect context', () => {
-        const program = parser.parse(`
+    testShouldCorrectlyParseKeywordsInIncorrectContext() {
+        const program = this._parser.parse(`
 const let = 'a let identifier';
 const const = 'a const identifier';
 const async = 'this is a string';
@@ -1080,358 +1078,154 @@ if (async === null) {
 }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`const let = 'a let identifier';
-const const = 'a const identifier';
-const async = \'this is a string\';
-if (async === null) {
-  debugger;
-}
-`);
-    });
+        const builder = new Builder();
+        builder
+            .variable('const')
+                .declarator('let')
+                    .string('\'a let identifier\'')
+                .end()
+            .end()
+            .variable('const')
+                .declarator('const')
+                    .string('\'a const identifier\'')
+                .end()
+            .end()
+            .variable('const')
+                .declarator('async')
+                    .string('\'this is a string\'')
+                .end()
+            .end()
+            .if()
+                .test()
+                    .binary()
+                        .operator('===')
+                        .left().ident('async').end()
+                        .right().null().end()
+                    .end()
+                .end()
+                .consequent()
+                    .block()
+                        .debugger()
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly compile decorators on classes in named exports or variable declarations', () => {
-        seedrandom('decorators', { global: true });
-        const program = parser.parse(`
-        import { Annotation, ANNOTATION_TARGET_CLASS, ANNOTATION_TARGET_FUNCTION } from '../src';
-export
-@Annotation(ANNOTATION_TARGET_CLASS)
-class TestAnnotation {
-    // ...
-}
-
-export const TestConstClassAnnotation = @Annotation(ANNOTATION_TARGET_CLASS) class {
-    // ...
-}
-`);
-
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.equal(`Object.defineProperty(exports,"__esModule",{
-  value: true,
-});
-const αa = require('../src');
-const Annotation = αa.Annotation;
-const ANNOTATION_TARGET_CLASS = αa.ANNOTATION_TARGET_CLASS;
-const ANNOTATION_TARGET_FUNCTION = αa.ANNOTATION_TARGET_FUNCTION;
-const αb_initialize_class_fields = Symbol();
-class TestAnnotation extends __jymfony.JObject {
-  
-  static [αb_initialize_class_fields]() {
-    Object.defineProperty(TestAnnotation,Symbol.reflection,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: ${reflectionIdStart + 3},
-    });
-    Object.defineProperty(TestAnnotation,Symbol.metadata,{
-      writable: false,
-      enumerable: false,
-      configurable: true,
-      value: Symbol(),
-    });
-    
-  }
-}
-TestAnnotation[αb_initialize_class_fields]();
-TestAnnotation = (() => {
-  const αc = Annotation(ANNOTATION_TARGET_CLASS)(TestAnnotation,{
-    kind: 'class',
-    name: "TestAnnotation",
-    metadataKey: TestAnnotation[Symbol.metadata],
-  });
-  if (αc === undefined) 
-    return TestAnnotation;
-  return αc;
-})();
-exports.TestAnnotation = TestAnnotation;
-const αd_initialize_class_fields = Symbol();
-const TestConstClassAnnotation = (() => {
-  const _anonymous_xΞ96888 = (() => {
-    const αf_initialize_class_fields = Symbol();
-    let _anonymous_xΞ96888 = class _anonymous_xΞ96888 extends __jymfony.JObject {
-      
-      static [αd_initialize_class_fields]() {
-        Object.defineProperty(_anonymous_xΞ96888,Symbol.reflection,{
-          writable: false,
-          enumerable: false,
-          configurable: true,
-          value: ${reflectionIdStart + 4},
-        });
-        Object.defineProperty(_anonymous_xΞ96888,Symbol.metadata,{
-          writable: false,
-          enumerable: false,
-          configurable: true,
-          value: Symbol(),
-        });
-        
-      }
-    };
-    _anonymous_xΞ96888[αd_initialize_class_fields]();
-    _anonymous_xΞ96888 = (() => {
-      const αe = Annotation(ANNOTATION_TARGET_CLASS)(_anonymous_xΞ96888,{
-        kind: 'class',
-        name: "_anonymous_xΞ96888",
-        metadataKey: _anonymous_xΞ96888[Symbol.metadata],
-      });
-      if (αe === undefined) 
-        return _anonymous_xΞ96888;
-      return αe;
-    })();
-    
-    return _anonymous_xΞ96888;
-  })();
-  return _anonymous_xΞ96888;
-})();
-exports.TestConstClassAnnotation = TestConstClassAnnotation;
-`);
-    });
-
-    it ('should correctly compile classes with decorated methods on export default', () => {
-        seedrandom('decorators', { global: true });
-        const program = parser.parse(`import { Get, Route } from '../src';
-
-export default
-@Route({ path: '/foobar' })
-@Route('/barbar')
-class RoutableClass {
-    @Get('/get')
-    getAction() {}
-}
-`);
-
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`Object.defineProperty(exports,"__esModule",{
-  value: true,
-});
-const αa = require('../src');
-const Get = αa.Get;
-const Route = αa.Route;
-const αb_initialize_class_fields = Symbol();
-const RoutableClass = (() => {
-  const RoutableClass = (() => {
-    const αf_initialize_class_fields = Symbol();
-    let RoutableClass = class RoutableClass extends __jymfony.JObject {
-      getAction() {
-        
-      }
-      
-      static [αb_initialize_class_fields]() {
-        Object.defineProperty(RoutableClass,Symbol.reflection,{
-          writable: false,
-          enumerable: false,
-          configurable: true,
-          value: ${reflectionIdStart + 5},
-        });
-        Object.defineProperty(RoutableClass,Symbol.metadata,{
-          writable: false,
-          enumerable: false,
-          configurable: true,
-          value: Symbol(),
-        });
-        Object.defineProperty(RoutableClass.prototype.getAction,Symbol.metadata,{
-          writable: false,
-          enumerable: false,
-          configurable: true,
-          value: Symbol(),
-        });
-        {
-          let αe = Get('/get')(RoutableClass.prototype.getAction,{
-            kind: "method",
-            name: "getAction",
-            access: {
-              get() {
-                return RoutableClass.prototype.getAction;
-              },
-            },
-            static: false,
-            private: false,
-            metadataKey: RoutableClass.prototype.getAction[Symbol.metadata],
-            class: {
-              name: "RoutableClass",
-              metadataKey: RoutableClass[Symbol.metadata],
-            },
-          });
-          if (αe === undefined) 
-            αe = RoutableClass.prototype.getAction;
-          
-          RoutableClass.prototype.getAction = αe;
-        }
-      }
-    };
-    RoutableClass[αb_initialize_class_fields]();
-    RoutableClass = (() => {
-      const αc = Route({
-        path: '/foobar',
-      })(RoutableClass,{
-        kind: 'class',
-        name: "RoutableClass",
-        metadataKey: RoutableClass[Symbol.metadata],
-      });
-      if (αc === undefined) 
-        return RoutableClass;
-      return αc;
-    })();
-    RoutableClass = (() => {
-      const αd = Route('/barbar')(RoutableClass,{
-        kind: 'class',
-        name: "RoutableClass",
-        metadataKey: RoutableClass[Symbol.metadata],
-      });
-      if (αd === undefined) 
-        return RoutableClass;
-      return αd;
-    })();
-    
-    return RoutableClass;
-  })();
-  return RoutableClass;
-})();
-exports.default = RoutableClass;
-`);
-    });
-
-    it ('should correctly compile param decorators in private methods', () => {
-        const program = parser.parse(`
-import { Type } from "../src";
-
-export default class TypedPrivateMethodClass {
-    #getAction(
-        @Type('FooType') param1,
-        @Type(Object) param2,
-        param3
-    ) {
+        this.assertSameAST(builder, program);
     }
-}
-`);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`Object.defineProperty(exports,"__esModule",{
-  value: true,
-});
-const αa = require("../src");
-const Type = αa.Type;
-const αb_initialize_class_fields = Symbol();
-const TypedPrivateMethodClass = (() => {
-  const TypedPrivateMethodClass = class TypedPrivateMethodClass extends __jymfony.JObject {
-    #getAction(param1,param2,param3) {
-      
-    }
-    static get [Symbol.jymfony_private_accessors]() {
-      return {
-        fields: {
-        },
-        staticFields: {
-        },
-        methods: {
-          getAction: {
-            call: (obj,...args) => obj.#getAction(...args),
-            metadataKey: () => {
-              const αc = Object.getOwnPropertyDescriptor(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata);
-              if (undefined === αc) 
-                Object.defineProperty(TypedPrivateMethodClass.prototype.#getAction,Symbol.metadata,{
-                writable: false,
-                enumerable: false,
-                configurable: true,
-                value: Symbol(),
-              });
-              
-              return TypedPrivateMethodClass.prototype.#getAction[Symbol.metadata];
-            },
-          },
-        },
-        staticMethods: {
-        },
-      };
-    }
-    
-    static [αb_initialize_class_fields]() {
-      Object.defineProperty(TypedPrivateMethodClass,Symbol.reflection,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: ${reflectionIdStart + 6},
-      });
-      Object.defineProperty(TypedPrivateMethodClass,Symbol.metadata,{
-        writable: false,
-        enumerable: false,
-        configurable: true,
-        value: Symbol(),
-      });
-      Type('FooType')(undefined,{
-        kind: "parameter",
-        name: "param1",
-        parameterIndex: 0,
-        metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
-        class: {
-          name: "TypedPrivateMethodClass",
-          metadataKey: TypedPrivateMethodClass[Symbol.metadata],
-        },
-      });
-      Type(Object)(undefined,{
-        kind: "parameter",
-        name: "param2",
-        parameterIndex: 1,
-        metadataKey: TypedPrivateMethodClass[Symbol.jymfony_private_accessors].methods.getAction.metadataKey(),
-        class: {
-          name: "TypedPrivateMethodClass",
-          metadataKey: TypedPrivateMethodClass[Symbol.metadata],
-        },
-      });
-      
-    }
-  }
-  TypedPrivateMethodClass[αb_initialize_class_fields]();
-  ;
-  return TypedPrivateMethodClass;
-})();
-exports.default = TypedPrivateMethodClass;
-`);
-    });
-
-    it ('should correctly parse expressions with a comment in the middle', () => {
-        const program = parser.parse(`
+    testShouldCorrectlyParseExpressionsWithACommentInTheMiddle() {
+        const program = this._parser.parse(`
 a.b('.x', Y)
     .setA() // comment
     .setB();
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq("a.b('.x',Y).setA().setB();\n");
-    });
+        const builder = new Builder();
+        builder
+            .call()
+                .callee()
+                    .member(
+                        new Builder(null, true)
+                            .call()
+                                .callee()
+                                    .member(
+                                        new Builder(null, true)
+                                            .call()
+                                                .callee().member('a', 'b').end()
+                                                .string('\'.x\'')
+                                                .ident('Y')
+                                            .end()
+                                        .end()[0],
+                                        'setA'
+                                    )
+                                .end()
+                            .end()
+                        .end()[0],
+                        'setB'
+                    )
+                .end()
+            .end();
 
-    it ('should correctly parse expressions with a comment in the middle #2', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseExpressionsWithACommentInTheMiddle2() {
+        const program = this._parser.parse(`
 val =
   val === 0 && 1 / val === -Infinity // -0
     ? '-0'
     : val.toString();
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq("val = val === 0 && 1 / val === - Infinity ? '-0' : val.toString();\n");
-    });
+        const builder = new Builder();
+        builder
+            .assign()
+                .left().ident('val').end()
+                .right()
+                    .conditional()
+                        .test()
+                            .binary()
+                                .operator('&&')
+                                .left()
+                                    .binary()
+                                        .operator('===')
+                                        .left().ident('val').end()
+                                        .right().number(0).end()
+                                    .end()
+                                .end()
+                                .right()
+                                    .binary()
+                                        .operator('===')
+                                        .left()
+                                            .binary()
+                                                .operator('/')
+                                                .left().number(1).end()
+                                                .right().ident('val').end()
+                                            .end()
+                                        .end()
+                                        .right().unary('-').ident('Infinity').end().end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                        .consequent().string('\'-0\'').end()
+                        .alternate()
+                            .call()
+                                .callee().member('val', 'toString').end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly parse expressions with a comment in the middle #3', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseExpressionsWithACommentInTheMiddle3() {
+        const program = this._parser.parse(`
   x = false
 
   // this is a comment
   var n = this.length
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq("x = false;\nvar n = this.length;\n");
-    });
+        const builder = new Builder();
+        builder
+            .assign()
+                .left().ident('x').end()
+                .right().false().end()
+            .end()
+            .variable('var')
+                .declarator('n')
+                    .member('this', 'length')
+                .end()
+            .end();
 
-    it ('should correctly parse expressions with a comment in the middle #4', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseExpressionsWithACommentInTheMiddle4() {
+        const program = this._parser.parse(`
   [
     'x',
     'y' // this is the second element
@@ -1441,17 +1235,37 @@ val =
   });
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`[ 'x', 'y' ].forEach((opt) => {
-  this[opt]();
-  
-});
-`);
-    });
+        const builder = new Builder();
+        builder
+            .call()
+                .callee()
+                    .member(
+                        new Builder(null, true)
+                            .array()
+                                .string('\'x\'')
+                                .string('\'y\'')
+                            .end()
+                        .end()[0],
+                        'forEach'
+                    )
+                .end()
+                .arrowFunction()
+                    .argument().name('opt').end()
+                    .block()
+                        .call()
+                            .callee()
+                                .member('this', '[opt]')
+                            .end()
+                        .end()
+                    .end()
+                .end()
+            .end();
 
-    it ('should correctly parse expressions with a comment in the middle #5', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseExpressionsWithACommentInTheMiddle5() {
+        const program = this._parser.parse(`
 for (;;) {
   switch(x) {
     default: console.log(1);
@@ -1459,19 +1273,28 @@ for (;;) {
 } // end for
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`for (;;){
-  switch (x) {
-    default:
-      console.log(1);
-      
-  };
-};`);
-    });
+        const builder = new Builder();
+        builder
+            .for()
+                .block()
+                    .switch()
+                        .discriminant().ident('x').end()
+                        .case()
+                            .call()
+                                .callee().member('console', 'log').end()
+                                .number(1)
+                            .end()
+                        .end()
+                    .end()
+                    .empty()
+                .end()
+            .end()
 
-    it ('should correctly parse if expressions with line terminations', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseIfExpressionsWithLineTerminations() {
+        const program = this._parser.parse(`
 if (
   err.code !== 'MODULE_NOT_FOUND' ||
   err.message.indexOf('Cannot find module') !== -1
@@ -1479,89 +1302,208 @@ if (
 }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`if (err.code !== 'MODULE_NOT_FOUND' || err.message.indexOf('Cannot find module') !== - 1) {
-  
-}
-`);
-    });
+        const builder = new Builder();
+        builder
+            .if()
+                .test()
+                    .binary()
+                        .operator('||')
+                        .left()
+                            .binary()
+                                .operator('!==')
+                                .left().member('err', 'code').end()
+                                .right().string('\'MODULE_NOT_FOUND\'').end()
+                            .end()
+                        .end()
+                        .right()
+                            .binary()
+                                .operator('!==')
+                                .left()
+                                    .call()
+                                        .callee().member('err', 'message', 'indexOf').end()
+                                        .string('\'Cannot find module\'')
+                                    .end()
+                                .end()
+                                .right().unary('-').number(1).end().end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+                .consequent()
+                    .block().end()
+                .end()
+            .end();
 
-    it ('should correctly parse if expressions with line terminations #2', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseConditionalExpressionsWithLineTerminations() {
+        const program = this._parser.parse(`
 _err.code !== 'MODULE_NOT_FOUND' ||
 _err.message.indexOf('Cannot find module') !== -1
   ? x
   : y;
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq('_err.code !== \'MODULE_NOT_FOUND\' || _err.message.indexOf(\'Cannot find module\') !== - 1 ? x : y;\n');
-    });
+        const builder = new Builder();
+        builder
+            .conditional()
+                .test()
+                    .binary()
+                        .operator('||')
+                        .left()
+                            .binary()
+                                .operator('!==')
+                                .left().member('_err', 'code').end()
+                                .right().string('\'MODULE_NOT_FOUND\'').end()
+                            .end()
+                        .end()
+                        .right()
+                            .binary()
+                                .operator('!==')
+                                .left()
+                                    .call()
+                                        .callee().member('_err', 'message', 'indexOf').end()
+                                        .string('\'Cannot find module\'')
+                                    .end()
+                                .end()
+                                .right().unary('-').number(1).end().end()
+                            .end()
+                        .end()
+                    .end()
+                .end()
+                .consequent().ident('x').end()
+                .alternate().ident('y').end()
+            .end();
 
-    it ('should correctly parse if expressions with line terminations #3', () => {
-        const program = parser.parse(`
-  if (code >= 97) { val = code - 97 + 10; } // a
-  else if (code >= 65) { val = code - 65 + 10; } // A
-  else if (code >= 48 && code <= 57) { val = code - 48; } // 0-9
-  else { val = Infinity; }
+        this.assertSameAST(builder, program);
+    }
+
+    testShouldCorrectlyParseIfExpressionsWithLineTerminations3() {
+        const program = this._parser.parse(`
+  if (code >= 97) { } // a
+  else if (code >= 65) { } // A
+  else if (code >= 48 && code <= 57) { } // 0-9
+  else { }
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`if (code >= 97) {
-  val = code - 97 + 10;
-  
-} else if (code >= 65) {
-  val = code - 65 + 10;
-  
-} else if (code >= 48 && code <= 57) {
-  val = code - 48;
-  
-} else {
-  val = Infinity;
-  
-}`);
-    });
+        const builder = new Builder();
+        builder
+            .if()
+                .test()
+                    .binary()
+                        .operator('>=')
+                        .left().ident('code').end()
+                        .right().number(97).end()
+                    .end()
+                .end()
+                .consequent().block().end().end()
+                .alternate().if()
+                    .test()
+                        .binary()
+                            .operator('>=')
+                            .left().ident('code').end()
+                            .right().number(65).end()
+                        .end()
+                    .end()
+                    .consequent().block().end().end()
+                    .alternate().if()
+                        .test()
+                            .binary()
+                                .operator('&&')
+                                .left()
+                                    .binary()
+                                        .operator('>=')
+                                        .left().ident('code').end()
+                                        .right().number(48).end()
+                                    .end()
+                                .end()
+                                .right()
+                                    .binary()
+                                        .operator('<=')
+                                        .left().ident('code').end()
+                                        .right().number(57).end()
+                                    .end()
+                                .end()
+                            .end()
+                        .end()
+                        .consequent().block().end().end()
+                        .alternate().block().end().end()
+                    .end().end()
+                .end().end()
+            .end()
 
-    it ('"async" used as identifier #1', () => {
-        const program = parser.parse(`
+        this.assertSameAST(builder, program);
+    }
+
+    testAsyncUsedAsIdentifier() {
+        const program = this._parser.parse(`
   // send back results we have so far
   async(callback)(null, this.results);
 `);
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`async(callback)(null,this.results);\n`);
-    });
+        const builder = new Builder();
+        builder
+            .call()
+                .callee()
+                    .call()
+                        .callee().ident('async').end()
+                        .ident('callback')
+                    .end()
+                .end()
+                .null()
+                .member('this', 'results')
+            .end();
 
-    it ('"async" used as identifier #2', () => {
-        const program = parser.parse('let async = "test";');
+        this.assertSameAST(builder, program);
+    }
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq('let async = "test";\n');
-    });
+    testAsyncUsedAsIdentifier2() {
+        const program = this._parser.parse('let async = "test";');
 
-    it ('"async" used as identifier #3', () => {
-        const program = parser.parse(`
+        const builder = new Builder();
+        builder
+            .variable('let')
+                .declarator('async')
+                    .string('"test"')
+                .end()
+            .end();
+
+        this.assertSameAST(builder, program);
+    }
+
+    testAsyncUsedAsIdentifier3() {
+        const program = this._parser.parse(`
 let async = "test";
 async.toUpperCase();
 `);
+        const builder = new Builder();
+        builder
+            .variable('let')
+                .declarator('async')
+                    .string('"test"')
+                .end()
+            .end()
+            .call()
+                .callee()
+                    .member('async', 'toUpperCase')
+                .end()
+            .end();
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq(`let async = "test";
-async.toUpperCase();
-`);
-    });
+        this.assertSameAST(builder, program);
+    }
 
-    it ('"async" used as identifier #4', () => {
-        const program = parser.parse('this.async.toUpperCase();');
+    testAsyncUsedAsIdentifier4() {
+        const program = this._parser.parse('this.async.toUpperCase();');
 
-        const compiler = new Compiler(generator);
-        const compiled = compiler.compile(program);
-        expect(compiled).to.be.eq('this.async.toUpperCase();\n');
-    });
-});
+        const builder = new Builder();
+        builder
+            .call()
+                .callee()
+                    .member('this', 'async', 'toUpperCase')
+                .end()
+            .end();
+
+        this.assertSameAST(builder, program);
+    }
+}

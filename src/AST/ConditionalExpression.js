@@ -38,6 +38,27 @@ class ConditionalExpression extends implementationOf(ExpressionInterface) {
     }
 
     /**
+     * @returns {ExpressionInterface}
+     */
+    get test() {
+        return this._test;
+    }
+
+    /**
+     * @returns {ExpressionInterface}
+     */
+    get consequent() {
+        return this._consequent;
+    }
+
+    /**
+     * @returns {ExpressionInterface}
+     */
+    get alternate() {
+        return this._alternate;
+    }
+
+    /**
      * @inheritdoc
      */
     prepare(compiler) {

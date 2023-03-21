@@ -30,6 +30,20 @@ class SwitchStatement extends implementationOf(StatementInterface) {
     }
 
     /**
+     * @returns {ExpressionInterface}
+     */
+    get discriminant() {
+        return this._discriminant;
+    }
+
+    /**
+     * @returns {SwitchCase[]}
+     */
+    get cases() {
+        return [ ...this._cases ];
+    }
+
+    /**
      * @inheritdoc
      */
     prepare(compiler) {
@@ -56,7 +70,6 @@ class SwitchStatement extends implementationOf(StatementInterface) {
             compiler.newLine();
             compiler.compileNode(c);
             compiler.indentationLevel--;
-
 
             compiler.newLine();
         }

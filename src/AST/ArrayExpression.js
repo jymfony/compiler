@@ -24,6 +24,13 @@ class ArrayExpression extends implementationOf(ExpressionInterface) {
     }
 
     /**
+     * @returns {(ExpressionInterface|SpreadElement)[]}
+     */
+    get elements() {
+        return [ ...this._elements ];
+    }
+
+    /**
      * @inheritdoc
      */
     prepare(compiler) {

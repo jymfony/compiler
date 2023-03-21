@@ -22,6 +22,13 @@ class ObjectPattern extends implementationOf(PatternInterface) {
     }
 
     /**
+     * @returns {AssignmentProperty[]}
+     */
+    get properties() {
+        return this._properties;
+    }
+
+    /**
      * @inheritdoc
      */
     prepare(compiler) {

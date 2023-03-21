@@ -37,7 +37,34 @@ class IfStatement extends implementationOf(StatementInterface) {
          *
          * @private
          */
-        this._alternate = alternate instanceof ExpressionInterface ? new ExpressionStatement(null, alternate) : alternate;
+        this._alternate = null !== alternate && alternate instanceof ExpressionInterface ? new ExpressionStatement(null, alternate) : alternate;
+    }
+
+    /**
+     * Gets the test expression.
+     *
+     * @returns {ExpressionInterface}
+     */
+    get test() {
+        return this._test;
+    }
+
+    /**
+     * Gets the consequent (the if body).
+     *
+     * @returns {StatementInterface}
+     */
+    get consequent() {
+        return this._consequent;
+    }
+
+    /**
+     * Gets the alternate (else part), if any.
+     *
+     * @returns {StatementInterface | null}
+     */
+    get alternate() {
+        return this._alternate;
     }
 
     /**

@@ -53,6 +53,27 @@ class ImportDeclaration extends implementationOf(ModuleDeclarationInterface) {
     }
 
     /**
+     * @returns {Literal}
+     */
+    get source() {
+        return this._source;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    get optional() {
+        return this._optional;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    get nocompile() {
+        return this._nocompile;
+    }
+
+    /**
      * @inheritdoc
      */
     prepare() {

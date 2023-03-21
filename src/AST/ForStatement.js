@@ -46,6 +46,24 @@ class ForStatement extends implementationOf(StatementInterface) {
     }
 
     /**
+     * Gets the initializer expression (if present).
+     *
+     * @returns {ExpressionInterface | null}
+     */
+    get init() {
+        return this._init;
+    }
+
+    /**
+     * Gets the body of the for loop (the statements to execute).
+     *
+     * @returns {StatementInterface}
+     */
+    get body() {
+        return this._body;
+    }
+
+    /**
      * @inheritdoc
      */
     prepare(compiler) {

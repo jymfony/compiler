@@ -22,6 +22,15 @@ class BreakStatement extends implementationOf(StatementInterface) {
     }
 
     /**
+     * Gets the label to break, if any.
+     *
+     * @returns {Identifier | null}
+     */
+    get label() {
+        return this._label;
+    }
+
+    /**
      * @inheritdoc
      */
     prepare() {

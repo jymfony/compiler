@@ -37,6 +37,15 @@ class DoWhileStatement extends implementationOf(StatementInterface) {
     }
 
     /**
+     * Gets the body statement.
+     *
+     * @returns {StatementInterface}
+     */
+    get body() {
+        return this._body;
+    }
+
+    /**
      * @inheritdoc
      */
     get shouldBeClosed() {

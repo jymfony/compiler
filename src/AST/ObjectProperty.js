@@ -32,6 +32,20 @@ class ObjectProperty extends implementationOf(ObjectMember) {
         this._value = value;
     }
 
+    /**
+     * @returns {ExpressionInterface}
+     */
+    get key() {
+        return this._key;
+    }
+
+    /**
+     * @returns {ExpressionInterface | null}
+     */
+    get value() {
+        return this._value;
+    }
+
     prepare(compiler) {
         if (undefined === ClassExpression) {
             ClassExpression = require('./ClassExpression');

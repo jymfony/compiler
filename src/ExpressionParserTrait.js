@@ -52,7 +52,9 @@ class ExpressionParserTrait {
 
         let args;
         if ([ Lexer.T_IDENTIFIER, Lexer.T_YIELD, Lexer.T_SET, Lexer.T_GET, Lexer.T_ARGUMENTS, Lexer.T_ACCESSOR ].includes(this._lexer.token.type)) {
-            const argument = this._parseIdentifier();
+            const identifier = this._parseIdentifier();
+            const argument = new AST.Argument(identifier.location, identifier);
+            argument.decorators = [];
             this._skipSpaces();
             if (argumentDocblock) {
                 argument.docblock = argumentDocblock;
@@ -235,8 +237,12 @@ class ExpressionParserTrait {
             } break;
 
             case Lexer.T_NUMBER: {
-                const number = this._lexer.token.value;
+                let number = this._lexer.token.value;
                 this._next(false);
+
+                if (number.endsWith('n')) {
+                    number = BigInt(number.substring(0, number.length - 1));
+                }
 
                 expression = new AST.NumberLiteral(this._makeLocation(start), number);
             } break;

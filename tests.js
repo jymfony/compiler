@@ -1,4 +1,6 @@
 require('@jymfony/autoloader');
+__jymfony.autoload.debug = true;
+
 const seedrandom = require('seedrandom');
 seedrandom('compiler init', { global: true });
 
@@ -9,4 +11,5 @@ ClassLoader.compiler = {
     AST: require('./src/AST'),
 };
 
-require('mocha/bin/_mocha');
+const Runner = Jymfony.Component.Testing.Framework.Runner;
+new Runner().run();

@@ -306,7 +306,16 @@ class Compiler {
      */
     static getReflectionData(value) {
         const typeId = value[Symbol.reflection];
-        const { ast: astObject, filename, namespace } = reflectionData.get(typeId);
+        if (typeId === undefined) {
+            return undefined;
+        }
+
+        const data = reflectionData.get(typeId);
+        if (data === undefined) {
+            return undefined;
+        }
+
+        const { ast: astObject, filename, namespace } = data;
         let name;
 
         if (astObject instanceof AST.Class) {

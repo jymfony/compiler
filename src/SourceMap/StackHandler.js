@@ -12,8 +12,10 @@ class StackHandler {
      *
      * @param {Error} error
      * @param {NodeJS.CallSite[]} stack
+     * @param {string | undefined} previous
      */
-    static prepareStackTrace(error, stack) {
+    static prepareStackTrace(error, stack, previous) {
+        let processed = false;
         try {
             const newStack = [];
             for (const frame of stack) {
@@ -83,6 +85,7 @@ class StackHandler {
                     return call;
                 };
 
+                processed = true;
                 newStack.push(
                     (frame.isAsync && frame.isAsync() ? 'async ' : '') +
                     (frame.isPromiseAll && frame.isPromiseAll() ? 'Promise.all (index ' + frame.getPromiseIndex() + ')' : '') +
@@ -90,9 +93,17 @@ class StackHandler {
                 );
             }
 
+            if (previous && ! processed) {
+                return previous;
+            }
+
             return error.message + '\n\n' +
                 '    at ' + newStack.map(String).join('\n    at ');
         } catch (e) {
+            if (previous) {
+                return previous;
+            }
+
             return 'Internal Error';
         }
     }
@@ -123,4 +134,7 @@ class StackHandler {
 }
 
 module.exports = StackHandler;
-Error.prepareStackTrace = StackHandler.prepareStackTrace;
+const previous = Error.prepareStackTrace;
+Error.prepareStackTrace = function (error, stack) {
+    return StackHandler.prepareStackTrace(error, stack, previous ? previous(error, stack) : undefined);
+}

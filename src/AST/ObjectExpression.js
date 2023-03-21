@@ -21,6 +21,13 @@ class ObjectExpression extends implementationOf(ExpressionInterface) {
         this._properties = properties;
     }
 
+    /**
+     * @returns {ObjectMember[]}
+     */
+    get properties() {
+        return this._properties;
+    }
+
     prepare(compiler) {
         for (const p of this._properties) {
             p.prepare(compiler);

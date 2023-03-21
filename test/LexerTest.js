@@ -1,47 +1,51 @@
 /* eslint-disable no-template-curly-in-string */
 const Lexer = require('../src/Lexer');
-const { expect } = require('chai');
+const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 
-describe('[Compiler] Lexer', function () {
-    it ('can parse multiple backtick strings on the same line', () => {
+export default class LexerTest extends TestCase {
+    get testCaseName() {
+        return '[Compiler] ' + super.testCaseName;
+    }
+
+    testCanParseMultipleBacktickStringsOnTheSameLine() {
         const lexer = new Lexer();
 
         lexer.input = '`${l}\\n` : `${sp}${l}\\n`';
-        expect(lexer._tokens).to.be.deep.eq([
+        __self.assertEquals([
             { value: '`${l}\\n`', type: Lexer.T_STRING, position: 0, index: 0 },
             { value: ' ', type: Lexer.T_SPACE, position: 8, index: 1 },
             { value: ':', type: Lexer.T_COLON, position: 9, index: 2 },
             { value: ' ', type: Lexer.T_SPACE, position: 10, index: 3 },
             { value: '`${sp}${l}\\n`', type: Lexer.T_STRING, position: 11, index: 4 },
             { value: 'end-of-file', type: Lexer.T_EOF, position: 24, index: 5 },
-        ]);
-    });
+        ], lexer._tokens);
+    }
 
-    it ('can parse xor operator wo spaces correctly', () => {
+    testCanParseXorOperatorWOSpacesCorrectly() {
         const lexer = new Lexer();
 
         lexer.input = 'x^y';
-        expect(lexer._tokens).to.be.deep.eq([
+        __self.assertEquals([
             { value: 'x', type: Lexer.T_IDENTIFIER, position: 0, index: 0 },
             { value: '^', type: Lexer.T_OPERATOR, position: 1, index: 1 },
             { value: 'y', type: Lexer.T_IDENTIFIER, position: 2, index: 2 },
             { value: 'end-of-file', type: Lexer.T_EOF, position: 3, index: 3 },
-        ]);
-    });
+        ], lexer._tokens);
+    }
 
-    it ('can parse variable name with dollar sign', () => {
+    testCanParseVariableNameWithDollarSign() {
         const lexer = new Lexer();
 
         lexer.input = 'var this$1';
-        expect(lexer._tokens).to.be.deep.eq([
+        __self.assertEquals([
             { value: 'var', type: Lexer.T_KEYWORD, position: 0, index: 0 },
             { value: ' ', type: Lexer.T_SPACE, position: 3, index: 1 },
             { value: 'this$1', type: Lexer.T_IDENTIFIER, position: 4, index: 2 },
             { value: 'end-of-file', type: Lexer.T_EOF, position: 10, index: 3 },
-        ]);
-    });
+        ], lexer._tokens);
+    }
 
-    it ('can parse comments containing backticks', () => {
+    testCanParseCommentsContainingBackticks() {
         const lexer = new Lexer();
 
         lexer.input = `function x(v) {
@@ -51,7 +55,7 @@ describe('[Compiler] Lexer', function () {
 // this is a \`comment\`
 // second line
 `;
-        expect(lexer._tokens).to.be.deep.eq([
+        __self.assertEquals([
             { value: 'function', type: Lexer.T_FUNCTION, position: 0, index: 0 },
             { value: ' ', type: Lexer.T_SPACE, position: 8, index: 1 },
             { value: 'x', type: Lexer.T_IDENTIFIER, position: 9, index: 2 },
@@ -83,22 +87,22 @@ describe('[Compiler] Lexer', function () {
             { value: '// this is a \`comment\`\n', type: Lexer.T_COMMENT, position: 78, index: 28 },
             { value: '// second line\n', type: Lexer.T_COMMENT, position: 101, index: 29 },
             { value: 'end-of-file', type: Lexer.T_EOF, position: 116, index: 30 },
-        ]);
-    });
+        ], lexer._tokens);
+    }
 
-    it ('can parse template strings', () => {
+    testCanParseTemplateStrings() {
         const lexer = new Lexer();
 
         lexer.input = `\`'N \${p} (\${
   x ? 'u' : 'l'
 })\``;
-        expect(lexer._tokens).to.be.deep.eq([
+        __self.assertEquals([
             { value: '`\'N ${p} (${\n  x ? \'u\' : \'l\'\n})`', type: Lexer.T_STRING, position: 0, index: 0 },
             { value: 'end-of-file', type: Lexer.T_EOF, position: 32, index: 1 },
-        ]);
-    });
+        ], lexer._tokens);
+    }
 
-    it ('can parse template strings #2', () => {
+    testCanParseTemplateStringsWithHtmlComments() {
         const lexer = new Lexer();
 
         lexer.input = `return \`
@@ -148,12 +152,12 @@ describe('[Compiler] Lexer', function () {
         <![endif]-->
       </div>
     \`;`;
-        expect(lexer._tokens).to.be.deep.eq([
+        __self.assertEquals([
             { value: 'return', type: Lexer.T_RETURN, position: 0, index: 0 },
             { value: ' ', type: Lexer.T_SPACE, position: 6, index: 1 },
             { value: "`\n      <div\n        ${this.htmlAttributes({\n            class: classesName,\n            style: 'div'\n        })}\n      >\n        <!--[if mso | IE]>\n        <table\n          ${this.htmlAttributes({\n            bgcolor: this.getAttribute('background-color') === 'none' ? undefined : this.getAttribute('background-color'),\n            border: '0',\n            cellpadding: '0',\n            cellspacing: '0',\n            role: 'presentation'\n        })}\n        >\n          <tr>\n        <![endif]-->\n          ${this.renderChildren(children, {\n            attributes: {\n                mobileWidth: 'mobileWidth'\n            },\n            renderer: component => component.constructor.isRawElement() ? component.render() : `\n              <!--[if mso | IE]>\n              <td\n                ${component.htmlAttributes({\n                style: {\n                    align: component.getAttribute('align'),\n                    'vertical-align': component.getAttribute('vertical-align'),\n                    width: getElementWidth(component.getWidthAsPixel ? component.getWidthAsPixel() : component.getAttribute('width'))\n                }\n            })}\n              >\n              <![endif]-->\n                ${component.render()}\n              <!--[if mso | IE]>\n              </td>\n              <![endif]-->\n          `\n        })}\n        <!--[if mso | IE]>\n          </tr>\n          </table>\n        <![endif]-->\n      </div>\n    `", type: Lexer.T_STRING, position: 7, index: 2 },
             { value: ';', type: Lexer.T_SEMICOLON, position: 1444, index: 3 },
             { value: 'end-of-file', type: Lexer.T_EOF, position: 1445, index: 4 },
-        ]);
-    });
-});
+        ], lexer._tokens);
+    }
+}

@@ -38,6 +38,27 @@ class BinaryExpression extends implementationOf(ExpressionInterface) {
     }
 
     /**
+     * @returns {string}
+     */
+    get operator() {
+        return this._operator;
+    }
+
+    /**
+     * @returns {ExpressionInterface}
+     */
+    get left() {
+        return this._left;
+    }
+
+    /**
+     * @returns {ExpressionInterface}
+     */
+    get right() {
+        return this._right;
+    }
+
+    /**
      * @inheritdoc
      */
     prepare(compiler) {

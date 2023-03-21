@@ -14,11 +14,18 @@ class ReturnStatement extends implementationOf(StatementInterface) {
         this.location = location;
 
         /**
-         * @type {ExpressionInterface}
+         * @type {ExpressionInterface | null}
          *
          * @private
          */
         this._argument = argument;
+    }
+
+    /**
+     * @returns {ExpressionInterface | null}
+     */
+    get argument() {
+        return this._argument;
     }
 
     /**

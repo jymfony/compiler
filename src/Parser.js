@@ -1253,7 +1253,7 @@ class Parser extends implementationOf(ExpressionParserTrait) {
 
         if (acceptsPrivateMembers && MethodName && '#' === MethodName[0]) {
             Private = true;
-            MethodName = MethodName.substr(1);
+            MethodName = MethodName.substring(1);
         }
 
         if ([ Lexer.T_COLON, Lexer.T_SEMICOLON, Lexer.T_ASSIGNMENT_OP ].includes(this._lexer.token.type)) {

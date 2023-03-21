@@ -31,6 +31,13 @@ class SwitchCase extends implementationOf(NodeInterface) {
     }
 
     /**
+     * @returns {StatementInterface[]}
+     */
+    get consequent() {
+        return [ ...this._consequent ];
+    }
+
+    /**
      * @inheritdoc
      */
     prepare(compiler) {

@@ -1,5 +1,6 @@
 const BooleanLiteral = require('./BooleanLiteral');
 const CallExpression = require('./CallExpression');
+const EmptyStatement = require('./EmptyStatement');
 const ExpressionStatement = require('./ExpressionStatement');
 const Identifier = require('./Identifier');
 const { Member } = require('../Generator');
@@ -54,6 +55,10 @@ class Program extends implementationOf(NodeInterface) {
      * @param {NodeInterface} node
      */
     add(node) {
+        if (node instanceof EmptyStatement) {
+            return;
+        }
+
         this._body.push(node);
     }
 

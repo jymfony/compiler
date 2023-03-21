@@ -45,6 +45,17 @@ class UpdateExpression extends implementationOf(ExpressionInterface) {
     }
 
     /**
+     * Returns whether the update is prefixed or not.
+     * Prefix-update executes as UPDATE AND FETCH, while postfix-update
+     * executes as FETCH AND UPDATE.
+     *
+     * @returns {boolean}
+     */
+    get prefix() {
+        return this._prefix;
+    }
+
+    /**
      * @inheritdoc
      */
     compile(compiler) {
