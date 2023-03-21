@@ -1,26 +1,6 @@
 const AbstractBuilder = require('./AbstractBuilder');
 const AST = require('..');
 
-let ArgumentBuilder;
-let ArrayBuilder;
-let AssignmentBuilder;
-let BlockBuilder;
-let BinaryExpressionBuilder;
-let CallBuilder;
-let ClassBuilder;
-let DoWhileBuilder;
-let ForBuilder;
-let FunctionBuilder;
-let IfBuilder;
-let ImportBuilder;
-let ObjectBuilder;
-let ObjectPatternBuilder;
-let PatternBuilder;
-let SwitchBuilder;
-let UpdateBuilder;
-let VariableBuilder;
-let YieldBuilder;
-
 /**
  * @template {AbstractBuilder} T
  */
@@ -118,7 +98,7 @@ class Builder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._add(new AST.ExportDefaultDeclaration(null, children[0]));
 
             return Builder.prototype.end.call(builder);
@@ -163,12 +143,12 @@ class Builder extends AbstractBuilder {
         let optional = false;
         while ((arg = args.shift())) {
             if (isString(arg)) {
-                if (arg[0] === '?') {
+                if ('?' === arg[0]) {
                     optional = true;
                     arg = arg.substring(1, arg.length);
                 }
 
-                if (arg[0] === '[') {
+                if ('[' === arg[0]) {
                     computed = true;
                     arg = arg.substring(1, arg.length - 1);
                 }
@@ -179,13 +159,13 @@ class Builder extends AbstractBuilder {
                     arg = new AST.Identifier(null, arg);
                 }
 
-                property = property === null ? arg : new AST.MemberExpression(null, property, arg, computed, optional);
+                property = null === property ? arg : new AST.MemberExpression(null, property, arg, computed, optional);
                 computed = optional = false;
                 continue;
             }
 
             if (arg instanceof AST.NodeInterface) {
-                property = property === null ? arg : new AST.MemberExpression(null, property, arg, true, false);
+                property = null === property ? arg : new AST.MemberExpression(null, property, arg, true, false);
                 computed = optional = false;
                 continue;
             }
@@ -217,7 +197,7 @@ class Builder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length <= 1);
+            __assert(1 >= children.length);
             this._add(new AST.ParenthesizedExpression(null, children[0]));
 
             return Builder.prototype.end.call(builder);
@@ -234,7 +214,7 @@ class Builder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length <= 1);
+            __assert(1 >= children.length);
             this._add(new AST.ReturnStatement(null, children[0]));
 
             return Builder.prototype.end.call(builder);
@@ -247,7 +227,7 @@ class Builder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._add(new AST.SpreadElement(null, children[0]));
 
             return Builder.prototype.end.call(builder);
@@ -279,7 +259,7 @@ class Builder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._add(new AST.UnaryExpression(null, operator, children[0]));
 
             return Builder.prototype.end.call(builder);
@@ -327,25 +307,23 @@ class Builder extends AbstractBuilder {
 
 module.exports = Builder;
 
-ArgumentBuilder = require('./ArgumentBuilder');
-ArrayBuilder = require('./ArrayBuilder');
-AssignmentBuilder = require('./AssignmentBuilder');
-BlockBuilder = require('./BlockBuilder');
-BinaryExpressionBuilder = require('./BinaryExpressionBuilder');
-CallBuilder = require('./CallBuilder');
-ClassBuilder = require('./ClassBuilder');
-DoWhileBuilder = require('./DoWhileBuilder');
-ForBuilder = require('./ForBuilder');
-FunctionBuilder = require('./FunctionBuilder');
-IfBuilder = require('./IfBuilder');
-ImportBuilder = require('./ImportBuilder');
-ObjectBuilder = require('./ObjectBuilder');
-ObjectPatternBuilder = require('./ObjectPatternBuilder');
-PatternBuilder = require('./PatternBuilder');
-SwitchBuilder = require('./SwitchBuilder');
-UpdateBuilder = require('./UpdateBuilder');
-VariableBuilder = require('./VariableBuilder');
-YieldBuilder = require('./YieldBuilder');
+const ArrayBuilder = require('./ArrayBuilder');
+const AssignmentBuilder = require('./AssignmentBuilder');
+const BlockBuilder = require('./BlockBuilder');
+const BinaryExpressionBuilder = require('./BinaryExpressionBuilder');
+const CallBuilder = require('./CallBuilder');
+const ClassBuilder = require('./ClassBuilder');
+const DoWhileBuilder = require('./DoWhileBuilder');
+const ForBuilder = require('./ForBuilder');
+const FunctionBuilder = require('./FunctionBuilder');
+const IfBuilder = require('./IfBuilder');
+const ImportBuilder = require('./ImportBuilder');
+const ObjectBuilder = require('./ObjectBuilder');
+const PatternBuilder = require('./PatternBuilder');
+const SwitchBuilder = require('./SwitchBuilder');
+const UpdateBuilder = require('./UpdateBuilder');
+const VariableBuilder = require('./VariableBuilder');
+const YieldBuilder = require('./YieldBuilder');
 
 /**
  * @template {Builder} T
@@ -375,7 +353,7 @@ class ArrowFunctionBuilder extends FunctionBuilder {
         __assert(1 === this._children.length);
         this._parent._add(new AST.ArrowFunctionExpression(null, this._children[0], this._name, this._args, {
             generator: this._generator,
-            async: this._async
+            async: this._async,
         }));
 
         return Builder.prototype.end.call(this);

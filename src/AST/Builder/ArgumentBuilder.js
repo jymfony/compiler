@@ -1,6 +1,5 @@
 const AbstractBuilder = require('./AbstractBuilder');
 const AST = require('..');
-const Builder = require('.');
 
 /**
  * @template {Builder} T

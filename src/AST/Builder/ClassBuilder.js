@@ -39,7 +39,7 @@ class ClassBuilder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._superClass = children[0];
             return Builder.prototype.end.call(builder);
         };

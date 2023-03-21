@@ -16,7 +16,7 @@ class ImportBuilder extends AbstractBuilder {
     }
 
     optional(optional = true) {
-        this._optional = true;
+        this._optional = optional;
         return this;
     }
 

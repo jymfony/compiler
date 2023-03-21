@@ -17,7 +17,7 @@ class ObjectMethodBuilder extends FunctionBuilder {
         __assert(1 === this._children.length);
         this._parent._add(new AST.ObjectMethod(null, this._children[0], this._name, this._kind, this._args, {
             generator: this._generator,
-            async: this._async
+            async: this._async,
         }));
 
         return Builder.prototype.end.call(this);

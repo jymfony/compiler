@@ -22,7 +22,7 @@ class BinaryExpressionBuilder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._left = children[0];
             return Builder.prototype.end.call(builder);
         };
@@ -37,10 +37,10 @@ class BinaryExpressionBuilder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._right = children[0];
             return Builder.prototype.end.call(builder);
-        }
+        };
 
         return builder;
     }

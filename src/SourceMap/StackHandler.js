@@ -137,4 +137,4 @@ module.exports = StackHandler;
 const previous = Error.prepareStackTrace;
 Error.prepareStackTrace = function (error, stack) {
     return StackHandler.prepareStackTrace(error, stack, previous ? previous(error, stack) : undefined);
-}
+};

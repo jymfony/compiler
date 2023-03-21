@@ -24,7 +24,7 @@ class DoWhileBuilder extends Builder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._test = children[0];
             return Builder.prototype.end.call(builder);
         };
@@ -34,7 +34,7 @@ class DoWhileBuilder extends Builder {
 
     end() {
         __assert(null !== this._test);
-        __assert(this._children.length < 2);
+        __assert(2 > this._children.length);
         this._parent._add(new AST.DoWhileStatement(null, this._test, this._children[0] || new AST.EmptyStatement(null)));
 
         return super.end();

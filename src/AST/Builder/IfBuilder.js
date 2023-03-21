@@ -19,7 +19,7 @@ class IfBuilder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._test = children[0];
 
             return Builder.prototype.end.call(builder);
@@ -32,7 +32,7 @@ class IfBuilder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._consequent = children[0];
 
             return Builder.prototype.end.call(builder);
@@ -45,7 +45,7 @@ class IfBuilder extends AbstractBuilder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length <= 1);
+            __assert(1 >= children.length);
             this._alternate = children[0] || null;
 
             return Builder.prototype.end.call(builder);

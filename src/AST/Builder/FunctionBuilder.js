@@ -24,7 +24,7 @@ class FunctionBuilder extends Builder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length === 1);
+            __assert(1 === children.length);
             this._name = children[0];
             return Builder.prototype.end.call(builder);
         };
@@ -55,12 +55,12 @@ class FunctionBuilder extends Builder {
             __assert(null !== this._name);
             this._parent._add(new AST.FunctionStatement(null, this._children[0], this._name, this._args, {
                 generator: this._generator,
-                async: this._async
+                async: this._async,
             }));
         } else {
             this._parent._add(new AST.FunctionExpression(null, this._children[0], this._name, this._args, {
                 generator: this._generator,
-                async: this._async
+                async: this._async,
             }));
         }
 

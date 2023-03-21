@@ -16,7 +16,7 @@ class VariableBuilder extends Builder {
         const builder = new Builder(this, true);
         builder.end = () => {
             const children = builder._children;
-            __assert(children.length <= 1);
+            __assert(1 >= children.length);
             this._add(new AST.VariableDeclarator(null, name, children[0] || null));
 
             return Builder.prototype.end.call(builder);
