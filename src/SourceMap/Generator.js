@@ -1,7 +1,7 @@
-const Base64VLQ = require('./Base64VLQ');
-const Mapping = require('./Mapping');
+const { Mapping, base64vlq_encode } = require('../../lib');
 const MappingList = require('./MappingList');
 const Parser = require('./Parser');
+const { Position } = require('../AST');
 
 /**
  * An instance of the SourceMapGenerator represents a source map which is
@@ -81,10 +81,10 @@ class Generator {
             }
 
             // Check if it can be mapped by the source map, then update the mapping.
-            const [ original, result ] = originalMappings.search({
-                generatedLine: mapping.originalLine,
-                generatedColumn: mapping.originalColumn,
-            }) || [ null, false ];
+            const [ original, result ] = originalMappings.search(new Mapping(new Position(
+                mapping.originalLine,
+                mapping.originalColumn,
+            ))) || [ null, false ];
 
             if (! result) {
                 return false;
@@ -226,19 +226,19 @@ class Generator {
                 next += ',';
             }
 
-            next += Base64VLQ.encode(mapping.generatedColumn - previousGeneratedColumn);
+            next += base64vlq_encode(mapping.generatedColumn - previousGeneratedColumn);
             previousGeneratedColumn = mapping.generatedColumn;
 
-            if (null != mapping.source) {
+            if (mapping.originalLine !== undefined && mapping.originalColumn !== undefined) {
                 sourceIdx = 0;
-                next += Base64VLQ.encode(sourceIdx - previousSource);
+                next += base64vlq_encode(sourceIdx - previousSource);
                 previousSource = sourceIdx;
 
                 // Lines are stored 0-based in SourceMap spec version 3
-                next += Base64VLQ.encode(mapping.originalLine - 1 - previousOriginalLine);
+                next += base64vlq_encode(mapping.originalLine - 1 - previousOriginalLine);
                 previousOriginalLine = mapping.originalLine - 1;
 
-                next += Base64VLQ.encode(mapping.originalColumn - previousOriginalColumn);
+                next += base64vlq_encode(mapping.originalColumn - previousOriginalColumn);
                 previousOriginalColumn = mapping.originalColumn;
             }
 

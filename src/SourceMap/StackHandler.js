@@ -1,4 +1,6 @@
+const { Mapping } = require('../../lib');
 const Parser = require('./Parser');
+const { Position } = require('../AST');
 
 /**
  * @type {HashTable}
@@ -26,10 +28,10 @@ class StackHandler {
                 }
 
                 const fileMapping = fileMappings.get(fileName);
-                const [ mapping, result ] = fileMapping.search({
-                    generatedLine: frame.getLineNumber(),
-                    generatedColumn: frame.getColumnNumber(),
-                }, BTree.COMPARISON_LESSER) || [ null, false ];
+                const [ mapping, result ] = fileMapping.search(new Mapping(new Position(
+                    frame.getLineNumber(),
+                    frame.getColumnNumber(),
+                )), BTree.COMPARISON_LESSER) || [ null, false ];
 
                 if (!result) {
                     newStack.push(frame);

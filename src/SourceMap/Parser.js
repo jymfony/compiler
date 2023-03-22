@@ -1,5 +1,4 @@
-const Base64VLQ = require('./Base64VLQ');
-const Mapping = require('./Mapping');
+const { Mapping, base64vlq_decode } = require('../../lib');
 const Position = require('../AST/Position');
 
 const _charIsMappingSeparator = (str, index) => ';' === str[index] || ',' === str[index];
@@ -15,8 +14,6 @@ class Parser {
         let previousGeneratedColumn = 0;
         let previousOriginalLine = 0;
         let previousOriginalColumn = 0;
-        let previousSource = 0;
-        let previousName = 0;
         const length = mappings.length;
         let index = 0;
         const cachedSegments = {};
@@ -53,7 +50,7 @@ class Parser {
                 } else {
                     segment = [];
                     while (index < end) {
-                        [ value, index ] = Base64VLQ.decode(mappings, index);
+                        [ value, index ] = base64vlq_decode(mappings, index);
                         segment.push(value);
                     }
 
@@ -72,10 +69,6 @@ class Parser {
                 previousGeneratedColumn = mapping.generatedColumn;
 
                 if (1 < segment.length) {
-                    // Original source.
-                    mapping.source = previousSource + segment[1];
-                    previousSource += segment[1];
-
                     // Original line.
                     mapping.originalLine = previousOriginalLine + segment[2];
                     previousOriginalLine = mapping.originalLine;
@@ -85,12 +78,6 @@ class Parser {
                     // Original column.
                     mapping.originalColumn = previousOriginalColumn + segment[3];
                     previousOriginalColumn = mapping.originalColumn;
-
-                    if (4 < segment.length) {
-                        // Original name.
-                        mapping.name = previousName + segment[4];
-                        previousName += segment[4];
-                    }
                 }
 
                 generatedMappings.push(mapping);
