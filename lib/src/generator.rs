@@ -2,7 +2,7 @@ use crate::base64_vlq::base64vlq_encode;
 use crate::mapping::{Mapping, MappingList};
 use crate::parser::parse_mappings;
 use crate::Position;
-use js_sys::{JsString, JSON};
+use js_sys::{Array, JsString, JSON};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
@@ -50,7 +50,7 @@ pub struct Generator {
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct JsonMapping {
+struct SerializedMapping {
     version: i32,
     sources: Vec<String>,
     mappings: String,
@@ -168,6 +168,15 @@ impl Generator {
         Ok(())
     }
 
+    #[wasm_bindgen(js_name = getMappings)]
+    pub fn get_mappings(&self) -> Array {
+        self.mappings
+            .get_vec()
+            .iter()
+            .map(|&m| JsValue::from(m.clone()))
+            .collect()
+    }
+
     /// Set the source content for a source file.
     #[wasm_bindgen(setter = sourceContent)]
     pub fn set_source_content(&mut self, content: &str) {
@@ -178,7 +187,7 @@ impl Generator {
     /// Externalize the source map.
     #[wasm_bindgen(js_name = toJSON)]
     pub fn get_json(&mut self) -> JsValue {
-        let map = JsonMapping {
+        let map = SerializedMapping {
             version: 3,
             sources: self.sources.clone(),
             mappings: self.serialize_mappings(),
@@ -197,7 +206,7 @@ impl Generator {
 
     /// Serialize the accumulated mappings in to the stream of base 64 VLQs
     /// specified by the source map format.
-    fn serialize_mappings(&mut self) -> String {
+    fn serialize_mappings(&self) -> String {
         let mut previous_generated_column = 0;
         let mut previous_generated_line = 1;
         let mut previous_original_column = 0;

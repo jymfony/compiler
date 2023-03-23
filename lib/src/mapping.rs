@@ -1,19 +1,44 @@
 use crate::Position;
+use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
+use std::collections::BTreeSet;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_derive::TryFromJsValue;
 
 #[derive(TryFromJsValue)]
 #[wasm_bindgen(inspectable)]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Mapping {
     pub(crate) generated_line: i32,
     pub(crate) generated_column: i32,
     pub(crate) original_line: Option<i32>,
     pub(crate) original_column: Option<i32>,
     source: Option<String>,
+    #[serde(skip_serializing)]
     source_index: Option<u32>,
     name: Option<String>,
+    #[serde(skip_serializing)]
     name_index: Option<u32>,
+}
+
+impl Eq for Mapping {}
+impl PartialEq<Self> for Mapping {
+    fn eq(&self, other: &Self) -> bool {
+        self.compare_by_generated_positions_inflated(other) == 0
+    }
+}
+
+impl PartialOrd<Self> for Mapping {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Mapping {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.compare_by_generated_positions_inflated(other).cmp(&0)
+    }
 }
 
 #[wasm_bindgen]
@@ -153,24 +178,8 @@ impl Mapping {
     }
 }
 
-/// Determine whether mapping_b is after mapping_a with respect to generated
-/// position.
-fn generated_position_after(mapping_a: &Mapping, mapping_b: &Mapping) -> bool {
-    // Optimized for most common case
-    let line_a = mapping_a.generated_line;
-    let line_b = mapping_b.generated_line;
-    let column_a = mapping_a.generated_column;
-    let column_b = mapping_b.generated_column;
-
-    line_b > line_a
-        || line_b == line_a && column_b >= column_a
-        || mapping_a.compare_by_generated_positions_inflated(mapping_b) > 0
-}
-
 pub struct MappingList {
-    array: Vec<Mapping>,
-    sorted: bool,
-    last: Mapping,
+    array: BTreeSet<Mapping>,
 }
 
 impl Default for MappingList {
@@ -185,32 +194,13 @@ impl Default for MappingList {
 impl MappingList {
     pub fn new() -> Self {
         Self {
-            array: vec![],
-            sorted: true,
-
-            // Serves as infimum
-            last: Mapping {
-                generated_line: -1,
-                generated_column: 0,
-                ..Default::default()
-            },
+            array: BTreeSet::new(),
         }
     }
 
     /// Add the given source mapping.
     pub fn add(&mut self, mapping: Mapping) {
-        if generated_position_after(&self.last, &mapping) {
-            self.last = mapping.clone();
-            self.array.push(mapping);
-        } else {
-            self.sorted = false;
-            self.array.push(mapping);
-        }
-    }
-
-    pub(crate) fn sort(&mut self) {
-        self.array.sort_by(|a, b| a.compare_by_generated_positions_inflated(b).cmp(&0));
-        self.sorted = true;
+        self.array.insert(mapping);
     }
 
     /// Returns the flat, sorted array of mappings. The mappings are sorted by
@@ -220,17 +210,12 @@ impl MappingList {
     /// performance. The return value must NOT be mutated, and should be treated as
     /// an immutable borrow. If you want to take ownership, you must make your own
     /// copy.
-    pub fn get_vec(&'_ mut self) -> &'_ Vec<Mapping> {
-        if !self.sorted {
-            self.sort();
-        }
-
-        self.array.as_ref()
+    pub fn get_vec(&'_ self) -> Vec<&'_ Mapping> {
+        self.array.iter().collect()
     }
 
     /// Execute forEach on unsorted mappings.
     pub fn map<F: FnMut(&Mapping) -> Option<Mapping>>(&mut self, predicate: F) {
         self.array = self.array.iter().filter_map(predicate).collect();
-        self.sorted = false;
     }
 }

@@ -906,7 +906,7 @@ new x(true);
         const compiler = new Compiler(gen);
 
         const compiled = compiler.compile(program);
-        StackHandler.registerSourceMap('x.js', gen.toJSON().mappings);
+        StackHandler.registerSourceMap('x.js', gen.getMappings());
         gen.free();
 
         try {
@@ -948,7 +948,7 @@ new x(true);
         const genStep2 = new Generator('x.ts');
         const compiler2 = new Compiler(genStep2);
         const recompiled = compiler2.compile(this._parser.parse(compiled));
-        StackHandler.registerSourceMap('x.ts', genStep2.toJSON().mappings);
+        StackHandler.registerSourceMap('x.ts', genStep2.getMappings());
         genStep2.free();
 
         try {

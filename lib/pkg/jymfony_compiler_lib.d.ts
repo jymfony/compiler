@@ -31,6 +31,10 @@ export class Generator {
 */
   applyMapping(original: string, sources: (string)[], sources_content: (string)[]): void;
 /**
+* @returns {Array<any>}
+*/
+  getMappings(): Array<any>;
+/**
 * Externalize the source map.
 * @returns {any}
 */

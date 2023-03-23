@@ -113,7 +113,7 @@ class StackHandler {
      * Registers a source map.
      *
      * @param {string} filename
-     * @param {string} mappings
+     * @param {string | object} mappings
      */
     static registerSourceMap(filename, mappings) {
         if (undefined === fileMappings) {
@@ -121,16 +121,31 @@ class StackHandler {
                 pendingMappings[filename] = mappings;
                 return;
             }
+
             fileMappings = new HashTable();
             for (const [ key, value ] of __jymfony.getEntries(pendingMappings)) {
-                fileMappings.put(key, parseMappings(value));
+                fileMappings.put(key, StackHandler._convertMappings(value));
             }
 
             pendingMappings = {};
 
         }
 
-        fileMappings.put(filename, parseMappings(mappings));
+        fileMappings.put(filename, StackHandler._convertMappings(mappings));
+    }
+
+    static _convertMappings(value) {
+        if (isString(value)) {
+            value = parseMappings(value);
+        } else if (isArray(value)) {
+            const tree = new BTree(Mapping.compareByGeneratedPositionsDeflated);
+            value.forEach(m => tree.push(m, true));
+            value = tree;
+        } else {
+            throw new Error('Unexpected value');
+        }
+
+        return value;
     }
 }
 
