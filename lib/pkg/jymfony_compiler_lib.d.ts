@@ -1,26 +1,66 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-*
-* * Returns the base 64 VLQ encoded value.
-* 
-* @param {number} value
-* @returns {string}
+* @param {string} mappings
+* @returns {any}
 */
-export function base64vlq_encode(value: number): string;
+export function parseMappings(mappings: string): any;
+/**
+*/
+export class Generator {
+  free(): void;
 /**
 *
-* * Decodes the next base 64 VLQ value from the given string.
-* 
-* @param {string} str
-* @param {number} index
-* @returns {Int32Array}
+*    /// Constructor.
+*     
+* @param {string | undefined} file
+* @param {boolean | undefined} skip_validation
 */
-export function base64vlq_decode(str: string, index: number): Int32Array;
+  constructor(file?: string, skip_validation?: boolean);
+/**
+* Add a single mapping from original source line and column to the generated
+* source's line and column for this source map being created.
+* @param {any} generated
+* @param {any | undefined} original
+*/
+  addMapping(generated: any, original?: any): void;
+/**
+* @param {string} original
+* @param {(string)[]} sources
+* @param {(string)[]} sources_content
+*/
+  applyMapping(original: string, sources: (string)[], sources_content: (string)[]): void;
+/**
+* Externalize the source map.
+* @returns {any}
+*/
+  toJSON(): any;
+/**
+* Render the source map being generated to a string.
+* @returns {string}
+*/
+  toString(): string;
+/**
+* Set the source content for a source file.
+*/
+  sourceContent: string;
+}
 /**
 */
 export class Mapping {
+/**
+** Return copy of self without private attributes.
+*/
+  toJSON(): Object;
+/**
+* Return stringified version of self.
+*/
+  toString(): string;
   free(): void;
+/**
+* @returns {string}
+*/
+  __getClassname(): string;
 /**
 * @param {any} generated
 * @param {any | undefined} original
@@ -29,19 +69,35 @@ export class Mapping {
 */
   constructor(generated: any, original?: any, source?: string, name?: string);
 /**
-*
-*     * Comparator between two mappings with inflated source and name strings where
-*     * the generated positions are compared.
-*     
+* @returns {number | undefined}
+*/
+  source_index(): number | undefined;
+/**
+* @param {string | undefined} val
+*/
+  set_source(val?: string): void;
+/**
+* @param {number | undefined} val
+*/
+  set_source_index(val?: number): void;
+/**
+* @param {string | undefined} val
+*/
+  set_name(val?: string): void;
+/**
+* @param {number | undefined} val
+*/
+  set_name_index(val?: number): void;
+/**
+* Comparator between two mappings with inflated source and name strings where
+* the generated positions are compared.
 * @param {Mapping} other
 * @returns {number}
 */
-  compareByGeneratedPositionsInflated(other: Mapping): number;
+  compare_by_generated_positions_inflated(other: Mapping): number;
 /**
-*
-*     * Comparator between two mappings with deflated source and name indices where
-*     * the generated positions are compared.
-*     
+* Comparator between two mappings with deflated source and name indices where
+* the generated positions are compared.
 * @param {Mapping} _this
 * @param {Mapping} other
 * @returns {number}
@@ -49,20 +105,20 @@ export class Mapping {
   static compareByGeneratedPositionsDeflated(_this: Mapping, other: Mapping): number;
 /**
 */
-  generatedColumn: number;
+  readonly generatedColumn: number;
 /**
 */
-  generatedLine: number;
+  readonly generatedLine: number;
 /**
 */
-  name?: string;
+  readonly name: string | undefined;
 /**
 */
-  originalColumn?: number;
+  readonly originalColumn: number | undefined;
 /**
 */
-  originalLine?: number;
+  readonly originalLine: number | undefined;
 /**
 */
-  source?: string;
+  readonly source: string | undefined;
 }

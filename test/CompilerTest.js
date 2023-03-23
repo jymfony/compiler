@@ -1,13 +1,17 @@
 import { runInNewContext, runInThisContext } from 'vm';
 import seedrandom from 'seedrandom';
+import { Generator } from '../lib';
+
+seedrandom('typeId', { global: true });
+import { getNextTypeId } from '../src/TypeId';
 
 const AST = require('../src/AST');
 const Compiler = require('../src/Compiler');
-const Generator = require('../src/SourceMap/Generator');
 const Parser = require('../src/Parser');
 const NullGenerator = Jymfony.Compiler.Tests.NullGenerator;
 const StackHandler = require('../src/SourceMap/StackHandler');
 const TestCase = Jymfony.Component.Testing.Framework.TestCase;
+global.reflectionIdStart = 0;
 
 export default class CompilerTest extends TestCase {
     /**
@@ -22,13 +26,29 @@ export default class CompilerTest extends TestCase {
      */
     _compiler;
 
+    /**
+     * @type {NullGenerator}
+     *
+     * @private
+     */
+    _sourceMapGenerator;
+
     get testCaseName() {
         return '[Compiler] ' + super.testCaseName;
     }
 
+    before() {
+        global.reflectionIdStart = getNextTypeId() + 8;
+        this._sourceMapGenerator = new NullGenerator();
+    }
+
+    after() {
+        this._sourceMapGenerator.free();
+    }
+
     beforeEach() {
         this._parser = new Parser();
-        this._compiler = new Compiler(new NullGenerator());
+        this._compiler = new Compiler(this._sourceMapGenerator);
     }
 
     testShouldCorrectlyCompileDoWhileWithoutBlock() {
@@ -882,11 +902,12 @@ new x();
 new x(true);
 `);
 
-        const gen = new Generator({ file: 'x.js', skipValidation: true });
+        const gen = new Generator('x.js', true);
         const compiler = new Compiler(gen);
 
         const compiled = compiler.compile(program);
         StackHandler.registerSourceMap('x.js', gen.toJSON().mappings);
+        gen.free();
 
         try {
             runInNewContext(compiled, { Symbol, __jymfony }, { filename: 'x.js' });
@@ -919,14 +940,16 @@ new x();
 new x(true);
 `);
 
-        const gen = new Generator({ file: 'x.ts' });
+        const gen = new Generator('x.ts');
         const compiler = new Compiler(gen);
         const compiled = compiler.compile(program);
+        gen.free();
 
-        const genStep2 = new Generator({ file: 'x.ts' });
+        const genStep2 = new Generator('x.ts');
         const compiler2 = new Compiler(genStep2);
         const recompiled = compiler2.compile(this._parser.parse(compiled));
         StackHandler.registerSourceMap('x.ts', genStep2.toJSON().mappings);
+        genStep2.free();
 
         try {
             runInNewContext(recompiled, { Symbol }, { filename: 'x.ts' });
@@ -1540,7 +1563,7 @@ class TestAnnotation extends __jymfony.JObject {
       writable: false,
       enumerable: false,
       configurable: true,
-      value: ${reflectionIdStart+=19},
+      value: ${reflectionIdStart+=21},
     });
     Object.defineProperty(TestAnnotation,Symbol.metadata,{
       writable: false,

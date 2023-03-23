@@ -26,12 +26,10 @@ const VLQ_BASE_MASK: i32 = VLQ_BASE - 1;
 // Binary: 100000
 const VLQ_CONTINUATION_BIT: i32 = VLQ_BASE;
 
-/**
- * Converts from a two-complement value to a value where the sign bit is
- * placed in the least significant bit.  For example, as decimals:
- *   1 becomes 2 (10 binary), -1 becomes 3 (11 binary)
- *   2 becomes 4 (100 binary), -2 becomes 5 (101 binary)
- */
+/// Converts from a two-complement value to a value where the sign bit is
+/// placed in the least significant bit.  For example, as decimals:
+///  1 becomes 2 (10 binary), -1 becomes 3 (11 binary)
+///  2 becomes 4 (100 binary), -2 becomes 5 (101 binary)
 fn to_vlq_signed(value: i32) -> i32 {
     if 0 > value {
         ((-value) << 1) + 1
@@ -40,12 +38,10 @@ fn to_vlq_signed(value: i32) -> i32 {
     }
 }
 
-/**
- * Converts to a two-complement value from a value where the sign bit is
- * placed in the least significant bit.  For example, as decimals:
- *   2 (10 binary) becomes 1, 3 (11 binary) becomes -1
- *   4 (100 binary) becomes 2, 5 (101 binary) becomes -2
- */
+/// Converts to a two-complement value from a value where the sign bit is
+/// placed in the least significant bit.  For example, as decimals:
+///  2 (10 binary) becomes 1, 3 (11 binary) becomes -1
+///  4 (100 binary) becomes 2, 5 (101 binary) becomes -2
 fn from_vlq_signed(value: i32) -> i32 {
     if 1 == (value & 1) {
         -(value >> 1)
@@ -54,10 +50,7 @@ fn from_vlq_signed(value: i32) -> i32 {
     }
 }
 
-/**
- * Returns the base 64 VLQ encoded value.
- */
-#[wasm_bindgen]
+/// Returns the base 64 VLQ encoded value.
 pub fn base64vlq_encode(value: i32) -> String {
     let mut encoded = String::new();
     let mut digit;
@@ -108,10 +101,7 @@ impl Debug for DecodeError {
     }
 }
 
-/**
- * Decodes the next base 64 VLQ value from the given string.
- */
-#[wasm_bindgen]
+/// Decodes the next base 64 VLQ value from the given string.
 pub fn base64vlq_decode(str: &str, mut index: usize) -> Result<Vec<i32>, DecodeError> {
     let str_len = str.len();
     let chars: Vec<char> = str.chars().collect();

@@ -1,6 +1,6 @@
 const AST = require('./AST');
-const Generator = require('./SourceMap/Generator');
 const vm = require('vm');
+const {Generator} = require('../lib');
 
 if (undefined === Object.getOwnPropertyDescriptor(Symbol, 'metadata')) {
     Object.defineProperty(Symbol, 'metadata', {
@@ -94,6 +94,18 @@ class Compiler {
          * @type {int}
          */
         this.indentationLevel = 0;
+
+        this._pushLocation = 1 === this._sourceMapGenerator.addMapping.length ? location => {
+            this._sourceMapGenerator.addMapping({
+                generated: new AST.Position(this._line, this._column),
+                original: null !== location ? location.start : null,
+            });
+        } : location => {
+            this._sourceMapGenerator.addMapping(
+                new AST.Position(this._line, this._column),
+                null !== location ? location.start : null,
+            );
+        };
     }
 
     /**
@@ -137,10 +149,7 @@ class Compiler {
         const location = node.location;
 
         this._locations.push(location);
-        this._sourceMapGenerator.addMapping({
-            generated: new AST.Position(this._line, this._column),
-            original: null !== location ? location.start : null,
-        });
+        this._pushLocation(location);
     }
 
     /**
@@ -276,11 +285,13 @@ class Compiler {
                     }
 
                     if (undefined !== $default) {
-                        const compiler = new Compiler(new Generator({ skipValidation: true }));
+                        const generator = new Generator(undefined, true);
                         try {
+                            const compiler = new Compiler(generator);
                             $default = vm.runInNewContext(compiler.compile($default));
                         } catch (e) {
                             $default = undefined;
+                            generator.free();
                         }
                     }
 

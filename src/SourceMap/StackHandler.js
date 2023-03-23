@@ -1,6 +1,5 @@
-const { Mapping } = require('../../lib');
-const Parser = require('./Parser');
-const { Position } = require('../AST');
+const { Mapping, parseMappings } = require('../../lib');
+const Position = require('../AST/Position');
 
 /**
  * @type {HashTable}
@@ -124,14 +123,14 @@ class StackHandler {
             }
             fileMappings = new HashTable();
             for (const [ key, value ] of __jymfony.getEntries(pendingMappings)) {
-                fileMappings.put(key, Parser.parseMappings(value));
+                fileMappings.put(key, parseMappings(value));
             }
 
             pendingMappings = {};
 
         }
 
-        fileMappings.put(filename, Parser.parseMappings(mappings));
+        fileMappings.put(filename, parseMappings(mappings));
     }
 }
 

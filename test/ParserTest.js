@@ -1,6 +1,7 @@
 import { dirname, sep } from 'path';
 import { readdirSync, readFileSync } from 'fs';
 import { compileFunction } from 'vm';
+import {getNextTypeId} from '../src/TypeId';
 
 const AST = require('../src/AST');
 const ASTComparator = Jymfony.Compiler.Tests.ASTComparator;
@@ -13,7 +14,6 @@ const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 const IsEqual = Jymfony.Component.Testing.Constraints.IsEqual;
 
 const folder = dirname(require.resolve('test262-parser-tests/package.json'));
-global.reflectionIdStart = 390900;
 
 const excluded = [
     '06f0deb843fbf358.js', // With statement. Not supported: all the generated code is in strict mode.
@@ -77,8 +77,23 @@ export default class ParserTest extends TestCase {
      */
     _parser;
 
+    /**
+     * @type {NullGenerator}
+     *
+     * @private
+     */
+    _sourceMapGenerator;
+
     get testCaseName() {
         return '[Compiler] ' + super.testCaseName;
+    }
+
+    before() {
+        this._sourceMapGenerator = new NullGenerator();
+    }
+
+    after() {
+        this._sourceMapGenerator.free();
     }
 
     beforeEach() {
@@ -123,7 +138,7 @@ export default class ParserTest extends TestCase {
         const content = readFileSync(fn, { encoding: 'utf-8' });
         const program = this._parser.parse(content);
 
-        const compiler = new Compiler(new NullGenerator());
+        const compiler = new Compiler(this._sourceMapGenerator);
         const compiled = compiler.compile(program);
 
         __self.assertNotNull(program);
