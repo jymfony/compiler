@@ -1,4 +1,1 @@
-export { Generator } from '../../lib';
-import StackHandler = require('./StackHandler');
-
-export { StackHandler };
+export { Generator, registerSourceMap } from '../../lib';

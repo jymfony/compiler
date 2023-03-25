@@ -1,6 +1,6 @@
-use crate::base64_vlq::base64vlq_encode;
-use crate::mapping::{Mapping, MappingList};
-use crate::parser::parse_mappings;
+use super::base64_vlq::base64vlq_encode;
+use super::mapping::{Mapping, MappingList};
+use super::parser::parse_mappings;
 use crate::Position;
 use js_sys::{Array, JsString, JSON};
 use serde::{Deserialize, Serialize};

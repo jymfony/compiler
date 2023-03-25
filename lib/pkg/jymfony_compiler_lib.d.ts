@@ -6,6 +6,23 @@
 */
 export function parseMappings(mappings: string): any;
 /**
+* Prepares stack trace using V8 stack trace API.
+* @param {any} error
+* @param {any[]} stack
+* @param {string | undefined} previous
+* @returns {string}
+*/
+export function prepareStackTrace(error: any, stack: any[], previous?: string): string;
+/**
+* Registers a source map.
+* @param {string} filename
+* @param {any} mappings
+*/
+export function registerSourceMap(filename: string, mappings: any): void;
+/**
+*/
+export function main(): void;
+/**
 */
 export class Generator {
   free(): void;

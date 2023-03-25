@@ -8,8 +8,8 @@ import { getNextTypeId } from '../src/TypeId';
 const AST = require('../src/AST');
 const Compiler = require('../src/Compiler');
 const Parser = require('../src/Parser');
+const { registerSourceMap } = require('../src/SourceMap');
 const NullGenerator = Jymfony.Compiler.Tests.NullGenerator;
-const StackHandler = require('../src/SourceMap/StackHandler');
 const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 global.reflectionIdStart = 0;
 
@@ -906,7 +906,7 @@ new x(true);
         const compiler = new Compiler(gen);
 
         const compiled = compiler.compile(program);
-        StackHandler.registerSourceMap('x.js', gen.getMappings());
+        registerSourceMap('x.js', gen.getMappings());
         gen.free();
 
         try {
@@ -948,7 +948,7 @@ new x(true);
         const genStep2 = new Generator('x.ts');
         const compiler2 = new Compiler(genStep2);
         const recompiled = compiler2.compile(this._parser.parse(compiled));
-        StackHandler.registerSourceMap('x.ts', genStep2.getMappings());
+        registerSourceMap('x.ts', genStep2.getMappings());
         genStep2.free();
 
         try {

@@ -1,5 +1,5 @@
-use crate::base64_vlq::base64vlq_decode;
-use crate::mapping::Mapping;
+use super::base64_vlq::base64vlq_decode;
+use super::mapping::Mapping;
 use crate::{BTree, Position};
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;

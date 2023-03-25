@@ -1,4 +1,4 @@
-use crate::base64;
+use super::base64;
 use std::convert::TryInto;
 use std::fmt::{Debug, Formatter};
 use wasm_bindgen::prelude::*;
@@ -102,7 +102,7 @@ impl Debug for DecodeError {
 }
 
 /// Decodes the next base 64 VLQ value from the given string.
-pub fn base64vlq_decode(str: &str, mut index: usize) -> Result<Vec<i32>, DecodeError> {
+pub fn base64vlq_decode(str: &str, mut index: usize) -> Result<[i32; 2], DecodeError> {
     let str_len = str.len();
     let chars: Vec<char> = str.chars().collect();
     let mut result: i32 = 0;
@@ -134,5 +134,5 @@ pub fn base64vlq_decode(str: &str, mut index: usize) -> Result<Vec<i32>, DecodeE
         }
     }
 
-    Ok(vec![from_vlq_signed(result), index.try_into().unwrap()])
+    Ok([from_vlq_signed(result), index.try_into().unwrap()])
 }

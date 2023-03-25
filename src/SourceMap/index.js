@@ -1,7 +1,6 @@
-const { Generator } = require('../../lib');
-const StackHandler = require('./StackHandler');
+const { Generator, registerSourceMap } = require('../../lib');
 
 module.exports = {
     Generator,
-    StackHandler,
+    registerSourceMap,
 };
