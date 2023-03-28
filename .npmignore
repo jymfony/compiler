@@ -16,3 +16,4 @@ fixtures
 lib/target
 lib/tests
 !lib/pkg
+lib/Cargo.*
