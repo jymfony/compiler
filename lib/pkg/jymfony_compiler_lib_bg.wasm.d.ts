@@ -25,7 +25,7 @@ export function generator_new(a: number, b: number, c: number): number;
 export function generator_addMapping(a: number, b: number, c: number, d: number): void;
 export function generator_applyMapping(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): void;
 export function generator_getMappings(a: number): number;
-export function generator_set_source_content(a: number, b: number, c: number): void;
+export function generator_set_source_content(a: number, b: number): void;
 export function generator_toJSON(a: number): number;
 export function generator_toString(a: number, b: number): void;
 export function main(): void;

@@ -64,7 +64,7 @@ export class Generator {
 /**
 * Set the source content for a source file.
 */
-  sourceContent: string;
+  sourceContent: any;
 }
 /**
 */

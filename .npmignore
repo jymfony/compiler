@@ -1,5 +1,6 @@
 .eslint*
 .idea
+.github
 .travis.yml
 .scrutinizer.yml
 *.log
@@ -12,3 +13,6 @@ package-lock.json
 test/
 tests.js
 fixtures
+lib/target
+lib/tests
+!lib/pkg

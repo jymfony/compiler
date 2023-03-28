@@ -67,12 +67,19 @@ impl Generator {
      */
     #[wasm_bindgen(constructor)]
     pub fn new(file: Option<String>, skip_validation: Option<bool>) -> Self {
+        let mut sources = vec![];
+        let mut sources_content = vec![];
+        if let Some(file) = &file {
+            sources.push(file.clone());
+            sources_content.push(None);
+        }
+
         Self {
             file,
             skip_validation: skip_validation.unwrap_or(false),
-            sources: vec![],
+            sources,
             mappings: MappingList::new(),
-            sources_content: vec![None],
+            sources_content,
         }
     }
 
@@ -179,9 +186,12 @@ impl Generator {
 
     /// Set the source content for a source file.
     #[wasm_bindgen(setter = sourceContent)]
-    pub fn set_source_content(&mut self, content: &str) {
-        self.sources_content
-            .splice(0..1, [Some(content.to_string())]);
+    pub fn set_source_content(&mut self, content: JsValue) {
+        if content.is_string() && self.file.is_some() {
+            let content = content.as_string().unwrap();
+            self.sources_content
+                .splice(0..1, [Some(content)]);
+        }
     }
 
     /// Externalize the source map.
