@@ -1,3 +1,4 @@
+use alloc::collections::btree_set::Iter;
 use crate::Position;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -178,6 +179,7 @@ impl Mapping {
     }
 }
 
+#[derive(Clone)]
 pub struct MappingList {
     array: BTreeSet<Mapping>,
 }
@@ -185,6 +187,15 @@ pub struct MappingList {
 impl Default for MappingList {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl<'a> IntoIterator for &'a MappingList {
+    type Item = &'a Mapping;
+    type IntoIter = Iter<'a, Mapping>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        (&self.array).into_iter()
     }
 }
 

@@ -5,6 +5,7 @@ use crate::Position;
 use js_sys::{Array, JsString, JSON};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+use wasm_bindgen_derive::TryFromJsValue;
 
 /// A mapping can have one of the three levels of data:
 ///
@@ -39,12 +40,14 @@ pub fn validate_mapping(generated: &Position, original: Option<&Position>) -> Re
     Ok(())
 }
 
+#[derive(TryFromJsValue)]
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct Generator {
     file: Option<String>,
     sources: Vec<String>,
     skip_validation: bool,
-    mappings: MappingList,
+    pub(crate) mappings: MappingList,
     sources_content: Vec<Option<String>>,
 }
 
@@ -62,9 +65,7 @@ struct SerializedMapping {
 /// being built incrementally.
 #[wasm_bindgen]
 impl Generator {
-    /**
     /// Constructor.
-     */
     #[wasm_bindgen(constructor)]
     pub fn new(file: Option<String>, skip_validation: Option<bool>) -> Self {
         let mut sources = vec![];
@@ -81,6 +82,23 @@ impl Generator {
             mappings: MappingList::new(),
             sources_content,
         }
+    }
+
+    #[wasm_bindgen]
+    pub fn reset(&mut self, file: Option<String>, skip_validation: Option<bool>) {
+        let mut sources = vec![];
+        let mut sources_content = vec![];
+        if let Some(file) = &file {
+            sources.push(file.clone());
+            sources_content.push(None);
+        }
+
+        self.file = file;
+        self.skip_validation = skip_validation.unwrap_or(false);
+        self.sources = sources;
+        self.mappings = MappingList::new();
+        self.sources_content = sources_content;
+
     }
 
     /// Add a single mapping from original source line and column to the generated

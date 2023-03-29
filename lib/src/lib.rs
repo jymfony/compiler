@@ -5,11 +5,10 @@ use wasm_bindgen::prelude::*;
 
 pub mod sourcemap;
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console, js_name = log)]
-    pub fn console_log(txt: String);
-}
+#[wasm_bindgen(typescript_custom_section)]
+const AST_IMPORT: &'static str = r#"
+import { AST } from "@jymfony/compiler";
+"#;
 
 #[wasm_bindgen]
 extern "C" {
@@ -27,6 +26,7 @@ extern "C" {
 
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(typescript_type = "Error")]
     pub type Error;
 
     #[wasm_bindgen(method, getter)]
@@ -49,6 +49,7 @@ extern "C" {
 
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(typescript_type = "NodeJS.CallSite")]
     pub type CallSite;
 
     /// Value of "this"
@@ -134,6 +135,7 @@ extern "C" {
 
 #[wasm_bindgen(raw_module = "../../src/AST")]
 extern "C" {
+    #[wasm_bindgen(typescript_type = "AST.Position")]
     pub type Position;
 
     #[wasm_bindgen(constructor)]

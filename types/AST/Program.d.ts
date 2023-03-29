@@ -24,6 +24,16 @@ declare module "@jymfony/compiler" {
             add(node: NodeInterface): void;
 
             /**
+             * Add source mappings from previous compilation step to current program.
+             */
+            addSourceMappings(...mappings: (object | string)[]): void;
+
+            /**
+             * Gets the previous source mappings.
+             */
+            public readonly sourceMappings: (object | string)[];
+
+            /**
              * Prepares the program body.
              */
             prepare(): void;

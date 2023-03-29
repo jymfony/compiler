@@ -1,5 +1,5 @@
-use crate::sourcemap::mapping::Mapping;
-use crate::sourcemap::parser::parse_mappings;
+use super::mapping::Mapping;
+use super::parser::parse_mappings;
 use crate::{CallSite, Error, Position};
 use js_sys::{Array, JsString};
 use lazy_static::lazy_static;
@@ -8,6 +8,8 @@ use std::collections::{BTreeSet, HashMap};
 use std::sync::RwLock;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
+use crate::sourcemap::mapping::MappingList;
+use super::generator::Generator;
 
 #[derive(Debug)]
 struct SortableMapping(Mapping);
@@ -29,6 +31,17 @@ impl PartialOrd<Self> for SortableMapping {
 impl Ord for SortableMapping {
     fn cmp(&self, other: &Self) -> Ordering {
         Mapping::compare_by_generated_positions_deflated(&self.0, &other.0).cmp(&0)
+    }
+}
+
+impl From<MappingList> for BTreeSet<SortableMapping> {
+    fn from(value: MappingList) -> Self {
+        let mut tree = BTreeSet::new();
+        for mapping in value.into_iter() {
+            tree.insert(SortableMapping(mapping.clone()));
+        }
+
+        tree
     }
 }
 
@@ -202,6 +215,10 @@ pub fn register_source_map(filename: String, mappings: JsValue) -> Result<(), Js
             let mapping = Mapping::try_from(&js_value).unwrap();
             tree.insert(SortableMapping(mapping));
         });
+    } else if let Ok(generator) = Generator::try_from(&mappings) {
+        tree = generator.mappings.into();
+    } else {
+        return Err(JsError::new("Argument #2 passed to registerSourceMap must be a string, an array of Mapping objects or a source map Generator object.").into());
     }
 
     let mut mappings = FILE_MAPPINGS.write().unwrap();
