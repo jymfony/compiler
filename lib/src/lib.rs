@@ -4,6 +4,7 @@ use js_sys::{Array, Function};
 use wasm_bindgen::prelude::*;
 
 pub mod sourcemap;
+pub mod lexer;
 
 #[wasm_bindgen(typescript_custom_section)]
 const AST_IMPORT: &'static str = r#"
